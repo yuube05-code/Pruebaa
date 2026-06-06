@@ -13,6 +13,7 @@
         input { background-color: #0f172a; border: 1px solid #334155; color: white; }
         .btn-primary { background-color: #2563eb; color: white; border: none; cursor: pointer; }
         .btn-secondary { background-color: #10b981; color: white; border: none; cursor: pointer; }
+        .btn-action { background-color: #f59e0b; color: #0b0f19; border: none; cursor: pointer; font-size: 16px; margin-top: 15px;}
         #game-screen { display: none; }
     </style>
 </head>
@@ -30,69 +31,83 @@
     </div>
 
     <div id="game-screen" class="container">
-        <h2 style="color: #10b981;">¡Conectado con éxito!</h2>
-        <p id="datos-jugador" style="font-size: 14px; margin-top: 10px; color: #fbbf24;"></p>
-        <button class="btn-primary" style="background-color: #ef4444; margin-top: 20px;" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <h2 style="color: #10b981;">Refugio Seguro</h2>
+        <p id="datos-jugador" style="font-size: 16px; margin-top: 10px; color: #fbbf24; font-weight: bold;"></p>
+        
+        <button class="btn-action" onclick="cazarMonstruos()">⚔️ Cazar Monstruos</button>
+        
+        <button class="btn-primary" style="background-color: #ef4444; margin-top: 30px;" onclick="cerrarSesion()">Cerrar Sesión</button>
     </div>
 
     <script>
-        // 1. CONEXIÓN CON SUPABASE (Modificada para evitar el error de nombre)
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
         const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // 2. FUNCIÓN: CREAR CUENTA
+        // Variables globales para recordar quién está jugando
+        let miUsuarioId = null;
+        let miOro = 0;
+
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            if(!email || !password) return alert("Por favor, llena ambos campos.");
+            if(!email || !password) return alert("Error: Faltan datos.");
+            
+            const { data, error } = await cliente.auth.signUp({ email: email, password: password });
+            if (error) return alert("Error: " + error.message);
 
-            // Registramos al usuario en la base de datos
-            const { data, error } = await cliente.auth.signUp({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                alert("Error al crear cuenta: " + error.message);
-            } else {
-                // Si se crea con éxito, le creamos su perfil con 50 de oro
-                await cliente.from('perfiles').insert([
-                    { id: data.user.id, username: email.split('@')[0], oro: 50 }
-                ]);
-                alert("¡Cuenta creada! Ya puedes Entrar al Juego.");
-            }
+            const { error: dbError } = await cliente.from('perfiles').insert([
+                { id: data.user.id, username: email.split('@')[0], oro: 50 }
+            ]);
+            
+            if (dbError) return alert("Error al guardar perfil: " + dbError.message);
+            alert("¡Cuenta creada! Ya puedes Entrar al Juego.");
         }
 
-        // 3. FUNCIÓN: INICIAR SESIÓN
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const { data, error } = await cliente.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            const { data, error } = await cliente.auth.signInWithPassword({ email: email, password: password });
+            if (error) return alert("Credenciales incorrectas.");
+
+            const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
+            if (perfil.error) return alert("Error buscando oro.");
+
+            // Guardamos los datos en la memoria del navegador
+            miUsuarioId = data.user.id;
+            miOro = perfil.data.oro;
+
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('datos-jugador').innerText = "Tu Oro: " + miOro + " 💰";
+        }
+
+        // NUEVA FUNCIÓN: CAZAR MONSTRUOS (Actualizar Datos)
+        async function cazarMonstruos() {
+            document.getElementById('datos-jugador').innerText = "Peleando... ⚔️";
+
+            // Calculamos oro al azar entre 1 y 15
+            const oroGanado = Math.floor(Math.random() * 15) + 1;
+            miOro = miOro + oroGanado;
+
+            // Actualizamos la base de datos en Supabase
+            const { error } = await cliente.from('perfiles')
+                .update({ oro: miOro })
+                .eq('id', miUsuarioId);
 
             if (error) {
-                alert("Credenciales incorrectas.");
+                alert("Hubo un error al guardar tu oro: " + error.message);
             } else {
-                // Descargamos su perfil
-                const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
-                
-                // Cambiamos de pantalla
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
-                
-                // Mostramos su oro en pantalla
-                document.getElementById('datos-jugador').innerText = "Tu Oro: " + perfil.data.oro + " 💰";
+                document.getElementById('datos-jugador').innerText = "Tu Oro: " + miOro + " 💰 (Ganaste +" + oroGanado + ")";
             }
         }
 
-        // 4. FUNCIÓN: CERRAR SESIÓN
         async function cerrarSesion() {
             await cliente.auth.signOut();
+            miUsuarioId = null;
+            miOro = 0;
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'block';
             document.getElementById('password').value = '';
