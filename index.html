@@ -3,788 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combatientes RPG - V5</title>
+    <title>Combatientes RPG - Online</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        body {
-            background-color: #0b0f19;
-            color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 6px;
-        }
-
-        .game-container {
-            width: 100%;
-            max-width: 430px;
-            background-color: #1e293b;
-            border: 4px solid #f59e0b;
-            border-radius: 12px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.8);
-        }
-
-        /* Top Bar */
-        .top-bar {
-            display: flex;
-            justify-content: space-between;
-            background-color: #020617;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            border: 1px solid #334155;
-        }
-        .gold-txt { color: #fbbf24; font-weight: bold; }
-
-        /* Tabs Sistema Navegación */
-        .nav-tabs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-        }
-        .tab-btn {
-            background-color: #334155;
-            color: #94a3b8;
-            border: 1px solid #475569;
-            padding: 6px 2px;
-            font-size: 10px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .tab-btn.active {
-            background-color: #f59e0b;
-            color: #020617;
-            border-color: #fef08a;
-        }
-
-        /* Estructura Pantallas */
-        .screen { display: none; }
-        .screen.active { display: flex; flex-direction: column; gap: 10px; }
-
-        /* --- PANTALLA BATALLA --- */
-        .battle-arena {
-            background: linear-gradient(to bottom, #1e1b4b, #0f172a);
-            border-radius: 8px;
-            padding: 10px;
-            border: 2px solid #3b82f6;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .character-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 6px;
-            border-radius: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .reverse { flex-direction: row-reverse; }
-        .sprite { font-size: 42px; }
-        .info-panel { width: 65%; }
-        .meta-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 2px;}
-        
-        .hp-bg { background-color: #475569; border-radius: 3px; overflow: hidden; height: 10px; }
-        .hp-fill { width: 100%; height: 100%; background-color: #22c55e; transition: width 0.3s; }
-        
-        .badge { padding: 1px 4px; border-radius: 3px; font-size: 9px; color: #fff; text-transform: uppercase;}
-        .b-fuego { background-color: #ef4444; }
-        .b-agua { background-color: #3b82f6; }
-        .b-planta { background-color: #10b981; }
-
-        .battle-log {
-            height: 75px;
-            background-color: #020617;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 6px;
-            font-size: 11px;
-            overflow-y: auto;
-            color: #38bdf8;
-        }
-
-        /* Grilla de Acciones */
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        button {
-            padding: 10px 4px; font-size: 11px; font-weight: bold; border-radius: 6px;
-            border: none; cursor: pointer; text-transform: uppercase; color: white;
-        }
-        button:disabled { background-color: #475569 !important; color: #64748b !important; cursor: not-allowed; }
-        
-        .btn-skill { background-color: #2563eb; border-bottom: 3px solid #1d4ed8; }
-        .btn-switch-action { background-color: #6b7280; border-bottom: 3px solid #4b5563; }
-        .btn-system { grid-column: span 2; background-color: #10b981; }
-
-        .bench-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-            background-color: #0f172a;
-            padding: 4px;
-            border-radius: 6px;
-        }
-        .bench-btn { font-size: 9px; padding: 6px 2px; background-color: #334155; }
-
-        /* --- PANTALLA COMBATIENTES --- */
-        .list-container { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
-        .fighter-item {
-            background-color: #334155; padding: 8px; border-radius: 6px;
-            display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569;
-        }
-        .fighter-item.equipped { border: 2px solid #f59e0b; background-color: #1e293b; }
-        .item-desc { font-size: 11px; }
-        .item-actions { display: flex; flex-direction: column; gap: 4px; }
-        .btn-mini { padding: 4px 6px; font-size: 9px; }
-
-        /* --- PANTALLA EXPLORAR Y MINIJUEGO --- */
-        .explore-grid { display: flex; flex-direction: column; gap: 8px; }
-        .zone-card {
-            background-color: #1e1b4b; border: 1px solid #4338ca; padding: 12px; border-radius: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .zone-title { font-weight: bold; font-size: 13px; color: #a5b4fc; }
-
-        /* Estilos específicos del Minijuego de Ritmo */
-        .minigame-box {
-            background-color: #020617;
-            border: 2px dashed #f59e0b;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-        .meter-bg {
-            width: 100%;
-            height: 26px;
-            background-color: #ef4444; /* Zona de fallo total por defecto */
-            border-radius: 13px;
-            position: relative;
-            margin: 15px 0;
-            overflow: hidden;
-            border: 2px solid #475569;
-        }
-        .safe-zone {
-            width: 50%;
-            height: 100%;
-            background-color: #eab308; /* Zona amarilla: Éxito normal */
-            position: absolute;
-            left: 25%;
-        }
-        .perfect-zone {
-            width: 16%;
-            height: 100%;
-            background-color: #22c55e; /* Zona verde: ¡Éxito Crítico! */
-            position: absolute;
-            left: 42%;
-        }
-        .pointer {
-            width: 8px;
-            height: 100%;
-            background-color: #ffffff;
-            position: absolute;
-            left: 0%;
-            box-shadow: 0 0 10px #ffffff;
-        }
-        .btn-action-hit {
-            background-color: #e11d48;
-            width: 100%;
-            padding: 12px;
-            font-size: 14px;
-            border-bottom: 4px solid #9f1239;
-        }
-
-        /* --- PANTALLA TIENDA --- */
-        .shop-list { display: flex; flex-direction: column; gap: 6px; }
-        .shop-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background-color: #334155; padding: 8px; border-radius: 6px; font-size: 11px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #0b0f19; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+        .container { width: 100%; max-width: 400px; background-color: #1e293b; border: 4px solid #f59e0b; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0px 10px 25px rgba(0,0,0,0.8); }
+        input, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        input { background-color: #0f172a; border: 1px solid #334155; color: white; }
+        .btn-primary { background-color: #2563eb; color: white; border: none; cursor: pointer; }
+        .btn-secondary { background-color: #10b981; color: white; border: none; cursor: pointer; }
+        #game-screen { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <div class="top-bar">
-            <div>🎒 Bolsa: <span id="global-balls">🔴 x3</span> | <span id="global-potions">🧪 x2</span></div>
-            <div class="gold-txt" id="global-gold">🪙 Oro: 50</div>
-        </div>
+    <div id="auth-screen" class="container">
+        <h1 style="color: #fbbf24; margin-bottom: 10px;">RPG Online</h1>
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Inicia sesión o regístrate.</p>
+        
+        <input type="email" id="email" placeholder="Correo electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
+        
+        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Juego</button>
+        <button class="btn-secondary" onclick="crearCuenta()">Crear Cuenta Nueva</button>
+    </div>
 
-        <div class="nav-tabs">
-            <button id="t-battle" class="tab-btn active" onclick="changeTab('battle')">⚔️ Batalla</button>
-            <button id="t-fighters" class="tab-btn" onclick="changeTab('fighters')">👾 Equipo</button>
-            <button id="t-explore" class="tab-btn" onclick="changeTab('explore')">🗺️ Explorar</button>
-            <button id="t-shop" class="tab-btn" onclick="changeTab('shop')">🛒 Tienda</button>
-        </div>
-
-        <div id="s-battle" class="screen active">
-            <div class="battle-arena">
-                <div class="character-card reverse">
-                    <div id="e-sprite" class="sprite">🦅</div>
-                    <div class="info-panel">
-                        <div class="meta-row">
-                            <span id="e-name">Pidgey Salvaje</span>
-                            <span id="e-badge" class="badge b-agua">AGUA</span>
-                        </div>
-                        <div class="hp-bg"><div id="e-hp" class="hp-fill"></div></div>
-                        <div id="e-hp-txt" style="font-size:9px; text-align:right;">30/30 HP (Lv.1)</div>
-                    </div>
-                </div>
-                <div class="character-card">
-                    <div id="p-sprite" class="sprite">🔥</div>
-                    <div class="info-panel">
-                        <div class="meta-row">
-                            <span id="p-name">Fighter</span>
-                            <span id="p-badge" class="badge b-fuego">FUEGO</span>
-                        </div>
-                        <div class="hp-bg"><div id="p-hp" class="hp-fill"></div></div>
-                        <div id="p-hp-txt" style="font-size:9px; text-align:right;">50/50 HP (Lv.1)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="log-console" class="battle-log">¡Comienza el duelo táctico elemental!</div>
-
-            <div class="bench-container">
-                <button id="b-bench-0" class="bench-btn" onclick="switchInBattle(0)">P1</button>
-                <button id="b-bench-1" class="bench-btn" onclick="switchInBattle(1)">P2</button>
-                <button id="b-bench-2" class="bench-btn" onclick="switchInBattle(2)">P3</button>
-            </div>
-
-            <div class="actions-grid">
-                <button id="sk-0" class="btn-skill" onclick="triggerSkill(0)">Habilidad 1</button>
-                <button id="sk-1" class="btn-skill" onclick="triggerSkill(1)">Habilidad 2</button>
-                <button id="btn-item-heal" class="btn-switch-action" onclick="battleHeal()">Usar Poción 🧪</button>
-                <button id="btn-item-catch" class="btn-switch-action" onclick="battleCatch()">Lanzar Ball 🔴</button>
-                <button id="btn-next-fight" class="btn-system" style="display:none;" onclick="nextEncounter()">Buscar Siguiente Combate ➡️</button>
-            </div>
-        </div>
-
-        <div id="s-fighters" class="screen">
-            <h4 style="font-size:12px; border-bottom:1px solid #475569; padding-bottom:4px;">Tus Combatientes (Max 3 Equipados)</h4>
-            <div id="fighters-list" class="list-container">
-                </div>
-        </div>
-
-        <div id="s-explore" class="screen">
-            <div id="explore-main-view" class="explore-grid">
-                <h4 style="font-size:12px;">Elige zona para explorar activamente:</h4>
-                <div class="zone-card">
-                    <div>
-                        <div class="zone-title">🔥 Volcán Activo</div>
-                        <p style="font-size:10px; color:#94a3b8;">Dificultad: Rápida | Exp Fuego</p>
-                    </div>
-                    <button class="btn-mini btn-skill" onclick="startExploreMinigame('volcan')">Explorar 🧭</button>
-                </div>
-                <div class="zone-card" style="background-color:#172554; border-color:#1e40af;">
-                    <div>
-                        <div class="zone-title">💧 Cascadas Altas</div>
-                        <p style="font-size:10px; color:#94a3b8;">Dificultad: Media | Exp Agua</p>
-                    </div>
-                    <button class="btn-mini btn-skill" style="background-color:#2563eb;" onclick="startExploreMinigame('cascadas')">Explorar 🧭</button>
-                </div>
-                <div class="zone-card" style="background-color:#062f4f; border-color:#16a34a;">
-                    <div>
-                        <div class="zone-title">🍃 Pradera Verde</div>
-                        <p style="font-size:10px; color:#94a3b8;">Dificultad: Fácil | Exp Planta</p>
-                    </div>
-                    <button class="btn-mini btn-skill" style="background-color:#16a34a;" onclick="startExploreMinigame('pradera')">Explorar 🧭</button>
-                </div>
-            </div>
-
-            <div id="explore-game-view" class="minigame-box">
-                <h3 id="mg-title" style="font-size: 14px; color: #fbbf24;">Explorando...</h3>
-                <p style="font-size: 10px; margin-top:4px; color:#94a3b8;">Presiona el botón cuando el marcador pase por las zonas centrales.</p>
-                
-                <div class="meter-bg">
-                    <div class="safe-zone"></div>
-                    <div class="perfect-zone"></div>
-                    <div id="mg-pointer" class="pointer"></div>
-                </div>
-
-                <button class="btn-action-hit" onclick="stopExploreMinigame()">¡FRENAR ACCIÓN! 🎯</button>
-            </div>
-        </div>
-
-        <div id="s-shop" class="screen">
-            <h4 style="font-size:12px;">Mart de Suministros</h4>
-            <div class="shop-list">
-                <div class="shop-row">
-                    <div><strong>Pokéball de Captura 🔴</strong><br>Coste: 20 Oro</div>
-                    <button class="btn-mini btn-system" onclick="buyItem('ball')">Comprar</button>
-                </div>
-                <div class="shop-row">
-                    <div><strong>Poción Médica 🧪</strong><br>Coste: 15 Oro</div>
-                    <button class="btn-mini btn-system" onclick="buyItem('potion')">Comprar</button>
-                </div>
-            </div>
-        </div>
+    <div id="game-screen" class="container">
+        <h2 style="color: #10b981;">¡Conectado con éxito!</h2>
+        <p id="datos-jugador" style="font-size: 14px; margin-top: 10px; color: #fbbf24;"></p>
+        <button class="btn-primary" style="background-color: #ef4444; margin-top: 20px;" onclick="cerrarSesion()">Cerrar Sesión</button>
     </div>
 
     <script>
-        // --- VARIABLES DE CONTROL GLOBAL ---
-        let globalGold = 40;
-        let globalBalls = 3;
-        let globalPotions = 2;
+        // 1. CONEXIÓN CON SUPABASE (Pon tus datos aquí)
+        const supabaseUrl = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6emtvdnJycnVjd2hpdXd6dmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MTQ2NTEsImV4cCI6MjA5NjI5MDY1MX0.FEBgCHLQCykC1xRt_WNhSa1XJUnHbsk4vVhizuXV1bQ';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        const skillsDatabase = {
-            fuego: [
-                { name: "Ascua 🔥", dmg: 12, heal: 0, lvlUnlock: 1 },
-                { name: "Lanzallamas 💥", dmg: 24, heal: 0, lvlUnlock: 3 }
-            ],
-            agua: [
-                { name: "Pistola Agua 💧", dmg: 10, heal: 0, lvlUnlock: 1 },
-                { name: "Hidrobomba 🌊", dmg: 26, heal: 0, lvlUnlock: 3 }
-            ],
-            planta: [
-                { name: "Látigo Cepa 🍃", dmg: 11, heal: 0, lvlUnlock: 1 },
-                { name: "Giga Drenado 🌱", dmg: 16, heal: 10, lvlUnlock: 3 }
-            ]
-        };
+        // 2. FUNCIÓN: CREAR CUENTA
+        async function crearCuenta() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-        let myFighters = [
-            { id: 1, name: "Fuegato", type: "fuego", sprite: "🐱", level: 1, xp: 0, hp: 45, maxHp: 45 },
-            { id: 2, name: "Acuatuga", type: "agua", sprite: "🐢", level: 1, xp: 0, hp: 55, maxHp: 55 },
-            { id: 3, name: "Brotón", type: "planta", sprite: "🌱", level: 1, xp: 0, hp: 50, maxHp: 50 }
-        ];
+            if(!email || !password) return alert("Por favor, llena ambos campos.");
 
-        let equippedIds = [1, 2, 3]; 
-        let activeIndex = 0; 
+            // Registramos al usuario en la base de datos
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+            });
 
-        let enemy = { name: "Rattata Feroz", type: "agua", sprite: "🐀", hp: 35, maxHp: 35, level: 1 };
-        let isCombatLocked = false;
-
-        const wildPool = [
-            { name: "Volcanix", type: "fuego", sprite: "👺" },
-            { name: "Tiburón Río", type: "agua", sprite: "🦈" },
-            { name: "Bonsai Real", type: "planta", sprite: "🌲" }
-        ];
-
-        // VARIABLES DEL MINIJUEGO
-        let minigameInterval = null;
-        let pointerPosition = 0;
-        let pointerSpeed = 3; 
-        let activeZoneSelected = '';
-
-        // --- SISTEMA NAVEGACIÓN ---
-        function changeTab(tab) {
-            // Cancelar minijuego si cambias de pestaña a la fuerza
-            clearInterval(minigameInterval);
-            document.getElementById('explore-main-view').style.display = 'flex';
-            document.getElementById('explore-game-view').style.display = 'none';
-
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(`s-${tab}`).classList.add('active');
-            document.getElementById(`t-${tab}`).classList.add('active');
-            
-            if (tab === 'fighters') renderFightersTab();
-        }
-
-        // --- INTERFAZ GLOBAL ACTUALIZADA ---
-        function updateGlobalUI() {
-            document.getElementById('global-gold').innerText = `🪙 Oro: ${globalGold}`;
-            document.getElementById('global-balls').innerText = `🔴 x${globalBalls}`;
-            document.getElementById('global-potions').innerText = `🧪 x${globalPotions}`;
-
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            if (activeFighter) {
-                document.getElementById('p-name').innerText = `${activeFighter.name}`;
-                document.getElementById('p-sprite').innerText = activeFighter.sprite;
-                document.getElementById('p-badge').innerText = activeFighter.type.toUpperCase();
-                document.getElementById('p-badge').className = `badge b-${activeFighter.type}`;
-                document.getElementById('p-hp').style.width = (activeFighter.hp / activeFighter.maxHp * 100) + '%';
-                document.getElementById('p-hp-txt').innerText = `${activeFighter.hp}/${activeFighter.maxHp} HP (Lv.${activeFighter.level})`;
-
-                let availableSkills = skillsDatabase[activeFighter.type];
-                for (let i = 0; i < 2; i++) {
-                    let btn = document.getElementById(`sk-${i}`);
-                    let skill = availableSkills[i];
-                    if (skill && activeFighter.level >= skill.lvlUnlock) {
-                        btn.innerText = skill.name;
-                        btn.disabled = false;
-                    } else {
-                        btn.innerText = `Bloqueado (Lv.${skill.lvlUnlock})`;
-                        btn.disabled = true;
-                    }
-                }
-            }
-
-            document.getElementById('e-name').innerText = enemy.name;
-            document.getElementById('e-sprite').innerText = enemy.sprite;
-            document.getElementById('e-badge').innerText = enemy.type.toUpperCase();
-            document.getElementById('e-badge').className = `badge b-${enemy.type}`;
-            document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-            document.getElementById('e-hp-txt').innerText = `${enemy.hp}/${enemy.maxHp} HP (Lv.${enemy.level})`;
-
-            for (let i = 0; i < 3; i++) {
-                let btn = document.getElementById(`b-bench-${i}`);
-                if (equippedIds[i]) {
-                    let f = myFighters.find(x => x.id === equippedIds[i]);
-                    btn.innerText = `${f.sprite} ${f.hp > 0 ? f.hp : 'Debilitado'}`;
-                    btn.disabled = (i === activeIndex || f.hp <= 0);
-                } else {
-                    btn.innerText = "Vacío";
-                    btn.disabled = true;
-                }
+            if (error) {
+                alert("Error al crear cuenta: " + error.message);
+            } else {
+                // Si se crea con éxito, le creamos su perfil con 50 de oro
+                await supabase.from('perfiles').insert([
+                    { id: data.user.id, username: email.split('@')[0], oro: 50 }
+                ]);
+                alert("¡Cuenta creada! Ya puedes Entrar al Juego.");
             }
         }
 
-        // --- LÓGICA MINIJUEGO DE EXPLORACIÓN (RITMO DE REFLEJOS) ---
-        function startExploreMinigame(zone) {
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            if (!activeFighter || activeFighter.hp <= 0) {
-                alert("❌ Tu combatiente principal está debilitado. ¡Cámbialo o sánalo antes de salir a explorar!");
-                return;
-            }
+        // 3. FUNCIÓN: INICIAR SESIÓN
+        async function iniciarSesion() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-            activeZoneSelected = zone;
-            document.getElementById('explore-main-view').style.display = 'none';
-            document.getElementById('explore-game-view').style.display = 'block';
-            document.getElementById('mg-title').innerText = `Explorando: ${zone.toUpperCase()}`;
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
 
-            // Configurar velocidades según la zona elegida
-            pointerPosition = 0;
-            if (zone === 'volcan') pointerSpeed = 5.5; // Muy rápido
-            else if (zone === 'cascadas') pointerSpeed = 4; // Medio
-            else pointerSpeed = 2.5; // Lento / Fácil
-
-            // Bucle físico del puntero de la barra
-            minigameInterval = setInterval(() => {
-                pointerPosition += pointerSpeed;
-                if (pointerPosition >= 96 || pointerPosition <= 0) {
-                    pointerSpeed *= -1; // Rebote
-                }
-                document.getElementById('mg-pointer').style.left = pointerPosition + '%';
-            }, 20);
-        }
-
-        function stopExploreMinigame() {
-            clearInterval(minigameInterval);
-            
-            let finalPos = pointerPosition;
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-
-            // Volver a la pantalla de selección normal de zonas
-            document.getElementById('explore-main-view').style.display = 'flex';
-            document.getElementById('explore-game-view').style.display = 'none';
-
-            // EVALUACIÓN DE DÓNDE CAYÓ EL PUNTERO
-            // Verde (Perfecto): 42% a 58%
-            // Amarillo (Seguro): 25% a 41% y 59% a 75%
-            // Rojo (Fallo): < 25% o > 75%
-
-            if (finalPos >= 42 && finalPos <= 58) {
-                // ÉXITO CRÍTICO
-                let goldReward = Math.floor(Math.random() * 20) + 35;
-                globalGold += goldReward;
-                giveTeamExp(25);
-                logMsg(`🎯 ¡ÉXITO CRÍTICO en la exploración! Conseguiste 🪙 ${goldReward} de oro y mucha experiencia.`);
-                alert(`🎯 ¡PERFECTO!\n\nSincronización excelente. Encontraste un alijo secreto de oro (🪙 +${goldReward}) y tu equipo absorbió +25 EXP.`);
-            } 
-            else if ((finalPos >= 25 && finalPos < 42) || (finalPos > 58 && finalPos <= 75)) {
-                // ÉXITO NORMAL
-                let goldReward = Math.floor(Math.random() * 12) + 12;
-                globalGold += goldReward;
-                giveTeamExp(10);
-                logMsg(`🧭 Exploración completada con éxito regular. Ganaste 🪙 ${goldReward} oro.`);
-                alert(`👍 ÉXITO\n\nBuena recolección. Regresas al campamento con 🪙 +${goldReward} de oro y +10 EXP de zona.`);
-            } 
-            else {
-                // FRACASO TOTAL / TRAMPA
-                let dmgTaken = Math.floor(Math.random() * 6) + 12;
-                activeFighter.hp = Math.max(0, activeFighter.hp - dmgTaken);
-                logMsg(`💥 ¡FRACASO! ${activeFighter.name} cayó en una trampa y perdió ${dmgTaken} HP.`);
+            if (error) {
+                alert("Credenciales incorrectas.");
+            } else {
+                // Descargamos su perfil
+                const perfil = await supabase.from('perfiles').select('*').eq('id', data.user.id).single();
                 
-                let defeatAlert = "";
-                if (activeFighter.hp <= 0) {
-                    defeatAlert = `\n\n💀 ¡${activeFighter.name} se ha debilitado por completo!`;
-                }
+                // Cambiamos de pantalla
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
                 
-                alert(`❌ ¡FALLASTE EL TIMING!\n\nTropiezas bruscamente en el terreno peligroso. Tu combatiente activo (${activeFighter.name}) recibe ${dmgTaken} de daño físico.${defeatAlert}`);
-            }
-
-            updateGlobalUI();
-        }
-
-        function giveTeamExp(amount) {
-            equippedIds.forEach(id => {
-                if (id) {
-                    let f = myFighters.find(x => x.id === id);
-                    if (f.hp > 0) {
-                        f.xp += amount;
-                        if (f.xp >= 100) {
-                            f.level++;
-                            f.xp = 0;
-                            f.maxHp += 10;
-                            f.hp = f.maxHp;
-                            logMsg(`✨ ¡${f.name} subió a Nivel ${f.level}!`);
-                        }
-                    }
-                }
-            });
-        }
-
-        // --- SISTEMA COMBATE CLÁSICO ---
-        function logMsg(msg) {
-            let logBox = document.getElementById('log-console');
-            logBox.innerHTML += `<br>• ${msg}`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        function renderFightersTab() {
-            let container = document.getElementById('fighters-list');
-            container.innerHTML = "";
-
-            myFighters.forEach(f => {
-                let isEquipped = equippedIds.includes(f.id);
-                let html = `
-                    <div class="fighter-item ${isEquipped ? 'equipped' : ''}">
-                        <div class="item-desc">
-                            <strong>${f.sprite} ${f.name}</strong> <span class="badge b-${f.type}">${f.type}</span><br>
-                            Nivel: ${f.level} | HP: ${f.hp}/${f.maxHp}<br>
-                            XP: ${f.xp}/100
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-mini btn-system" onclick="upgradeFighter(${f.id})">Entrenar (20g)</button>
-                            <button class="btn-mini btn-switch-action" onclick="toggleEquip(${f.id})">
-                                ${isEquipped ? 'Retirar' : 'Llevar'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += html;
-            });
-        }
-
-        function toggleEquip(id) {
-            let idx = equippedIds.indexOf(id);
-            if (idx > -1) {
-                if (equippedIds.filter(x => x !== null).length <= 1) {
-                    alert("❌ Necesitas al menos un Combatiente activo.");
-                    return;
-                }
-                equippedIds[idx] = null;
-                equippedIds = equippedIds.filter(x => x !== null);
-            } else {
-                if (equippedIds.length >= 3) {
-                    alert("❌ Equipo lleno (Max 3).");
-                    return;
-                }
-                equippedIds.push(id);
-            }
-            activeIndex = 0;
-            updateGlobalUI();
-            renderFightersTab();
-        }
-
-        function upgradeFighter(id) {
-            if (globalGold < 20) {
-                alert("🪙 No tienes oro suficiente.");
-                return;
-            }
-            let f = myFighters.find(x => x.id === id);
-            globalGold -= 20;
-            f.level++; f.maxHp += 12; f.hp = f.maxHp;
-            updateGlobalUI();
-            renderFightersTab();
-        }
-
-        function switchInBattle(targetIndex) {
-            if (isCombatLocked) return;
-            activeIndex = targetIndex;
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            logMsg(`🔄 Envías a ${activeFighter.name} a la batalla.`);
-            updateGlobalUI();
-            isCombatLocked = true;
-            setTimeout(enemyTurn, 1000);
-        }
-
-        function triggerSkill(skillSlot) {
-            if (isCombatLocked) return;
-            isCombatLocked = true;
-
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            let skill = skillsDatabase[activeFighter.type][skillSlot];
-
-            if (skill.dmg > 0) {
-                let multiplier = 1;
-                if (activeFighter.type === 'fuego' && enemy.type === 'planta') multiplier = 2;
-                if (activeFighter.type === 'agua' && enemy.type === 'fuego') multiplier = 2;
-                if (activeFighter.type === 'planta' && enemy.type === 'agua') multiplier = 2;
-
-                if (activeFighter.type === 'fuego' && enemy.type === 'agua') multiplier = 0.5;
-                if (activeFighter.type === 'agua' && enemy.type === 'planta') multiplier = 0.5;
-                if (activeFighter.type === 'planta' && enemy.type === 'fuego') multiplier = 0.5;
-
-                let finalDmg = Math.floor(skill.dmg * multiplier);
-                enemy.hp = Math.max(0, enemy.hp - finalDmg);
-                logMsg(`⚔️ ${activeFighter.name} ejecuta **${skill.name}**.`);
-                if (multiplier === 2) logMsg("💥 ¡Impacto súper efectivo!");
-                if (multiplier === 0.5) logMsg("🍃 Es poco efectivo...");
-            }
-
-            if (skill.heal > 0) {
-                activeFighter.hp = Math.min(activeFighter.maxHp, activeFighter.hp + skill.heal);
-                logMsg(`🧪 Recuperas salud elemental con la habilidad.`);
-            }
-
-            updateUIAndCheckState();
-        }
-
-        function enemyTurn() {
-            if (enemy.hp <= 0) return;
-
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            if (!activeFighter) return;
-
-            let enemyDmg = Math.floor(Math.random() * 8) + 4 + (enemy.level * 2);
-            activeFighter.hp = Math.max(0, activeFighter.hp - enemyDmg);
-            logMsg(`💥 El ${enemy.name} rival responde con fuerza: -${enemyDmg} HP.`);
-
-            if (activeFighter.hp <= 0) {
-                logMsg(`💀 ¡${activeFighter.name} cayó fuera de combate!`);
-                checkDefeatState();
-            } else {
-                isCombatLocked = false;
-            }
-            updateGlobalUI();
-        }
-
-        function updateUIAndCheckState() {
-            updateGlobalUI();
-            if (enemy.hp <= 0) battleWin();
-            else setTimeout(enemyTurn, 1200);
-        }
-
-        function checkDefeatState() {
-            let allDead = true;
-            equippedIds.forEach(id => {
-                if (id) {
-                    let f = myFighters.find(x => x.id === id);
-                    if (f.hp > 0) allDead = false;
-                }
-            });
-
-            if (allDead) {
-                logMsg("💀 Todo tu equipo activo colapsó.");
-                document.getElementById('btn-next-fight').innerText = "Regresar a Centro de Cura 🏥";
-                document.getElementById('btn-next-fight').style.display = 'block';
-                setCombatButtonsDisabled(true);
+                // Mostramos su oro en pantalla
+                document.getElementById('datos-jugador').innerText = "Tu Oro: " + perfil.data.oro + " 💰";
             }
         }
 
-        function setCombatButtonsDisabled(status) {
-            document.getElementById('sk-0').disabled = status;
-            document.getElementById('sk-1').disabled = status;
-            document.getElementById('btn-item-heal').disabled = status;
-            document.getElementById('btn-item-catch').disabled = status;
+        // 4. FUNCIÓN: CERRAR SESIÓN
+        async function cerrarSesion() {
+            await supabase.auth.signOut();
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'block';
+            document.getElementById('password').value = '';
         }
-
-        function battleWin() {
-            let reward = Math.floor(Math.random() * 15) + 15;
-            globalGold += reward;
-            logMsg(`🏆 ¡Victoria! Ganas 🪙 ${reward} de oro.`);
-            
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            if (activeFighter && activeFighter.hp > 0) {
-                activeFighter.xp += 40;
-                if (activeFighter.xp >= 100) {
-                    activeFighter.level++; activeFighter.xp = 0; activeFighter.maxHp += 10; activeFighter.hp = activeFighter.maxHp;
-                }
-            }
-            document.getElementById('btn-next-fight').innerText = "Siguiente Encuentro ➡️";
-            document.getElementById('btn-next-fight').style.display = 'block';
-            setCombatButtonsDisabled(true);
-            updateGlobalUI();
-        }
-
-        function nextEncounter() {
-            equippedIds.forEach(id => {
-                if (id) {
-                    let f = myFighters.find(x => x.id === id);
-                    if (f.hp <= 0) f.hp = Math.floor(f.maxHp / 2);
-                }
-            });
-
-            document.getElementById('btn-next-fight').style.display = 'none';
-            setCombatButtonsDisabled(false);
-            
-            let randomTemplate = wildPool[Math.floor(Math.random() * wildPool.length)];
-            enemy.name = "Salvaje " + randomTemplate.name;
-            enemy.type = randomTemplate.type;
-            enemy.sprite = randomTemplate.sprite;
-            enemy.level = Math.floor(Math.random() * 2) + 1;
-            enemy.maxHp = 30 + (enemy.level * 10);
-            enemy.hp = enemy.maxHp;
-
-            logMsg(`⚔️ Ha aparecido un nuevo oponente: ${enemy.name}`);
-            isCombatLocked = false;
-            activeIndex = 0;
-            updateGlobalUI();
-        }
-
-        function battleHeal() {
-            if (globalPotions <= 0) { logMsg("❌ Sin pociones."); return; }
-            let activeFighter = myFighters.find(f => f.id === equippedIds[activeIndex]);
-            globalPotions--;
-            activeFighter.hp = Math.min(activeFighter.maxHp, activeFighter.hp + 50);
-            updateGlobalUI();
-            isCombatLocked = true;
-            setTimeout(enemyTurn, 1000);
-        }
-
-        function battleCatch() {
-            if (globalBalls <= 0) { logMsg("❌ Sin Pokéballs."); return; }
-            globalBalls--;
-            logMsg(`🔴 Lanzando Pokéball...`);
-            
-            let catchRate = 1 - (enemy.hp / enemy.maxHp);
-            if (Math.random() < catchRate + 0.2) {
-                myFighters.push({
-                    id: myFighters.length + 1,
-                    name: enemy.name.replace("Salvaje ", ""),
-                    type: enemy.type,
-                    sprite: enemy.sprite,
-                    level: enemy.level,
-                    xp: 0,
-                    hp: enemy.maxHp,
-                    maxHp: enemy.maxHp
-                });
-                logMsg(`🎉 ¡Atrapado!`);
-                battleWin();
-            } else {
-                logMsg("💨 Se escapó.");
-                updateGlobalUI();
-                isCombatLocked = true;
-                setTimeout(enemyTurn, 1000);
-            }
-        }
-
-        function buyItem(type) {
-            if (type === 'ball' && globalGold >= 20) {
-                globalGold -= 20; globalBalls++; alert("🛒 Adquiriste 1 Pokéball.");
-            } else if (type === 'potion' && globalGold >= 15) {
-                globalGold -= 15; globalPotions++; alert("🛒 Adquiriste 1 Poción.");
-            } else { alert("❌ Oro insuficiente."); }
-            updateGlobalUI();
-        }
-
-        document.addEventListener("DOMContentLoaded", () => { updateGlobalUI(); });
     </script>
 </body>
 </html>
