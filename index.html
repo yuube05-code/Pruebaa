@@ -115,3 +115,53 @@
     </script>
 </body>
 </html>
+<div id="game-screen" class="container">
+    <h2 style="color: #10b981;">Refugio Seguro</h2>
+    <p id="datos-jugador" style="font-size: 16px; color: #fbbf24;"></p>
+    
+    <button class="btn-action" onclick="cazarMonstruos()">⚔️ Cazar Monstruos</button>
+    
+    <div style="margin-top: 20px; border-top: 1px solid #334155; padding-top: 10px;">
+        <h3>Tienda</h3>
+        <button onclick="comprar('Poción de Salud', 20)">Comprar Poción (20 💰)</button>
+        <button onclick="comprar('Espada de Hierro', 100)">Comprar Espada (100 💰)</button>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h3>Top Jugadores</h3>
+        <ul id="lista-top" style="list-style: none; font-size: 12px;"></ul>
+    </div>
+    
+    <button class="btn-primary" style="background-color: #ef4444; margin-top: 20px;" onclick="cerrarSesion()">Cerrar Sesión</button>
+</div>
+
+<script>
+    // ... (Configuración de Supabase y variables igual que antes) ...
+
+    // Al iniciar sesión, llamamos a estas dos nuevas funciones
+    async function cargarJuego(userId) {
+        miUsuarioId = userId;
+        actualizarUI();
+        mostrarTop();
+    }
+
+    async function comprar(item, costo) {
+        if (miOro < costo) return alert("¡No tienes suficiente oro!");
+        miOro -= costo;
+        await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
+        alert("¡Compraste " + item + "!");
+        actualizarUI();
+    }
+
+    async function mostrarTop() {
+        const { data } = await cliente.from('perfiles').select('username, oro').order('oro', { ascending: false }).limit(3);
+        const lista = document.getElementById('lista-top');
+        lista.innerHTML = data.map(u => `<li>${u.username}: ${u.oro} 💰</li>`).join('');
+    }
+
+    function actualizarUI() {
+        document.getElementById('datos-jugador').innerText = "Tu Oro: " + miOro + " 💰";
+    }
+    // ... (El resto de funciones se mantienen igual)
+</script>
+
