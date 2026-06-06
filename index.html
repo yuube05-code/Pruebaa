@@ -36,10 +36,10 @@
     </div>
 
     <script>
-        // 1. CONEXIÓN CON SUPABASE (Pon tus datos aquí)
+        // 1. CONEXIÓN CON SUPABASE (Modificada para evitar el error de nombre)
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         // 2. FUNCIÓN: CREAR CUENTA
         async function crearCuenta() {
@@ -49,7 +49,7 @@
             if(!email || !password) return alert("Por favor, llena ambos campos.");
 
             // Registramos al usuario en la base de datos
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await cliente.auth.signUp({
                 email: email,
                 password: password,
             });
@@ -58,7 +58,7 @@
                 alert("Error al crear cuenta: " + error.message);
             } else {
                 // Si se crea con éxito, le creamos su perfil con 50 de oro
-                await supabase.from('perfiles').insert([
+                await cliente.from('perfiles').insert([
                     { id: data.user.id, username: email.split('@')[0], oro: 50 }
                 ]);
                 alert("¡Cuenta creada! Ya puedes Entrar al Juego.");
@@ -70,7 +70,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await cliente.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
@@ -79,7 +79,7 @@
                 alert("Credenciales incorrectas.");
             } else {
                 // Descargamos su perfil
-                const perfil = await supabase.from('perfiles').select('*').eq('id', data.user.id).single();
+                const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
                 
                 // Cambiamos de pantalla
                 document.getElementById('auth-screen').style.display = 'none';
@@ -92,7 +92,7 @@
 
         // 4. FUNCIÓN: CERRAR SESIÓN
         async function cerrarSesion() {
-            await supabase.auth.signOut();
+            await cliente.auth.signOut();
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'block';
             document.getElementById('password').value = '';
