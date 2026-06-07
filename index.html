@@ -3,250 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto RPG - V2 Expandida</title>
+    <title>Crypto RPG - V3</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #050505; color: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 10px; overflow: hidden;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0510; color: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 10px; overflow: hidden; }
 
-        /* Contenedor principal: Más alto, simulando la pantalla de un móvil */
+        /* Contenedor principal estilo App */
         .game-container { 
             width: 100%; max-width: 420px; height: 95vh; max-height: 850px; 
-            background-color: #1e293b; border: 2px solid #8b5cf6; border-radius: 12px; 
-            padding: 10px; display: flex; flex-direction: column; gap: 10px; 
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); 
-            overflow: hidden;
+            background-color: #130a21; border: 1px solid #3b1d6e; border-radius: 16px; 
+            display: flex; flex-direction: column; 
+            box-shadow: 0 0 30px rgba(59, 29, 110, 0.8); 
+            overflow: hidden; position: relative;
         }
 
-        /* Auth Screen */
-        #auth-screen { flex-direction: column; gap: 15px; text-align: center; padding: 30px 10px; justify-content: center;}
-        input { padding: 12px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; font-size: 14px;}
+        /* Top Bar */
+        .top-bar { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background-color: #1a0b2e; padding: 15px; border-bottom: 2px solid #3b1d6e; 
+            z-index: 10;
+        }
+        .menu-btn { background: none; border: none; color: #d4af37; font-size: 24px; cursor: pointer; }
+        .currency-box { display: flex; flex-direction: column; align-items: flex-end; font-size: 12px; font-weight: bold; }
+        .txt-ton { color: #0088cc; }
+        .txt-plata { color: #cbd5e1; }
 
-        /* Top Bar Expandida */
-        .top-bar { display: flex; flex-direction: column; gap: 5px; background-color: #020617; padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid #334155; }
-        .top-row { display: flex; justify-content: space-between; align-items: center; }
-        .crypto-txt { color: #10b981; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #10b981; }
-        .energy-bar { background: #475569; height: 6px; border-radius: 3px; margin-top: 2px; overflow: hidden; }
-        .energy-fill { background: #eab308; height: 100%; width: 100%; transition: width 0.3s; }
+        /* Sidebar (Menú Desplegable) */
+        .sidebar {
+            position: absolute; top: 60px; left: -100%; width: 75%; height: calc(100% - 60px);
+            background-color: #130a21; border-right: 2px solid #3b1d6e;
+            transition: left 0.3s ease; z-index: 20; display: flex; flex-direction: column;
+            padding: 20px 10px; overflow-y: auto;
+        }
+        .sidebar.open { left: 0; }
+        .menu-item {
+            background: #1a0b2e; color: #d4af37; border: 1px solid #3b1d6e;
+            padding: 15px; margin-bottom: 10px; border-radius: 8px; font-weight: bold;
+            text-align: left; cursor: pointer; display: flex; justify-content: space-between;
+        }
+        .menu-item:hover { background: #2a164a; }
+        .menu-item.new::after { content: "NEW"; background: #d4af37; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
-        /* Tabs */
-        .nav-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
-        .tab-btn { background-color: #334155; color: #94a3b8; border: 1px solid #475569; padding: 8px 2px; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase;}
-        .tab-btn.active { background-color: #8b5cf6; color: #fff; border-color: #c4b5fd; }
-
-        .screen { display: none; flex-grow: 1; overflow-y: auto; flex-direction: column; gap: 10px; padding-bottom: 5px;}
+        /* Pantallas (Con Scroll Solucionado) */
+        .screen { display: none; flex-grow: 1; overflow-y: auto; flex-direction: column; gap: 15px; padding: 15px; padding-bottom: 30px;}
         .screen.active { display: flex; }
 
-        /* Batalla */
-        .battle-arena { background: linear-gradient(to bottom, #2e1065, #0f172a); border-radius: 8px; padding: 15px; border: 2px solid #6d28d9; display: flex; flex-direction: column; gap: 20px; flex-grow: 1; justify-content: center;}
-        .character-card { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); }
-        .reverse { flex-direction: row-reverse; }
+        /* Estilos Generales de Tarjetas y Botones */
+        .card { background-color: #1a0b2e; padding: 15px; border-radius: 12px; border: 1px solid #3b1d6e; }
+        h4 { color: #d4af37; margin-bottom: 10px; font-size: 16px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
         
-        .sprite { font-size: 50px; display: inline-block; }
-        .info-panel { width: 65%; }
-        .meta-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;}
-        .hp-bg { background-color: #475569; border-radius: 4px; overflow: hidden; height: 12px; border: 1px solid #000;}
-        .hp-fill { width: 100%; height: 100%; background-color: #22c55e; transition: width 0.4s ease-out; }
-        .badge { padding: 2px 5px; border-radius: 3px; font-size: 9px; color: #fff; text-transform: uppercase;}
-        .b-fuego { background-color: #ef4444; } .b-agua { background-color: #3b82f6; } .b-planta { background-color: #10b981; }
-
-        .battle-log { min-height: 80px; max-height: 100px; background-color: #020617; border: 1px solid #334155; border-radius: 6px; padding: 8px; font-size: 11px; overflow-y: auto; color: #c4b5fd; }
-
-        button { padding: 12px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; color: white; transition: all 0.2s;}
+        button { padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
         button:active { transform: scale(0.95); }
-        button:disabled { background-color: #475569 !important; color: #64748b !important; cursor: not-allowed; transform: none;}
+        button:disabled { background-color: #334155 !important; color: #64748b !important; }
         
-        .btn-primary { background-color: #8b5cf6; border-bottom: 3px solid #5b21b6; }
-        .btn-skill { background-color: #3b82f6; border-bottom: 3px solid #1e3a8a; }
-        .btn-item { background-color: #0f766e; border-bottom: 3px solid #042f2e; }
-        .btn-danger { background-color: #e11d48; border-bottom: 3px solid #881337; }
-        .btn-upgrade { background-color: #f59e0b; border-bottom: 3px solid #b45309; color: #000; font-size: 10px; padding: 8px;}
+        .btn-gold { background: linear-gradient(180deg, #d4af37, #b48512); color: #000; }
+        .btn-blue { background: linear-gradient(180deg, #0088cc, #005f8f); }
+        .btn-purple { background: linear-gradient(180deg, #8b5cf6, #5b21b6); }
+        .btn-red { background: linear-gradient(180deg, #ef4444, #991b1b); }
+        .btn-dark { background-color: #2a164a; border: 1px solid #8b5cf6; }
+
+        /* Combate y Barras */
+        .battle-arena { display: flex; flex-direction: column; gap: 15px; }
+        .fighter-card { background: #0b0510; border: 1px solid #3b1d6e; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 15px;}
+        .sprite { font-size: 40px; }
+        .info-panel { flex-grow: 1; }
+        .hp-bg { background-color: #334155; border-radius: 4px; height: 10px; margin-top: 5px; width: 100%;}
+        .hp-fill { background-color: #22c55e; height: 100%; border-radius: 4px; transition: 0.3s; }
         
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;}
+        .log-box { background: #000; border: 1px solid #3b1d6e; padding: 10px; font-size: 12px; color: #a78bfa; height: 80px; overflow-y: auto; border-radius: 8px; font-family: monospace;}
 
-        .list-container { display: flex; flex-direction: column; gap: 8px; }
-        .card-item { background-color: #1e293b; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; }
+        /* Inputs */
+        input, select { width: 100%; padding: 12px; background: #0b0510; border: 1px solid #3b1d6e; color: white; border-radius: 8px; margin-bottom: 10px; font-size: 14px;}
         
-        /* --- ANIMACIONES --- */
-        @keyframes idleFloat { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
-        .anim-idle { animation: idleFloat 2s ease-in-out infinite; }
-
-        @keyframes attackShake { 0% { transform: translateX(0); } 25% { transform: translateX(15px) rotate(10deg); } 50% { transform: translateX(-15px) rotate(-10deg); } 75% { transform: translateX(15px); } 100% { transform: translateX(0); } }
-        .anim-attack { animation: attackShake 0.4s ease-in-out; }
-
-        @keyframes damageFlash { 0% { filter: brightness(1); } 50% { filter: brightness(3) invert(1) drop-shadow(0 0 10px red); } 100% { filter: brightness(1); } }
-        .anim-damage { animation: damageFlash 0.4s ease-in-out; }
-
-        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 1; text-shadow: 0 0 15px #8b5cf6;} 100% { transform: scale(0.8); opacity: 0.5; } }
-        
-        #radar-screen { display: none; text-align: center; padding: 60px 10px; background: #020617; border-radius: 8px; border: 1px dashed #8b5cf6; flex-grow: 1;}
-        .radar-icon { font-size: 60px; display: inline-block; animation: radarPulse 1.2s infinite; margin-bottom: 20px;}
-
-        /* Ranking List */
-        .rank-list { list-style: none; padding: 0; }
-        .rank-list li { background: #334155; margin: 5px 0; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 12px;}
+        .copy-box { background: #000; padding: 10px; border: 1px dashed #d4af37; border-radius: 6px; word-break: break-all; font-family: monospace; color: #0088cc; text-align: center; margin-bottom: 10px;}
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="game-container" style="display: flex;">
-        <h1 style="color: #a78bfa; text-shadow: 0 0 10px #8b5cf6; font-size: 28px;">CRYPTO ARENA</h1>
-        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Forja tu imperio y gana $META</p>
-        
+    <div id="auth-screen" class="game-container" style="justify-content: center; padding: 20px;">
+        <h1 style="color: #d4af37; text-align: center; margin-bottom: 5px;">ELDORIA ONLINE</h1>
+        <p style="text-align: center; color: #a78bfa; margin-bottom: 30px; font-size: 14px;">Inicia sesión o regístrate</p>
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
-        
-        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Ecosistema</button>
-        <button class="btn-skill" style="background: #10b981; border-color:#047857;" onclick="crearCuenta()">Crear Wallet / Cuenta</button>
+        <button class="btn-blue" onclick="iniciarSesion()" style="margin-bottom: 10px;">Entrar al Juego</button>
+        <button class="btn-purple" onclick="crearCuenta()">Crear Cuenta</button>
     </div>
 
     <div id="main-game" class="game-container" style="display: none;">
         
         <div class="top-bar">
-            <div class="top-row">
-                <div class="crypto-txt" id="global-token">💎 0 $META</div>
-                <div>🎒 <span id="global-balls">📦 x3</span> | <span id="global-potions">🧪 x2</span></div>
+            <button class="menu-btn" onclick="toggleMenu()">☰</button>
+            <div style="font-size: 10px; color: #d4af37; flex-grow: 1; margin-left: 15px;">
+                ⚡ <span id="txt-energia">20/20</span>
             </div>
-            <div class="top-row" style="margin-top: 5px;">
-                <div style="font-size: 10px; color: #eab308; width: 100%;">
-                    ⚡ Energía: <span id="txt-energia">20/20</span>
-                    <div class="energy-bar"><div id="bar-energia" class="energy-fill"></div></div>
-                </div>
+            <div class="currency-box">
+                <span class="txt-ton" id="ui-ton">0.00 TON</span>
+                <span class="txt-plata" id="ui-plata">0 Plata</span>
             </div>
         </div>
 
-        <div class="nav-tabs">
-            <button id="t-explore" class="tab-btn active" onclick="changeTab('explore')">🧭 Buscar</button>
-            <button id="t-battle" class="tab-btn" onclick="changeTab('battle')" disabled>⚔️ Arena</button>
-            <button id="t-fighters" class="tab-btn" onclick="changeTab('fighters')">👾 NFTs</button>
-            <button id="t-shop" class="tab-btn" onclick="changeTab('shop')">🛒 Market</button>
-            <button id="t-social" class="tab-btn" onclick="changeTab('social')">🏆 Social</button>
+        <div id="sidebar" class="sidebar">
+            <button class="menu-item" onclick="changeTab('explore')">🧭 Explorar <span style="font-size: 10px;">PvE/PvP</span></button>
+            <button class="menu-item new" onclick="changeTab('fighters')">👾 Mis NFTs</button>
+            <button class="menu-item" onclick="changeTab('bank')">🏦 Banco (TON)</button>
+            <button class="menu-item" onclick="changeTab('market')">🛒 Bazar P2P</button>
+            <button class="menu-item" onclick="changeTab('social')">🏆 Social</button>
+            <button class="menu-item" id="btn-admin" style="display:none; color: #ef4444; border-color: #ef4444;" onclick="changeTab('admin')">⚙️ Panel Admin</button>
+            <button class="menu-item" style="margin-top: auto; border-color: #ef4444;" onclick="cerrarSesion()">Salir</button>
         </div>
 
         <div id="s-explore" class="screen active">
-            <div id="explore-options">
-                <h4 style="font-size:14px; color: #a78bfa; margin-bottom: 15px; text-align: center;">Zonas de Exploración</h4>
-                
-                <div class="card-item" style="border-color: #10b981; flex-direction: column; align-items: flex-start; gap: 10px;">
-                    <div style="width: 100%; display: flex; justify-content: space-between;">
-                        <strong style="color:#10b981; font-size: 14px;">🌿 PvE: Jungla Salvaje</strong>
-                        <span style="font-size: 10px; color: #eab308;">Coste: 5 ⚡</span>
-                    </div>
-                    <span style="font-size:11px; color:#94a3b8;">Busca monstruos para capturar y ganar XP.</span>
-                    <button class="btn-item" style="width: 100%;" onclick="iniciarBusqueda('pve')">Iniciar Búsqueda</button>
+            <h4>Zonas de Acción</h4>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <strong style="color:#22c55e;">🌿 Bosque Oscuro (PvE)</strong>
+                    <span style="color:#d4af37; font-size:12px;">5 ⚡</span>
                 </div>
-
-                <div class="card-item" style="border-color: #ef4444; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 10px;">
-                    <div style="width: 100%; display: flex; justify-content: space-between;">
-                        <strong style="color:#ef4444; font-size: 14px;">⚔️ PvP: Ranked Simulado</strong>
-                        <span style="font-size: 10px; color: #eab308;">Coste: 10 ⚡</span>
-                    </div>
-                    <span style="font-size:11px; color:#94a3b8;">Lucha a muerte por una mayor recompensa en $META.</span>
-                    <button class="btn-danger" style="width: 100%;" onclick="iniciarBusqueda('pvp')">Emparejar Rival</button>
-                </div>
+                <button class="btn-gold" style="width: 100%;" onclick="iniciarCombate('pve')">Cazar Criaturas</button>
             </div>
-
-            <div id="radar-screen">
-                <div class="radar-icon">📡</div>
-                <h3 style="color: #a78bfa; font-size: 16px;" id="radar-text">Escaneando el bloque...</h3>
-                <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Preparando conexión para el combate.</p>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <strong style="color:#ef4444;">⚔️ Coliseo (PvP)</strong>
+                    <span style="color:#d4af37; font-size:12px;">10 ⚡</span>
+                </div>
+                <button class="btn-red" style="width: 100%;" onclick="iniciarCombate('pvp')">Buscar Rival</button>
             </div>
         </div>
 
         <div id="s-battle" class="screen">
+            <h4>Coliseo de Batalla</h4>
             <div class="battle-arena">
-                <div class="character-card reverse">
-                    <div id="e-sprite" class="sprite anim-idle">🦅</div>
-                    <div class="info-panel">
-                        <div class="meta-row"><span id="e-name">Rival</span><span id="e-badge" class="badge b-agua">AGUA</span></div>
+                <div class="fighter-card" style="flex-direction: row-reverse; background: #2a164a;">
+                    <div id="e-sprite" class="sprite">🦅</div>
+                    <div class="info-panel" style="text-align: right;">
+                        <strong id="e-name">Rival</strong> <span style="font-size:10px; color:#a78bfa;">Nv.<span id="e-nivel">1</span></span>
                         <div class="hp-bg"><div id="e-hp" class="hp-fill"></div></div>
-                        <div style="font-size: 9px; text-align: right; margin-top: 2px;" id="e-hp-txt">100/100</div>
+                        <div style="font-size: 10px; margin-top:3px;" id="e-hp-txt">100/100</div>
                     </div>
                 </div>
                 
-                <div class="character-card">
-                    <div id="p-sprite" class="sprite anim-idle">🔥</div>
+                <div class="fighter-card">
+                    <div id="p-sprite" class="sprite">🔥</div>
                     <div class="info-panel">
-                        <div class="meta-row"><span id="p-name">Mi NFT</span><span id="p-badge" class="badge b-fuego">FUEGO</span></div>
+                        <strong id="p-name">Mi NFT</strong> <span style="font-size:10px; color:#d4af37;">Nv.<span id="p-nivel">1</span></span>
                         <div class="hp-bg"><div id="p-hp" class="hp-fill"></div></div>
-                        <div style="font-size: 9px; text-align: right; margin-top: 2px;" id="p-hp-txt">100/100</div>
+                        <div style="font-size: 10px; margin-top:3px;" id="p-hp-txt">100/100</div>
                     </div>
                 </div>
             </div>
 
-            <div id="log-console" class="battle-log">Esperando acción...</div>
+            <div id="log-console" class="log-box">Batalla iniciada...</div>
 
-            <div class="actions-grid" id="battle-controls">
-                <button id="btn-attack" class="btn-skill" onclick="atacar()">Atacar ⚔️</button>
-                <button id="btn-heal" class="btn-item" onclick="usarPocion()">Curar 🧪</button>
-                <button id="btn-catch" class="btn-primary" onclick="capturar()" style="grid-column: span 2;">Intentar Captura 📦</button>
+            <div id="battle-controls">
+                <div class="skills-grid" id="box-habilidades">
+                    </div>
+                <div class="skills-grid">
+                    <button class="btn-dark" onclick="abrirCambio()">Cambiar 🔄</button>
+                    <button class="btn-red" onclick="huir()">Huir 🏃</button>
+                </div>
             </div>
             
-            <button id="btn-flee" class="btn-danger" onclick="huir()" style="display: none;">Retirada Táctica 🚪</button>
+            <div id="modal-cambio" class="card" style="display:none; margin-top: 10px; border-color: #0088cc;">
+                <h5 style="color:#0088cc; text-align:center; margin-bottom:10px;">Selecciona un relevo</h5>
+                <div id="lista-relevos" style="display:flex; flex-direction:column; gap:5px;"></div>
+                <button class="btn-dark" style="width:100%; margin-top:5px;" onclick="document.getElementById('modal-cambio').style.display='none'">Cancelar</button>
+            </div>
         </div>
 
         <div id="s-fighters" class="screen">
-            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Tus NFTs Combatientes</h4>
-            <div id="fighters-list" class="list-container"></div>
+            <h4>Tu Equipo (Max 3)</h4>
+            <div id="fighters-list" style="display:flex; flex-direction:column; gap:10px;"></div>
         </div>
 
-        <div id="s-shop" class="screen">
-            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Marketplace Web3</h4>
-            <div class="list-container">
-                <div class="card-item">
-                    <div><strong>Cápsula Captura 📦</strong><br><span style="font-size:11px; color:#94a3b8;">Coste: 30 $META</span></div>
-                    <button class="btn-primary" onclick="comprarItem('ball', 30)">Comprar</button>
-                </div>
-                <div class="card-item">
-                    <div><strong>Poción de Vida 🧪</strong><br><span style="font-size:11px; color:#94a3b8;">Coste: 15 $META</span></div>
-                    <button class="btn-primary" onclick="comprarItem('potion', 15)">Comprar</button>
-                </div>
-            </div>
-            <button class="btn-danger" style="margin-top: auto;" onclick="cerrarSesion()">Desconectar Wallet (Salir)</button>
-        </div>
-
-        <div id="s-social" class="screen">
-            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Centro Comunitario</h4>
+        <div id="s-bank" class="screen">
+            <h4>Bóveda Central</h4>
             
-            <div class="card-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                <strong>🔗 Tu Enlace de Referido</strong>
-                <p style="font-size: 11px; color: #94a3b8;">Invita a otros inversores y gana un % de sus farmeos (Simulado).</p>
-                <button class="btn-item" onclick="copiarReferido()">Copiar Mi Enlace</button>
+            <div class="card">
+                <h5 style="color:#0088cc; margin-bottom:10px;">⬇️ Depósito Automático</h5>
+                <p style="font-size:11px; color:#cbd5e1; margin-bottom:10px;">Envía TON a esta dirección. Tu saldo se reflejará cuando la red confirme la transacción.</p>
+                <div class="copy-box">UQCJtQwSR8fYJ7jQpdoVIO1mJtFK_fenTOkK9FuQAcZpiQrV</div>
+                <p style="font-size:11px; color:#ef4444; font-weight:bold;">¡MEMO OBLIGATORIO PARA QUE SE TE ACREDITE!</p>
+                <div class="copy-box" style="border-color:#ef4444; color:#fff;" id="banco-memo">Cargando MEMO...</div>
+                <button class="btn-dark" style="width:100%;" onclick="alert('Direcciones copiadas al portapapeles.')">Copiar Datos</button>
             </div>
 
-            <h4 style="font-size:13px; color: #eab308; margin-top: 10px;">🏆 Top Holders ($META)</h4>
-            <ul id="lista-ranking" class="rank-list">
-                <li>Cargando red...</li>
-            </ul>
+            <div class="card">
+                <h5 style="color:#22c55e; margin-bottom:10px;">💱 Casa de Cambio</h5>
+                <p style="font-size:11px; color:#cbd5e1; margin-bottom:10px;">Tasa actual: 10,000 Plata = 1 TON</p>
+                <button class="btn-gold" style="width:100%;" onclick="canjearPlata()">Convertir 10k Plata a 1 TON</button>
+            </div>
+
+            <div class="card">
+                <h5 style="color:#ef4444; margin-bottom:10px;">⬆️ Retiro Manual</h5>
+                <input type="text" id="wallet-retiro" placeholder="Tu billetera TON">
+                <input type="number" id="monto-retiro" placeholder="Cantidad de TON a retirar">
+                <button class="btn-red" style="width:100%;" onclick="solicitarRetiro()">Solicitar Retiro</button>
+            </div>
         </div>
+
+        <div id="s-admin" class="screen">
+            <h4>Panel de Administrador</h4>
+            <div class="card">
+                <p style="font-size:12px; margin-bottom:10px;">Control de Economía Global</p>
+                <input type="email" id="admin-user" placeholder="Correo del usuario">
+                <input type="number" id="admin-amount" placeholder="Cantidad">
+                <select id="admin-currency">
+                    <option value="ton">TON</option>
+                    <option value="oro">Plata</option>
+                </select>
+                <button class="btn-purple" style="width:100%; margin-bottom:10px;" onclick="alert('Función en desarrollo para base de datos.')">Enviar Fondos</button>
+                <button class="btn-red" style="width:100%;" onclick="alert('Usuario baneado.')">Banear Usuario</button>
+            </div>
+        </div>
+
+        <div id="s-market" class="screen"><h4>Bazar en construcción</h4></div>
+        <div id="s-social" class="screen"><h4>Ranking en construcción</h4></div>
     </div>
 
     <script>
+        // CONFIGURACION SUPABASE (Mantén tus llaves)
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
         const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        let miUsuarioId = null;
-        let miToken = 0; 
-        let globalBalls = 3;
-        let globalPotions = 2;
-        let energia = 20;
-        let maxEnergia = 20;
+        // Agrega tu correo aquí para que te salga el botón de Admin
+        const adminEmails = ["andrycckp@gmail.com", "sjjsn@gmail.com"]; 
 
+        let miUsuarioId = null;
+        let miCorreo = null;
+        let miPlata = 0; // Se guarda en DB como 'oro'
+        let miTon = 0.00; // Necesitas agregar columna 'ton' en DB
+        let energia = 20;
+        
+        // Estructura de Pokémon con Habilidades
         let myFighters = [
-            { id: 1, name: "Cripto Zorro", type: "fuego", sprite: "🦊", nivel: 1, xp: 0, hp: 100, maxHp: 100, dmg: 20 }
+            { 
+                id: 1, name: "Cripto Zorro", type: "fuego", sprite: "🦊", nivel: 1, hp: 100, maxHp: 100, dmgBase: 10,
+                habilidades: [
+                    { nombre: "Arañazo", poder: 1.0, desbloqueo: 1 },
+                    { nombre: "Ascuas", poder: 1.5, desbloqueo: 3 } // Se desbloquea al Nv 3
+                ] 
+            },
+            { 
+                id: 2, name: "Aqua Ninja", type: "agua", sprite: "🥷", nivel: 1, hp: 90, maxHp: 90, dmgBase: 12,
+                habilidades: [{ nombre: "Golpe Kárate", poder: 1.2, desbloqueo: 1 }]
+            }
         ];
         
-        let activoIdx = 0; // NFT principal
-        let enemy = { name: "?", type: "?", sprite: "❓", hp: 100, maxHp: 100, dmg: 10 };
+        let equipoActivo = 0; // Índice del pokemon en batalla
+        let enemy = { name: "?", sprite: "❓", hp: 100, maxHp: 100, nivel: 1 };
         let isCombatLocked = false;
-        let currentMode = "";
-
-        const wildBots = [
-            { name: "Cíclope", type: "fuego", sprite: "👁️", hp: 70, dmg: 14 },
-            { name: "Cangrejo Red", type: "agua", sprite: "🦀", hp: 60, dmg: 10 },
-            { name: "Treant", type: "planta", sprite: "🌲", hp: 100, dmg: 8 }
-        ];
 
         async function crearCuenta() {
             const email = document.getElementById('email').value;
@@ -254,6 +262,7 @@
             if(!email || !password) return alert("Faltan datos.");
             const { data, error } = await cliente.auth.signUp({ email, password });
             if (error) return alert("Error: " + error.message);
+            // Intentamos insertar. Si no tienes la columna 'ton', esto fallará. Por ahora solo guardamos oro.
             await cliente.from('perfiles').insert([{ id: data.user.id, username: email.split('@')[0], oro: 100 }]);
             alert("Cuenta creada. Entra ahora.");
         }
@@ -264,9 +273,19 @@
             const { data, error } = await cliente.auth.signInWithPassword({ email, password });
             if (error) return alert("Credenciales incorrectas.");
 
-            const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
             miUsuarioId = data.user.id;
-            miToken = perfil.data ? perfil.data.oro : 0;
+            miCorreo = email;
+            
+            // Cargar datos
+            const perfil = await cliente.from('perfiles').select('*').eq('id', miUsuarioId).single();
+            if(perfil.data) {
+                miPlata = perfil.data.oro || 0;
+                miTon = perfil.data.ton || 0.00; // Requiere columna 'ton' en supabase
+            }
+
+            document.getElementById('banco-memo').innerText = "UID-" + miUsuarioId.substring(0,8).toUpperCase();
+            
+            if(adminEmails.includes(miCorreo)) document.getElementById('btn-admin').style.display = 'block';
 
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
@@ -274,271 +293,234 @@
             renderFighters();
         }
 
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
         function changeTab(tab) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`s-${tab}`).classList.add('active');
-            document.getElementById(`t-${tab}`).classList.add('active');
-            
-            if(tab === 'social') cargarRanking();
-            if(tab === 'fighters') renderFighters();
+            document.getElementById('sidebar').classList.remove('open');
         }
 
-        function iniciarBusqueda(modo) {
-            let coste = modo === 'pvp' ? 10 : 5;
-            if (energia < coste) return alert("⚡ No tienes suficiente energía.");
+        // --- SISTEMA DE COMBATE Y HABILIDADES ---
+        function iniciarCombate(modo) {
+            if (energia < 5) return alert("Sin energía.");
+            energia -= 5;
             
-            energia -= coste;
-            currentMode = modo;
+            let miNFT = myFighters[equipoActivo];
+            if(miNFT.hp <= 0) return alert("Tu Pokémon principal está debilitado. Cúralo o cambia el orden.");
+
+            enemy = { name: "Bot Oscuro", sprite: "👾", nivel: miNFT.nivel, hp: 80 + (miNFT.nivel*10), maxHp: 80 + (miNFT.nivel*10) };
             
-            document.getElementById('explore-options').style.display = 'none';
-            document.getElementById('radar-screen').style.display = 'block';
-            document.getElementById('radar-text').innerText = modo === 'pvp' ? "Buscando nodo oponente..." : "Escaneando jungla...";
-            
-            actualizarUI();
-
-            setTimeout(() => {
-                generarEnemigo(modo);
-                document.getElementById('explore-options').style.display = 'block';
-                document.getElementById('radar-screen').style.display = 'none';
-                
-                document.getElementById('t-battle').disabled = false;
-                changeTab('battle');
-                iniciarCombate();
-            }, 3000);
-        }
-
-        function generarEnemigo(modo) {
-            if (modo === 'pve') {
-                let r = wildBots[Math.floor(Math.random() * wildBots.length)];
-                let factor = 1 + (myFighters[activoIdx].nivel * 0.1); // Escala un poco con tu nivel
-                enemy = { name: "Salvaje " + r.name, type: r.type, sprite: r.sprite, hp: Math.floor(r.hp * factor), maxHp: Math.floor(r.hp * factor), dmg: Math.floor(r.dmg * factor) };
-                document.getElementById('btn-catch').style.display = 'block';
-            } else {
-                enemy = { name: "Bot_Holder_77", type: "fuego", sprite: "🥷", hp: 150, maxHp: 150, dmg: 25 };
-                document.getElementById('btn-catch').style.display = 'none';
-            }
-            actualizarUI();
-        }
-
-        function iniciarCombate() {
-            document.getElementById('log-console').innerHTML = "¡La batalla ha comenzado!";
-            document.getElementById('battle-controls').style.display = 'grid';
-            document.getElementById('btn-flee').style.display = 'none';
-            
-            // Asegurar que tu NFT inicie con la vida correcta al entrar
-            let miNFT = myFighters[activoIdx];
-            if(miNFT.hp <= 0) miNFT.hp = miNFT.maxHp; 
-
+            document.getElementById('log-console').innerHTML = "¡Batalla iniciada contra " + enemy.name + "!";
+            document.getElementById('battle-controls').style.display = 'block';
             isCombatLocked = false;
-            actualizarUI();
+            
+            changeTab('battle');
+            actualizarBatallaUI();
         }
 
-        function triggerAnimation(elementId, animClass) {
-            let el = document.getElementById(elementId);
-            el.classList.remove(animClass, 'anim-idle');
-            void el.offsetWidth; 
-            el.classList.add(animClass);
-            setTimeout(() => { el.classList.remove(animClass); el.classList.add('anim-idle'); }, 400);
+        function actualizarBatallaUI() {
+            let miNFT = myFighters[equipoActivo];
+            
+            document.getElementById('p-name').innerText = miNFT.name;
+            document.getElementById('p-sprite').innerText = miNFT.sprite;
+            document.getElementById('p-nivel').innerText = miNFT.nivel;
+            document.getElementById('p-hp').style.width = (miNFT.hp / miNFT.maxHp * 100) + '%';
+            document.getElementById('p-hp-txt').innerText = `${Math.floor(miNFT.hp)}/${miNFT.maxHp}`;
+            
+            document.getElementById('e-name').innerText = enemy.name;
+            document.getElementById('e-sprite').innerText = enemy.sprite;
+            document.getElementById('e-nivel').innerText = enemy.nivel;
+            document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
+            document.getElementById('e-hp-txt').innerText = `${Math.floor(enemy.hp)}/${enemy.maxHp}`;
+
+            // Cargar Habilidades Disponibles por Nivel
+            let htmlSkills = "";
+            miNFT.habilidades.forEach(hab => {
+                if(miNFT.nivel >= hab.desbloqueo) {
+                    htmlSkills += `<button class="btn-blue" onclick="usarHabilidad('${hab.nombre}', ${hab.poder})">${hab.nombre}</button>`;
+                } else {
+                    htmlSkills += `<button class="btn-dark" disabled>Nv.${hab.desbloqueo} 🔒</button>`;
+                }
+            });
+            document.getElementById('box-habilidades').innerHTML = htmlSkills;
         }
 
-        function atacar() {
-            if (isCombatLocked) return;
+        function usarHabilidad(nombre, multiplicador) {
+            if(isCombatLocked) return;
             isCombatLocked = true;
-            let miNFT = myFighters[activoIdx];
+            let miNFT = myFighters[equipoActivo];
 
-            triggerAnimation('p-sprite', 'anim-attack');
-            setTimeout(() => triggerAnimation('e-sprite', 'anim-damage'), 200);
+            let dmg = Math.floor(miNFT.dmgBase * multiplicador) + Math.floor(Math.random() * 5);
+            enemy.hp -= dmg;
+            logMsg(`Usaste ${nombre}! Daño: ${dmg}`);
+            
+            actualizarBatallaUI();
 
-            let dmgHecho = Math.floor(Math.random() * 8) + miNFT.dmg;
-            enemy.hp = Math.max(0, enemy.hp - dmgHecho);
-            logMsg(`⚔️ ¡Atacas! Haces ${dmgHecho} de daño.`);
-            actualizarUI();
-
-            if (enemy.hp <= 0) setTimeout(ganarBatalla, 800);
+            if(enemy.hp <= 0) setTimeout(ganarBatalla, 1000);
             else setTimeout(turnoEnemigo, 1000);
         }
 
         function turnoEnemigo() {
-            let miNFT = myFighters[activoIdx];
-            triggerAnimation('e-sprite', 'anim-attack');
-            setTimeout(() => triggerAnimation('p-sprite', 'anim-damage'), 200);
+            let miNFT = myFighters[equipoActivo];
+            let dmg = 10 + (enemy.nivel * 2);
+            miNFT.hp -= dmg;
+            logMsg(`El enemigo ataca! Recibes ${dmg} de daño.`);
+            actualizarBatallaUI();
 
-            let dmgRecibido = Math.floor(Math.random() * 5) + enemy.dmg;
-            miNFT.hp = Math.max(0, miNFT.hp - dmgRecibido);
-            logMsg(`💥 El rival golpea quitándote ${dmgRecibido} HP.`);
-            actualizarUI();
-
-            if (miNFT.hp <= 0) {
-                logMsg("💀 Tu NFT ha sido debilitado.");
-                finalizarCombate();
+            if(miNFT.hp <= 0) {
+                logMsg(`${miNFT.name} fue derrotado...`);
+                abrirCambio(true); // Obliga a cambiar
             } else {
                 isCombatLocked = false;
             }
         }
 
         async function ganarBatalla() {
-            let miNFT = myFighters[activoIdx];
-            let recompensa = currentMode === 'pvp' ? 60 : 25; 
-            miToken += recompensa;
+            let recompensaPlata = 150;
+            miPlata += recompensaPlata;
+            logMsg(`¡Ganaste! Obteniendo ${recompensaPlata} Plata.`);
             
-            // Sistema de XP restaurado
-            let expGanada = currentMode === 'pvp' ? 50 : 35;
-            miNFT.xp += expGanada;
-            logMsg(`🏆 ¡Ganaste ${recompensa} $META y ${expGanada} XP!`);
+            // Subir nivel (simplificado)
+            let miNFT = myFighters[equipoActivo];
+            miNFT.nivel++;
+            miNFT.maxHp += 10;
+            miNFT.dmgBase += 2;
+            miNFT.hp = miNFT.maxHp;
+            logMsg(`${miNFT.name} sube al Nivel ${miNFT.nivel}!`);
 
-            if (miNFT.xp >= 100) {
-                miNFT.nivel++;
-                miNFT.xp -= 100;
-                miNFT.maxHp += 15;
-                miNFT.dmg += 5;
-                miNFT.hp = miNFT.maxHp;
-                logMsg(`⭐ ¡Tu NFT subió a Nivel ${miNFT.nivel}!`);
-            }
-            
-            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
-            actualizarUI();
-            finalizarCombate();
-        }
-
-        function usarPocion() {
-            if (globalPotions <= 0 || isCombatLocked) return;
-            let miNFT = myFighters[activoIdx];
-            globalPotions--;
-            miNFT.hp = Math.min(miNFT.maxHp, miNFT.hp + 50);
-            logMsg("🧪 Te has curado 50 HP.");
-            actualizarUI();
-            isCombatLocked = true;
-            setTimeout(turnoEnemigo, 1000);
-        }
-
-        function capturar() {
-            if (isCombatLocked || globalBalls <= 0) return;
-            globalBalls--;
-            actualizarUI();
-            logMsg("📦 Has lanzado una cápsula...");
-            isCombatLocked = true;
-            
-            setTimeout(() => {
-                let chance = 1 - (enemy.hp / enemy.maxHp); 
-                if (Math.random() < chance + 0.25) {
-                    logMsg("✨ ¡NFT Capturado!");
-                    myFighters.push({ id: Date.now(), name: enemy.name.replace("Salvaje ", ""), type: enemy.type, sprite: enemy.sprite, nivel: 1, xp: 0, hp: enemy.maxHp, maxHp: enemy.maxHp, dmg: enemy.dmg });
-                    setTimeout(ganarBatalla, 1000);
-                } else {
-                    logMsg("❌ Falló la captura.");
-                    turnoEnemigo();
-                }
-            }, 1000);
-        }
-
-        function finalizarCombate() {
+            await guardarDatos();
             document.getElementById('battle-controls').style.display = 'none';
-            document.getElementById('btn-flee').style.display = 'block';
-            document.getElementById('t-battle').disabled = true;
+            setTimeout(() => { changeTab('explore'); actualizarUI(); }, 2000);
         }
 
         function huir() {
-            let miNFT = myFighters[activoIdx];
-            if(miNFT.hp <= 0) miNFT.hp = miNFT.maxHp; // Curar auto al salir si murió
             changeTab('explore');
             actualizarUI();
         }
 
+        // --- SISTEMA DE RELEVOS (3v3) ---
+        function abrirCambio(obligatorio = false) {
+            let modal = document.getElementById('modal-cambio');
+            let lista = document.getElementById('lista-relevos');
+            lista.innerHTML = "";
+            let vivos = 0;
+
+            myFighters.forEach((nft, index) => {
+                if(index === equipoActivo) return; // No mostrar el actual
+                let btn = document.createElement('button');
+                if(nft.hp <= 0) {
+                    btn.className = "btn-dark"; btn.disabled = true;
+                    btn.innerText = `💀 ${nft.name} (Caído)`;
+                } else {
+                    vivos++;
+                    btn.className = "btn-gold";
+                    btn.innerText = `🔄 ${nft.sprite} ${nft.name} (Nv.${nft.nivel} | HP:${Math.floor(nft.hp)})`;
+                    btn.onclick = () => ejecutarCambio(index);
+                }
+                lista.appendChild(btn);
+            });
+
+            if(obligatorio && vivos === 0) {
+                alert("¡No te quedan Pokémon vivos! Has perdido.");
+                myFighters.forEach(p => p.hp = p.maxHp); // Curar auto para evitar bloqueo
+                huir();
+                return;
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function ejecutarCambio(index) {
+            equipoActivo = index;
+            document.getElementById('modal-cambio').style.display = 'none';
+            logMsg(`¡Adelante ${myFighters[index].name}!`);
+            actualizarBatallaUI();
+            if(!isCombatLocked) { // Si no fue forzado por muerte, pierde turno
+                isCombatLocked = true;
+                setTimeout(turnoEnemigo, 1000);
+            } else {
+                isCombatLocked = false;
+            }
+        }
+
+        // --- ECONOMIA Y BANCO ---
+        async function canjearPlata() {
+            if(miPlata < 10000) return alert("Necesitas 10,000 de Plata para 1 TON.");
+            miPlata -= 10000;
+            miTon += 1.00;
+            await guardarDatos();
+            alert("¡Cambio exitoso! Recibiste 1 TON.");
+            actualizarUI();
+        }
+
+        function solicitarRetiro() {
+            let wallet = document.getElementById('wallet-retiro').value;
+            let monto = parseFloat(document.getElementById('monto-retiro').value);
+            if(!wallet || isNaN(monto) || monto <= 0) return alert("Datos inválidos.");
+            if(monto > miTon) return alert("Saldo TON insuficiente.");
+            
+            alert(`Solicitud enviada. ${monto} TON serán enviados a ${wallet} pronto (Manual).`);
+            miTon -= monto;
+            guardarDatos();
+            actualizarUI();
+        }
+
+        // --- UTILIDADES ---
         function renderFighters() {
             let html = "";
-            myFighters.forEach((nft, index) => {
-                let costeMejora = nft.nivel * 40; // El coste sube con el nivel
+            myFighters.forEach((nft) => {
+                let coste = nft.nivel * 500;
                 html += `
-                <div class="card-item" style="border: 2px solid ${index === activoIdx ? '#10b981' : '#475569'}; flex-direction: column; gap: 8px; align-items: stretch;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <span style="font-size:24px;">${nft.sprite}</span>
-                            <strong>${nft.name}</strong> <span class="badge b-${nft.type}">${nft.type}</span>
-                        </div>
-                        <span style="font-size:12px; color:#eab308;">Nv. ${nft.nivel}</span>
+                <div class="card" style="display:flex; flex-direction:column; gap:5px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:24px;">${nft.sprite} <strong style="font-size:16px;">${nft.name}</strong></span>
+                        <span style="color:#d4af37;">Nv. ${nft.nivel}</span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between;">
-                        <span>HP: ${nft.hp}/${nft.maxHp} | Daño: ${nft.dmg}</span>
-                        <span>XP: ${nft.xp}/100</span>
-                    </div>
-                    <button class="btn-upgrade" onclick="entrenarNFT(${index}, ${costeMejora})">Entrenar (Coste: ${costeMejora} $META)</button>
+                    <div class="hp-bg"><div class="hp-fill" style="width:${(nft.hp/nft.maxHp)*100}%;"></div></div>
+                    <span style="font-size:10px; color:#cbd5e1;">Habilidades desbloqueadas: ${nft.habilidades.filter(h=>nft.nivel >= h.desbloqueo).length}/3</span>
+                    <button class="btn-purple" style="margin-top:10px; padding:8px;" onclick="mejorarNFT(${nft.id}, ${coste})">Mejorar (${coste} Plata)</button>
                 </div>`;
             });
             document.getElementById('fighters-list').innerHTML = html;
         }
 
-        async function entrenarNFT(index, coste) {
-            if (miToken < coste) return alert("❌ No tienes suficiente $META para entrenarlo.");
-            miToken -= coste;
-            let nft = myFighters[index];
+        async function mejorarNFT(id, coste) {
+            if(miPlata < coste) return alert("Plata insuficiente.");
+            let nft = myFighters.find(f => f.id === id);
+            miPlata -= coste;
             nft.nivel++;
-            nft.maxHp += 20;
+            nft.maxHp += 15;
             nft.hp = nft.maxHp;
-            nft.dmg += 8;
-            nft.xp = 0;
-            
-            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
-            alert(`✅ ${nft.name} ha mejorado enormemente. Nuevo Nivel: ${nft.nivel}`);
+            nft.dmgBase += 3;
+            await guardarDatos();
+            alert(`¡${nft.name} subió a Nivel ${nft.nivel}!`);
             actualizarUI();
             renderFighters();
         }
 
-        async function cargarRanking() {
-            const lista = document.getElementById('lista-ranking');
-            lista.innerHTML = "<li>Conectando con la Blockchain...</li>";
-            const { data, error } = await cliente.from('perfiles').select('username, oro').order('oro', { ascending: false }).limit(5);
-            if (error) { lista.innerHTML = "<li>Error al cargar la red</li>"; return; }
-            
-            lista.innerHTML = data.map((j, i) => {
-                let medalla = i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🔸";
-                return `<li><span>${medalla} ${j.username}</span> <span style="color:#10b981;">${j.oro} $META</span></li>`;
-            }).join('');
-        }
-
-        function copiarReferido() {
-            const link = window.location.href.split('?')[0] + "?ref=" + miUsuarioId;
-            navigator.clipboard.writeText(link);
-            alert("🔗 Enlace copiado al portapapeles:\n" + link);
+        function actualizarUI() {
+            document.getElementById('ui-plata').innerText = `${miPlata} Plata`;
+            document.getElementById('ui-ton').innerText = `${miTon.toFixed(2)} TON`;
+            document.getElementById('txt-energia').innerText = `${energia}/20`;
         }
 
         function logMsg(msg) {
             let logBox = document.getElementById('log-console');
-            logBox.innerHTML = `• ${msg}<br>` + logBox.innerHTML;
+            logBox.innerHTML = `> ${msg}<br>` + logBox.innerHTML;
         }
 
-        function actualizarUI() {
-            document.getElementById('global-token').innerText = `💎 ${miToken} $META`;
-            document.getElementById('global-balls').innerText = `📦 x${globalBalls}`;
-            document.getElementById('global-potions').innerText = `🧪 x${globalPotions}`;
-            document.getElementById('txt-energia').innerText = `${energia}/${maxEnergia}`;
-            document.getElementById('bar-energia').style.width = (energia / maxEnergia * 100) + '%';
-
-            let miNFT = myFighters[activoIdx];
-            document.getElementById('p-name').innerText = miNFT.name;
-            document.getElementById('p-sprite').innerText = miNFT.sprite;
-            document.getElementById('p-hp').style.width = (miNFT.hp / miNFT.maxHp * 100) + '%';
-            document.getElementById('p-hp-txt').innerText = `${miNFT.hp}/${miNFT.maxHp}`;
-            
-            document.getElementById('e-name').innerText = enemy.name;
-            document.getElementById('e-sprite').innerText = enemy.sprite;
-            document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-            document.getElementById('e-hp-txt').innerText = `${enemy.hp}/${enemy.maxHp}`;
-        }
-
-        async function comprarItem(item, coste) {
-            if (miToken < coste) return alert("Fondos $META insuficientes.");
-            miToken -= coste;
-            if (item === 'ball') globalBalls++;
-            if (item === 'potion') globalPotions++;
-            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
-            actualizarUI();
+        async function guardarDatos() {
+            // Guarda oro. Si agregas columna 'ton', añade: ton: miTon
+            await cliente.from('perfiles').update({ oro: miPlata }).eq('id', miUsuarioId);
         }
 
         async function cerrarSesion() {
             await cliente.auth.signOut();
-            document.getElementById('main-game').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'flex';
+            window.location.reload();
         }
     </script>
 </body>
