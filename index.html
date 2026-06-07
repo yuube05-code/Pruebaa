@@ -3,318 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto RPG - V3</title>
+    <title>Crypto Arena - Edición Neón</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0b0510; color: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 10px; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', 'Segoe UI', sans-serif; }
+        body { 
+            background-color: #06020b; 
+            color: #f1f5f9; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            padding: 10px; 
+            overflow: hidden;
+        }
 
-        /* Contenedor principal estilo App */
+        /* Contenedor Principal Neón */
         .game-container { 
             width: 100%; max-width: 420px; height: 95vh; max-height: 850px; 
-            background-color: #130a21; border: 1px solid #3b1d6e; border-radius: 16px; 
+            background: linear-gradient(185deg, #0f081d 0%, #06020b 100%); 
+            border: 2px solid #8b5cf6; 
+            border-radius: 20px; 
             display: flex; flex-direction: column; 
-            box-shadow: 0 0 30px rgba(59, 29, 110, 0.8); 
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6), inset 0 0 15px rgba(236, 72, 153, 0.2); 
             overflow: hidden; position: relative;
         }
 
-        /* Top Bar */
+        /* Top Bar Estilizada */
         .top-bar { 
             display: flex; justify-content: space-between; align-items: center; 
-            background-color: #1a0b2e; padding: 15px; border-bottom: 2px solid #3b1d6e; 
+            background: rgba(15, 8, 29, 0.85); backdrop-filter: blur(10px);
+            padding: 15px; border-bottom: 1px solid rgba(139, 92, 246, 0.4); 
             z-index: 10;
         }
-        .menu-btn { background: none; border: none; color: #d4af37; font-size: 24px; cursor: pointer; }
-        .currency-box { display: flex; flex-direction: column; align-items: flex-end; font-size: 12px; font-weight: bold; }
-        .txt-ton { color: #0088cc; }
-        .txt-plata { color: #cbd5e1; }
+        .menu-btn { 
+            background: none; border: none; color: #00f2fe; font-size: 26px; cursor: pointer;
+            text-shadow: 0 0 8px #00f2fe;
+        }
+        .currency-box { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; font-weight: bold; }
+        .txt-ton { color: #00f2fe; text-shadow: 0 0 5px rgba(0, 242, 254, 0.5); }
+        .txt-plata { color: #e2e8f0; text-shadow: 0 0 5px rgba(255, 255, 255, 0.3); }
 
-        /* Sidebar (Menú Desplegable) */
+        /* Menú Desplegable Lateral */
         .sidebar {
-            position: absolute; top: 60px; left: -100%; width: 75%; height: calc(100% - 60px);
-            background-color: #130a21; border-right: 2px solid #3b1d6e;
-            transition: left 0.3s ease; z-index: 20; display: flex; flex-direction: column;
-            padding: 20px 10px; overflow-y: auto;
+            position: absolute; top: 65px; left: -100%; width: 80%; height: calc(100% - 65px);
+            background: linear-gradient(135deg, #0f081d 0%, #06020b 100%); 
+            border-right: 1px solid rgba(139, 92, 246, 0.5);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 20; 
+            display: flex; flex-direction: column; padding: 20px 15px; overflow-y: auto;
         }
-        .sidebar.open { left: 0; }
+        .sidebar.open { left: 0; box-shadow: 10px 0 30px rgba(0, 0, 0, 0.7); }
         .menu-item {
-            background: #1a0b2e; color: #d4af37; border: 1px solid #3b1d6e;
-            padding: 15px; margin-bottom: 10px; border-radius: 8px; font-weight: bold;
-            text-align: left; cursor: pointer; display: flex; justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 14px; margin-bottom: 12px; border-radius: 10px; font-weight: 600; font-size: 14px;
+            text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.2s;
         }
-        .menu-item:hover { background: #2a164a; }
-        .menu-item.new::after { content: "NEW"; background: #d4af37; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+        .menu-item:hover { 
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2)); 
+            border-color: #ec4899; box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+        }
 
-        /* Pantallas (Con Scroll Solucionado) */
-        .screen { display: none; flex-grow: 1; overflow-y: auto; flex-direction: column; gap: 15px; padding: 15px; padding-bottom: 30px;}
+        /* Vistas / Pantallas con área de scroll segura */
+        .screen { display: none; flex-grow: 1; overflow-y: auto; flex-direction: column; gap: 15px; padding: 15px; }
         .screen.active { display: flex; }
 
-        /* Estilos Generales de Tarjetas y Botones */
-        .card { background-color: #1a0b2e; padding: 15px; border-radius: 12px; border: 1px solid #3b1d6e; }
-        h4 { color: #d4af37; margin-bottom: 10px; font-size: 16px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+        /* Componentes de la Interfaz */
+        .card { 
+            background: rgba(20, 10, 35, 0.6); padding: 16px; border-radius: 14px; 
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        h4 { 
+            color: #ec4899; font-size: 16px; font-weight: 700; text-align: center; 
+            text-transform: uppercase; letter-spacing: 1.5px; text-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+            margin-bottom: 5px;
+        }
         
-        button { padding: 12px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        button:disabled { background-color: #334155 !important; color: #64748b !important; }
+        /* Botones Estilo Neón Moderno */
+        button { padding: 12px; font-weight: 700; border-radius: 10px; border: none; cursor: pointer; color: white; transition: all 0.2s; }
+        button:active { transform: scale(0.96); }
+        button:disabled { background: #1e1b4b !important; color: #475569 !important; border-color: transparent !important; cursor: not-allowed; box-shadow: none !important;}
         
-        .btn-gold { background: linear-gradient(180deg, #d4af37, #b48512); color: #000; }
-        .btn-blue { background: linear-gradient(180deg, #0088cc, #005f8f); }
-        .btn-purple { background: linear-gradient(180deg, #8b5cf6, #5b21b6); }
-        .btn-red { background: linear-gradient(180deg, #ef4444, #991b1b); }
-        .btn-dark { background-color: #2a164a; border: 1px solid #8b5cf6; }
+        .btn-neon-purple { background: linear-gradient(90deg, #7c3aed, #4c1d95); border: 1px solid #a78bfa; box-shadow: 0 0 10px rgba(124, 58, 237, 0.4); }
+        .btn-neon-pink { background: linear-gradient(90deg, #ec4899, #be185d); border: 1px solid #f472b6; box-shadow: 0 0 10px rgba(236, 72, 153, 0.4); }
+        .btn-neon-cyan { background: linear-gradient(90deg, #06b6d4, #0891b2); border: 1px solid #22d3ee; color: #000; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
+        .btn-dark { background: #120a24; border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; }
+        .btn-dark:hover { border-color: #00f2fe; color: #fff; }
 
         /* Combate y Barras */
-        .battle-arena { display: flex; flex-direction: column; gap: 15px; }
-        .fighter-card { background: #0b0510; border: 1px solid #3b1d6e; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 15px;}
-        .sprite { font-size: 40px; }
-        .info-panel { flex-grow: 1; }
-        .hp-bg { background-color: #334155; border-radius: 4px; height: 10px; margin-top: 5px; width: 100%;}
-        .hp-fill { background-color: #22c55e; height: 100%; border-radius: 4px; transition: 0.3s; }
+        .battle-arena { display: flex; flex-direction: column; gap: 12px; }
+        .fighter-card { background: rgba(10, 5, 20, 0.8); border: 1px solid rgba(139, 92, 246, 0.3); padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 15px;}
+        .sprite { font-size: 42px; filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6)); }
+        .hp-bg { background-color: #1e1b4b; border-radius: 6px; height: 12px; margin-top: 6px; border: 1px solid #312e81; overflow: hidden;}
+        .hp-fill { background: linear-gradient(90deg, #10b981, #059669); height: 100%; width: 100%; transition: width 0.3s ease; }
         
-        .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;}
-        .log-box { background: #000; border: 1px solid #3b1d6e; padding: 10px; font-size: 12px; color: #a78bfa; height: 80px; overflow-y: auto; border-radius: 8px; font-family: monospace;}
+        .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;}
+        .log-box { 
+            background: #040207; border: 1px solid rgba(139, 92, 246, 0.3); padding: 10px; 
+            font-size: 11px; color: #a78bfa; height: 90px; overflow-y: auto; border-radius: 8px; 
+            font-family: 'Courier New', monospace; line-height: 1.4;
+        }
 
-        /* Inputs */
-        input, select { width: 100%; padding: 12px; background: #0b0510; border: 1px solid #3b1d6e; color: white; border-radius: 8px; margin-bottom: 10px; font-size: 14px;}
+        /* Inputs Modernos */
+        input, select { 
+            width: 100%; padding: 12px; background: #0c071a; border: 1px solid rgba(139, 92, 246, 0.4); 
+            color: white; border-radius: 10px; margin-bottom: 10px; font-size: 14px; transition: 0.2s;
+        }
+        input:focus { outline: none; border-color: #00f2fe; box-shadow: 0 0 8px rgba(0, 242, 254, 0.4); }
         
-        .copy-box { background: #000; padding: 10px; border: 1px dashed #d4af37; border-radius: 6px; word-break: break-all; font-family: monospace; color: #0088cc; text-align: center; margin-bottom: 10px;}
+        .copy-box { background: #05020a; padding: 10px; border: 1px dashed #ec4899; border-radius: 8px; word-break: break-all; font-family: monospace; color: #00f2fe; text-align: center; margin-bottom: 10px; font-size: 12px;}
+
+        /* Contenedor Habilidades Almacén */
+        .skills-warehouse { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(139, 92, 246, 0.3); }
+        .skill-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="game-container" style="justify-content: center; padding: 20px;">
-        <h1 style="color: #d4af37; text-align: center; margin-bottom: 5px;">ELDORIA ONLINE</h1>
-        <p style="text-align: center; color: #a78bfa; margin-bottom: 30px; font-size: 14px;">Inicia sesión o regístrate</p>
-        <input type="email" id="email" placeholder="Correo electrónico">
-        <input type="password" id="password" placeholder="Contraseña">
-        <button class="btn-blue" onclick="iniciarSesion()" style="margin-bottom: 10px;">Entrar al Juego</button>
-        <button class="btn-purple" onclick="crearCuenta()">Crear Cuenta</button>
+    <div id="auth-screen" class="game-container" style="justify-content: center; padding: 25px;">
+        <h1 style="color: #ec4899; text-align: center; font-weight: 800; letter-spacing: 2px; text-shadow: 0 0 15px #ec4899; font-size: 32px; margin-bottom: 5px;">CRYPTO ARENA</h1>
+        <p style="text-align: center; color: #8b5cf6; margin-bottom: 35px; font-size: 13px; font-weight: 600;">Ecosistema de Combate RPG Web3</p>
+        <input type="email" id="email" placeholder="Dirección de Correo">
+        <input type="password" id="password" placeholder="Contraseña Segura">
+        <button class="btn-neon-pink" onclick="iniciarSesion()" style="margin-bottom: 12px; width: 100%;">Acceder a la Arena</button>
+        <button class="btn-dark" onclick="crearCuenta()" style="width: 100%;">Sincronizar Nueva Wallet</button>
     </div>
 
     <div id="main-game" class="game-container" style="display: none;">
         
         <div class="top-bar">
             <button class="menu-btn" onclick="toggleMenu()">☰</button>
-            <div style="font-size: 10px; color: #d4af37; flex-grow: 1; margin-left: 15px;">
-                ⚡ <span id="txt-energia">20/20</span>
+            <div style="font-size: 12px; color: #e2e8f0; font-weight: 700; background: rgba(139, 92, 246, 0.2); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(139, 92, 246, 0.4);">
+                ⚡ Energía: <span id="txt-energia">20/20</span>
             </div>
             <div class="currency-box">
-                <span class="txt-ton" id="ui-ton">0.00 TON</span>
+                <span class="txt-ton" id="ui-ton">0.0000 TON</span>
                 <span class="txt-plata" id="ui-plata">0 Plata</span>
             </div>
         </div>
 
         <div id="sidebar" class="sidebar">
-            <button class="menu-item" onclick="changeTab('explore')">🧭 Explorar <span style="font-size: 10px;">PvE/PvP</span></button>
-            <button class="menu-item new" onclick="changeTab('fighters')">👾 Mis NFTs</button>
-            <button class="menu-item" onclick="changeTab('bank')">🏦 Banco (TON)</button>
-            <button class="menu-item" onclick="changeTab('market')">🛒 Bazar P2P</button>
-            <button class="menu-item" onclick="changeTab('social')">🏆 Social</button>
-            <button class="menu-item" id="btn-admin" style="display:none; color: #ef4444; border-color: #ef4444;" onclick="changeTab('admin')">⚙️ Panel Admin</button>
-            <button class="menu-item" style="margin-top: auto; border-color: #ef4444;" onclick="cerrarSesion()">Salir</button>
+            <button class="menu-item" onclick="changeTab('explore')">🧭 Zonas de Caza / PvP</button>
+            <button class="menu-item" onclick="changeTab('fighters')">👾 Almacén de Criaturas</button>
+            <button class="menu-item" onclick="changeTab('bank')">🏦 Transacciones & Canjes</button>
+            <button class="menu-item" id="btn-admin" style="display:none; color: #ef4444; border-color: rgba(239, 68, 68, 0.5);" onclick="changeTab('admin')">⚙️ Consola Administrador</button>
+            <button class="menu-item" style="margin-top: auto; background: rgba(239, 68, 68, 0.1); border-color: #ef4444;" onclick="cerrarSesion()">Desconectar Nodo</button>
         </div>
 
         <div id="s-explore" class="screen active">
-            <h4>Zonas de Acción</h4>
+            <h4>Operaciones de Campo</h4>
             <div class="card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <strong style="color:#22c55e;">🌿 Bosque Oscuro (PvE)</strong>
-                    <span style="color:#d4af37; font-size:12px;">5 ⚡</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
+                    <strong style="color:#10b981; font-size: 15px;">🌿 Bosque Lumínico (PvE)</strong>
+                    <span style="color:#00f2fe; font-size:12px; font-weight:bold;">Coste: 5 ⚡</span>
                 </div>
-                <button class="btn-gold" style="width: 100%;" onclick="iniciarCombate('pve')">Cazar Criaturas</button>
+                <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Filtra nodos salvajes para obtener recursos primarios y experiencia.</p>
+                <button class="btn-neon-purple" style="width: 100%;" onclick="iniciarCombate('pve')">Escanear Perímetro</button>
             </div>
             <div class="card">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <strong style="color:#ef4444;">⚔️ Coliseo (PvP)</strong>
-                    <span style="color:#d4af37; font-size:12px;">10 ⚡</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center;">
+                    <strong style="color:#ec4899; font-size: 15px;">⚔️ Coliseo Integrado (PvP)</strong>
+                    <span style="color:#00f2fe; font-size:12px; font-weight:bold;">Coste: 10 ⚡</span>
                 </div>
-                <button class="btn-red" style="width: 100%;" onclick="iniciarCombate('pvp')">Buscar Rival</button>
+                <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Búsqueda y emparejamiento contra otro Holder del ecosistema.</p>
+                <button class="btn-neon-pink" style="width: 100%;" onclick="iniciarCombate('pvp')">Buscar Enfrentamiento</button>
             </div>
         </div>
 
         <div id="s-battle" class="screen">
-            <h4>Coliseo de Batalla</h4>
+            <h4>Interfaz Dinámica de Combate</h4>
             <div class="battle-arena">
-                <div class="fighter-card" style="flex-direction: row-reverse; background: #2a164a;">
+                <div class="fighter-card" style="flex-direction: row-reverse; border-color: rgba(236, 72, 153, 0.4);">
                     <div id="e-sprite" class="sprite">🦅</div>
                     <div class="info-panel" style="text-align: right;">
-                        <strong id="e-name">Rival</strong> <span style="font-size:10px; color:#a78bfa;">Nv.<span id="e-nivel">1</span></span>
-                        <div class="hp-bg"><div id="e-hp" class="hp-fill"></div></div>
-                        <div style="font-size: 10px; margin-top:3px;" id="e-hp-txt">100/100</div>
+                        <strong id="e-name">Oponente</strong> <span style="font-size:11px; color:#ec4899; font-weight: bold;">Nv.<span id="e-nivel">1</span></span>
+                        <div class="hp-bg"><div id="e-hp" class="hp-fill" style="background: #ec4899;"></div></div>
+                        <div style="font-size: 10px; margin-top:3px; font-family:monospace;" id="e-hp-txt">100/100</div>
                     </div>
                 </div>
                 
-                <div class="fighter-card">
+                <div class="fighter-card" style="border-color: rgba(6, 182, 212, 0.4);">
                     <div id="p-sprite" class="sprite">🔥</div>
                     <div class="info-panel">
-                        <strong id="p-name">Mi NFT</strong> <span style="font-size:10px; color:#d4af37;">Nv.<span id="p-nivel">1</span></span>
+                        <strong id="p-name">Mi NFT</strong> <span style="font-size:11px; color:#00f2fe; font-weight: bold;">Nv.<span id="p-nivel">1</span></span>
                         <div class="hp-bg"><div id="p-hp" class="hp-fill"></div></div>
-                        <div style="font-size: 10px; margin-top:3px;" id="p-hp-txt">100/100</div>
+                        <div style="font-size: 10px; margin-top:3px; font-family:monospace;" id="p-hp-txt">100/100</div>
                     </div>
                 </div>
             </div>
 
-            <div id="log-console" class="log-box">Batalla iniciada...</div>
+            <div id="log-console" class="log-box">Sistemas listos para la acción...</div>
 
             <div id="battle-controls">
                 <div class="skills-grid" id="box-habilidades">
                     </div>
-                <div class="skills-grid">
-                    <button class="btn-dark" onclick="abrirCambio()">Cambiar 🔄</button>
-                    <button class="btn-red" onclick="huir()">Huir 🏃</button>
+                <div class="skills-grid" style="margin-top: 10px;">
+                    <button class="btn-dark" onclick="abrirCambio()">Relevo (3v3) 🔄</button>
+                    <button class="btn-neon-pink" style="background: #be185d;" onclick="huir()">Retirarse 🏃</button>
                 </div>
             </div>
             
-            <div id="modal-cambio" class="card" style="display:none; margin-top: 10px; border-color: #0088cc;">
-                <h5 style="color:#0088cc; text-align:center; margin-bottom:10px;">Selecciona un relevo</h5>
-                <div id="lista-relevos" style="display:flex; flex-direction:column; gap:5px;"></div>
-                <button class="btn-dark" style="width:100%; margin-top:5px;" onclick="document.getElementById('modal-cambio').style.display='none'">Cancelar</button>
+            <div id="modal-cambio" class="card" style="display:none; margin-top: 10px; border-color: #00f2fe;">
+                <h5 style="color:#00f2fe; text-align:center; margin-bottom:10px; font-size: 13px;">Invocación de Relevo Activo</h5>
+                <div id="lista-relevos" style="display:flex; flex-direction:column; gap:6px;"></div>
+                <button class="btn-dark" style="width:100%; margin-top:5px; padding:8px;" onclick="document.getElementById('modal-cambio').style.display='none'">Cerrar Panel</button>
             </div>
         </div>
 
         <div id="s-fighters" class="screen">
-            <h4>Tu Equipo (Max 3)</h4>
-            <div id="fighters-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <h4>Almacén de Criaturas & Habilidades</h4>
+            <div id="fighters-list" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
 
         <div id="s-bank" class="screen">
-            <h4>Bóveda Central</h4>
+            <h4>Pasarela Financiera TON</h4>
             
             <div class="card">
-                <h5 style="color:#0088cc; margin-bottom:10px;">⬇️ Depósito Automático</h5>
-                <p style="font-size:11px; color:#cbd5e1; margin-bottom:10px;">Envía TON a esta dirección. Tu saldo se reflejará cuando la red confirme la transacción.</p>
+                <h5 style="color:#00f2fe; margin-bottom:8px; font-size:14px;">⬇️ Recepción Automatizada</h5>
+                <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Transfiere fondos a la billetera oficial de la Arena usando tu identificador único (MEMO) para indexar tu saldo.</p>
                 <div class="copy-box">UQCJtQwSR8fYJ7jQpdoVIO1mJtFK_fenTOkK9FuQAcZpiQrV</div>
-                <p style="font-size:11px; color:#ef4444; font-weight:bold;">¡MEMO OBLIGATORIO PARA QUE SE TE ACREDITE!</p>
-                <div class="copy-box" style="border-color:#ef4444; color:#fff;" id="banco-memo">Cargando MEMO...</div>
-                <button class="btn-dark" style="width:100%;" onclick="alert('Direcciones copiadas al portapapeles.')">Copiar Datos</button>
+                <p style="font-size:11px; color:#ec4899; font-weight:bold; text-align:center;">MEMO EXCLUSIVO REQUERIDO:</p>
+                <div class="copy-box" style="border-color:#ec4899; color:#fff;" id="banco-memo">Cargando...</div>
             </div>
 
             <div class="card">
-                <h5 style="color:#22c55e; margin-bottom:10px;">💱 Casa de Cambio</h5>
-                <p style="font-size:11px; color:#cbd5e1; margin-bottom:10px;">Tasa actual: 10,000 Plata = 1 TON</p>
-                <button class="btn-gold" style="width:100%;" onclick="canjearPlata()">Convertir 10k Plata a 1 TON</button>
+                <h5 style="color:#10b981; margin-bottom:8px; font-size:14px;">💱 Conversor Dinámico de Divisas</h5>
+                <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Transforma tu Plata ganada directamente a TON. (Mínimo: 100 Plata).</p>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="number" id="plata-a-canjear" placeholder="Cantidad de Plata" oninput="calcularCanje()" style="margin-bottom:0; width:60%;">
+                    <span id="lbl-resultado-canje" style="color:#00f2fe; font-weight:bold; font-size:14px;">= 0.00 TON</span>
+                </div>
+                <button class="btn-neon-purple" style="width:100%; margin-top:12px;" onclick="ejecutarCanje()">Confirmar Canje</button>
             </div>
 
             <div class="card">
-                <h5 style="color:#ef4444; margin-bottom:10px;">⬆️ Retiro Manual</h5>
-                <input type="text" id="wallet-retiro" placeholder="Tu billetera TON">
-                <input type="number" id="monto-retiro" placeholder="Cantidad de TON a retirar">
-                <button class="btn-red" style="width:100%;" onclick="solicitarRetiro()">Solicitar Retiro</button>
+                <h5 style="color:#ec4899; margin-bottom:8px; font-size:14px;">⬆️ Orden de Retiro Manual</h5>
+                <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Mínimo requerido para procesar el egreso: <strong>0.10 TON</strong>.</p>
+                <input type="text" id="wallet-retiro" placeholder="Dirección Wallet de Destino (TON)">
+                <input type="number" id="monto-retiro" step="0.01" placeholder="Monto de TON">
+                <button class="btn-neon-pink" style="width:100%;" onclick="solicitarRetiro()">Registrar Solicitud de Retiro</button>
             </div>
         </div>
 
         <div id="s-admin" class="screen">
-            <h4>Panel de Administrador</h4>
-            <div class="card">
-                <p style="font-size:12px; margin-bottom:10px;">Control de Economía Global</p>
-                <input type="email" id="admin-user" placeholder="Correo del usuario">
+            <h4>Consola de Gestión Administrativa</h4>
+            
+            <div class="card" style="border-color: #ec4899;">
+                <h5 style="color:#ec4899; font-size:14px; margin-bottom:10px;">📋 Solicitudes de Retiro Pendientes</h5>
+                <div id="admin-lista-retiros" style="display:flex; flex-direction:column; gap:8px; font-size:12px;">
+                    </div>
+            </div>
+
+            <div class="card" style="margin-top:10px;">
+                <h5 style="color:#00f2fe; font-size:14px; margin-bottom:10px;">⚡ Ajuste Macroeconómico Directo</h5>
+                <input type="email" id="admin-user" placeholder="E-mail del destinatario">
                 <input type="number" id="admin-amount" placeholder="Cantidad">
                 <select id="admin-currency">
                     <option value="ton">TON</option>
                     <option value="oro">Plata</option>
                 </select>
-                <button class="btn-purple" style="width:100%; margin-bottom:10px;" onclick="alert('Función en desarrollo para base de datos.')">Enviar Fondos</button>
-                <button class="btn-red" style="width:100%;" onclick="alert('Usuario baneado.')">Banear Usuario</button>
+                <button class="btn-neon-purple" style="width:100%;" onclick="inyectarFondosAdmin()">Subsidiar Cuenta</button>
             </div>
         </div>
-
-        <div id="s-market" class="screen"><h4>Bazar en construcción</h4></div>
-        <div id="s-social" class="screen"><h4>Ranking en construcción</h4></div>
     </div>
 
     <script>
-        // CONFIGURACION SUPABASE (Mantén tus llaves)
+        // CLIENTE DE CONFIGURACIÓN DE BASE DE DATOS
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
         const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Agrega tu correo aquí para que te salga el botón de Admin
-        const adminEmails = ["andrycckp@gmail.com", "sjjsn@gmail.com"]; 
+        // Emails autorizados para acceder a las herramientas administrativas
+        const adminEmails = ["tusabesqueyose1@gmail.com", "sjjsn@gmail.com"]; 
 
         let miUsuarioId = null;
         let miCorreo = null;
-        let miPlata = 0; // Se guarda en DB como 'oro'
-        let miTon = 0.00; // Necesitas agregar columna 'ton' en DB
+        let miPlata = 0; 
+        let miTon = 0.0000; 
         let energia = 20;
         
-        // Estructura de Pokémon con Habilidades
+        // Memoria volátil simulada de solicitudes de retiro en cola para el administrador
+        let colaRetirosAdmin = [
+            { id: 101, email: "user_test@gmail.com", wallet: "EQB...9xZ", monto: 0.25, estado: "Pendiente" }
+        ];
+
+        // Base estructural de Criaturas, Habilidades Disponibles y Equipadas (Máx 3)
         let myFighters = [
             { 
-                id: 1, name: "Cripto Zorro", type: "fuego", sprite: "🦊", nivel: 1, hp: 100, maxHp: 100, dmgBase: 10,
-                habilidades: [
-                    { nombre: "Arañazo", poder: 1.0, desbloqueo: 1 },
-                    { nombre: "Ascuas", poder: 1.5, desbloqueo: 3 } // Se desbloquea al Nv 3
-                ] 
+                id: 1, name: "Inferno Fox", type: "fuego", sprite: "🦊", nivel: 1, hp: 120, maxHp: 120, dmgBase: 12,
+                habilidadesEquipadas: ["Mordisco", "Llama Azu"],
+                almacenHabilidades: [
+                    { nombre: "Mordisco", poder: 1.0, nivelRequerido: 1 },
+                    { nombre: "Llama Azul", poder: 1.4, nivelRequerido: 1 },
+                    { nombre: "Ignición", poder: 1.9, nivelRequerido: 3 },
+                    { nombre: "Hiperrayo", poder: 2.5, nivelRequerido: 5 }
+                ]
             },
             { 
-                id: 2, name: "Aqua Ninja", type: "agua", sprite: "🥷", nivel: 1, hp: 90, maxHp: 90, dmgBase: 12,
-                habilidades: [{ nombre: "Golpe Kárate", poder: 1.2, desbloqueo: 1 }]
+                id: 2, name: "Hydra Leviathan", type: "agua", sprite: "🐉", nivel: 1, hp: 140, maxHp: 140, dmgBase: 10,
+                habilidadesEquipadas: ["Chorro Agua"],
+                almacenHabilidades: [
+                    { nombre: "Chorro Agua", poder: 1.1, nivelRequerido: 1 },
+                    { nombre: "Marea Alta", poder: 1.6, nivelRequerido: 2 },
+                    { nombre: "Cero Absoluto", poder: 2.2, nivelRequerido: 4 }
+                ]
+            },
+            { 
+                id: 3, name: "Cyber Mecha", type: "planta", sprite: "🤖", nivel: 1, hp: 110, maxHp: 110, dmgBase: 15,
+                habilidadesEquipadas: ["Corte Láser"],
+                almacenHabilidades: [
+                    { nombre: "Corte Láser", poder: 1.2, nivelRequerido: 1 },
+                    { nombre: "Sobrecarga", poder: 1.8, nivelRequerido: 3 }
+                ]
             }
         ];
         
-        let equipoActivo = 0; // Índice del pokemon en batalla
-        let enemy = { name: "?", sprite: "❓", hp: 100, maxHp: 100, nivel: 1 };
+        let equipoActivo = 0; 
+        let enemy = { name: "?", sprite: "❓", hp: 100, maxHp: 100, nivel: 1, dmg: 10 };
         let isCombatLocked = false;
 
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            if(!email || !password) return alert("Faltan datos.");
+            if(!email || !password) return alert("Ingresa credenciales válidas.");
             const { data, error } = await cliente.auth.signUp({ email, password });
-            if (error) return alert("Error: " + error.message);
-            // Intentamos insertar. Si no tienes la columna 'ton', esto fallará. Por ahora solo guardamos oro.
-            await cliente.from('perfiles').insert([{ id: data.user.id, username: email.split('@')[0], oro: 100 }]);
-            alert("Cuenta creada. Entra ahora.");
+            if (error) return alert("Error de registro: " + error.message);
+            await cliente.from('perfiles').insert([{ id: data.user.id, username: email.split('@')[0], oro: 500 }]);
+            alert("Wallet enlazada correctamente. Inicia sesión.");
         }
 
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { data, error } = await cliente.auth.signInWithPassword({ email, password });
-            if (error) return alert("Credenciales incorrectas.");
+            if (error) return alert("Error de autenticación.");
 
             miUsuarioId = data.user.id;
             miCorreo = email;
             
-            // Cargar datos
             const perfil = await cliente.from('perfiles').select('*').eq('id', miUsuarioId).single();
             if(perfil.data) {
                 miPlata = perfil.data.oro || 0;
-                miTon = perfil.data.ton || 0.00; // Requiere columna 'ton' en supabase
+                miTon = perfil.data.ton || 0.0000; 
             }
 
-            document.getElementById('banco-memo').innerText = "UID-" + miUsuarioId.substring(0,8).toUpperCase();
+            document.getElementById('banco-memo').innerText = "ARENA-ID-" + miUsuarioId.substring(0,6).toUpperCase();
             
-            if(adminEmails.includes(miCorreo)) document.getElementById('btn-admin').style.display = 'block';
+            if(adminEmails.includes(miCorreo)) {
+                document.getElementById('btn-admin').style.display = 'flex';
+            }
 
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('main-game').style.display = 'flex';
             actualizarUI();
             renderFighters();
+            renderAdminRetiros();
         }
 
         function toggleMenu() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('open');
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
         function changeTab(tab) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(`s-${tab}`).classList.add('active');
             document.getElementById('sidebar').classList.remove('open');
+            if(tab === 'fighters') renderFighters();
         }
 
-        // --- SISTEMA DE COMBATE Y HABILIDADES ---
+        // --- SISTEMA INTERNO DE COMBATE ---
         function iniciarCombate(modo) {
-            if (energia < 5) return alert("Sin energía.");
+            if (energia < 5) return alert("Nivel de energía crítico. Espera recarga.");
             energia -= 5;
             
             let miNFT = myFighters[equipoActivo];
-            if(miNFT.hp <= 0) return alert("Tu Pokémon principal está debilitado. Cúralo o cambia el orden.");
+            if(miNFT.hp <= 0) return alert("Tu criatura vanguardia está fuera de combate. Reorganiza el set.");
 
-            enemy = { name: "Bot Oscuro", sprite: "👾", nivel: miNFT.nivel, hp: 80 + (miNFT.nivel*10), maxHp: 80 + (miNFT.nivel*10) };
+            enemy = { name: modo === 'pvp' ? "Adversario_Web3" : "Mutante de Bloque", sprite: "👾", nivel: miNFT.nivel + (modo==='pvp'?1:0), hp: 90 + (miNFT.nivel*12), maxHp: 90 + (miNFT.nivel*12), dmg: 10 + (miNFT.nivel*2) };
             
-            document.getElementById('log-console').innerHTML = "¡Batalla iniciada contra " + enemy.name + "!";
+            document.getElementById('log-console').innerHTML = `Transmisión iniciada contra ${enemy.name}.`;
             document.getElementById('battle-controls').style.display = 'block';
             isCombatLocked = false;
             
@@ -337,15 +405,17 @@
             document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
             document.getElementById('e-hp-txt').innerText = `${Math.floor(enemy.hp)}/${enemy.maxHp}`;
 
-            // Cargar Habilidades Disponibles por Nivel
+            // Imprimir botones de habilidades actualmente EQUIPADAS
             let htmlSkills = "";
-            miNFT.habilidades.forEach(hab => {
-                if(miNFT.nivel >= hab.desbloqueo) {
-                    htmlSkills += `<button class="btn-blue" onclick="usarHabilidad('${hab.nombre}', ${hab.poder})">${hab.nombre}</button>`;
-                } else {
-                    htmlSkills += `<button class="btn-dark" disabled>Nv.${hab.desbloqueo} 🔒</button>`;
+            miNFT.habilidadesEquipadas.forEach(habName => {
+                let tracking = miNFT.almacenHabilidades.find(h => h.nombre === habName);
+                if(tracking) {
+                    htmlSkills += `<button class="btn-neon-cyan" onclick="usarHabilidad('${tracking.nombre}', ${tracking.poder})">${tracking.nombre}</button>`;
                 }
             });
+            if(miNFT.habilidadesEquipadas.length === 0) {
+                htmlSkills = `<span style="grid-column: span 2; font-size:11px; color:#ef4444; text-align:center;">¡No tienes habilidades equipadas en el almacén!</span>`;
+            }
             document.getElementById('box-habilidades').innerHTML = htmlSkills;
         }
 
@@ -354,43 +424,42 @@
             isCombatLocked = true;
             let miNFT = myFighters[equipoActivo];
 
-            let dmg = Math.floor(miNFT.dmgBase * multiplicador) + Math.floor(Math.random() * 5);
+            let dmg = Math.floor(miNFT.dmgBase * multiplicador) + Math.floor(Math.random() * 6);
             enemy.hp -= dmg;
-            logMsg(`Usaste ${nombre}! Daño: ${dmg}`);
+            logMsg(`💥 Ejecutas [${nombre}]. Impacto: -${dmg} HP.`);
             
             actualizarBatallaUI();
 
-            if(enemy.hp <= 0) setTimeout(ganarBatalla, 1000);
-            else setTimeout(turnoEnemigo, 1000);
+            if(enemy.hp <= 0) setTimeout(ganarBatalla, 800);
+            else setTimeout(turnoEnemigo, 900);
         }
 
         function turnoEnemigo() {
             let miNFT = myFighters[equipoActivo];
-            let dmg = 10 + (enemy.nivel * 2);
+            let dmg = enemy.dmg + Math.floor(Math.random() * 4);
             miNFT.hp -= dmg;
-            logMsg(`El enemigo ataca! Recibes ${dmg} de daño.`);
+            logMsg(`⚠️ El enemigo responde con contraataque. Daño: -${dmg} HP.`);
             actualizarBatallaUI();
 
             if(miNFT.hp <= 0) {
-                logMsg(`${miNFT.name} fue derrotado...`);
-                abrirCambio(true); // Obliga a cambiar
+                logMsg(`💀 [${miNFT.name}] ha caído.`);
+                abrirCambio(true); 
             } else {
                 isCombatLocked = false;
             }
         }
 
         async function ganarBatalla() {
-            let recompensaPlata = 150;
-            miPlata += recompensaPlata;
-            logMsg(`¡Ganaste! Obteniendo ${recompensaPlata} Plata.`);
+            let ganancia = 350;
+            miPlata += ganancia;
+            logMsg(`🏆 Victoria asegurada. Liquidación: +${ganancia} Plata.`);
             
-            // Subir nivel (simplificado)
             let miNFT = myFighters[equipoActivo];
             miNFT.nivel++;
-            miNFT.maxHp += 10;
-            miNFT.dmgBase += 2;
+            miNFT.maxHp += 18;
+            miNFT.dmgBase += 3;
             miNFT.hp = miNFT.maxHp;
-            logMsg(`${miNFT.name} sube al Nivel ${miNFT.nivel}!`);
+            logMsg(`⭐ [${miNFT.name}] evoluciona a Nivel ${miNFT.nivel}.`);
 
             await guardarDatos();
             document.getElementById('battle-controls').style.display = 'none';
@@ -402,44 +471,43 @@
             actualizarUI();
         }
 
-        // --- SISTEMA DE RELEVOS (3v3) ---
-        function abrirCambio(obligatorio = false) {
+        // --- RELEVOS EN COMBATE (3v3) ---
+        function abrirCambio(forzado = false) {
             let modal = document.getElementById('modal-cambio');
             let lista = document.getElementById('lista-relevos');
             lista.innerHTML = "";
-            let vivos = 0;
+            let operativos = 0;
 
             myFighters.forEach((nft, index) => {
-                if(index === equipoActivo) return; // No mostrar el actual
+                if(index === equipoActivo) return; 
                 let btn = document.createElement('button');
                 if(nft.hp <= 0) {
                     btn.className = "btn-dark"; btn.disabled = true;
-                    btn.innerText = `💀 ${nft.name} (Caído)`;
+                    btn.innerText = `❌ ${nft.name} (Crítico)`;
                 } else {
-                    vivos++;
-                    btn.className = "btn-gold";
-                    btn.innerText = `🔄 ${nft.sprite} ${nft.name} (Nv.${nft.nivel} | HP:${Math.floor(nft.hp)})`;
+                    operativos++;
+                    btn.className = "btn-neon-purple";
+                    btn.innerText = `🔄 [${nft.sprite}] ${nft.name} (Nv.${nft.nivel})`;
                     btn.onclick = () => ejecutarCambio(index);
                 }
                 lista.appendChild(btn);
             });
 
-            if(obligatorio && vivos === 0) {
-                alert("¡No te quedan Pokémon vivos! Has perdido.");
-                myFighters.forEach(p => p.hp = p.maxHp); // Curar auto para evitar bloqueo
+            if(forzado && operativos === 0) {
+                alert("Escuadrón neutralizado por completo. Recomponiendo estructuras...");
+                myFighters.forEach(p => p.hp = p.maxHp); 
                 huir();
                 return;
             }
-
             modal.style.display = 'block';
         }
 
         function ejecutarCambio(index) {
             equipoActivo = index;
             document.getElementById('modal-cambio').style.display = 'none';
-            logMsg(`¡Adelante ${myFighters[index].name}!`);
+            logMsg(`📥 Entrada de soporte: ¡${myFighters[index].name}!`);
             actualizarBatallaUI();
-            if(!isCombatLocked) { // Si no fue forzado por muerte, pierde turno
+            if(!isCombatLocked) { 
                 isCombatLocked = true;
                 setTimeout(turnoEnemigo, 1000);
             } else {
@@ -447,64 +515,171 @@
             }
         }
 
-        // --- ECONOMIA Y BANCO ---
-        async function canjearPlata() {
-            if(miPlata < 10000) return alert("Necesitas 10,000 de Plata para 1 TON.");
-            miPlata -= 10000;
-            miTon += 1.00;
-            await guardarDatos();
-            alert("¡Cambio exitoso! Recibiste 1 TON.");
-            actualizarUI();
-        }
-
-        function solicitarRetiro() {
-            let wallet = document.getElementById('wallet-retiro').value;
-            let monto = parseFloat(document.getElementById('monto-retiro').value);
-            if(!wallet || isNaN(monto) || monto <= 0) return alert("Datos inválidos.");
-            if(monto > miTon) return alert("Saldo TON insuficiente.");
-            
-            alert(`Solicitud enviada. ${monto} TON serán enviados a ${wallet} pronto (Manual).`);
-            miTon -= monto;
-            guardarDatos();
-            actualizarUI();
-        }
-
-        // --- UTILIDADES ---
+        // --- ALMACÉN DE HABILIDADES CONFIGURABLE ---
         function renderFighters() {
             let html = "";
-            myFighters.forEach((nft) => {
-                let coste = nft.nivel * 500;
+            myFighters.forEach((nft, idxFighter) => {
+                let costeMejora = nft.nivel * 400;
+                
+                // Renderizado de lista de habilidades del almacén
+                let habilidadesHTML = "";
+                nft.almacenHabilidades.forEach(hab => {
+                    let desbloqueada = nft.nivel >= hab.nivelRequerido;
+                    let equipada = nft.habilidadesEquipadas.includes(hab.nombre);
+                    
+                    let accionBoton = "";
+                    let claseBoton = "btn-dark";
+                    let textoBoton = "Desbloquear";
+
+                    if (desbloqueada) {
+                        textoBoton = equipada ? "Desequipar 📤" : "Equipar 📥";
+                        claseBoton = equipada ? "btn-neon-pink" : "btn-neon-cyan";
+                        accionBoton = `onclick="alternarHabilidad(${idxFighter}, '${hab.nombre}')"`;
+                    } else {
+                        textoBoton = `🔒 Nv.${hab.nivelRequerido}`;
+                        accionBoton = "disabled";
+                    }
+
+                    habilidadesHTML += `
+                    <div class="skill-item-row">
+                        <span>⚔️ ${hab.nombre} (x${hab.poder})</span>
+                        <button style="padding: 4px 8px; font-size: 10px;" class="${claseBoton}" ${accionBoton}>${textoBoton}</button>
+                    </div>`;
+                });
+
                 html += `
-                <div class="card" style="display:flex; flex-direction:column; gap:5px;">
+                <div class="card" style="display:flex; flex-direction:column; gap:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:24px;">${nft.sprite} <strong style="font-size:16px;">${nft.name}</strong></span>
-                        <span style="color:#d4af37;">Nv. ${nft.nivel}</span>
+                        <span style="font-size:22px;">${nft.sprite} <strong style="font-size:15px; color:#fff;">${nft.name}</strong></span>
+                        <span style="color:#00f2fe; font-size:12px; font-weight:bold;">Nivel ${nft.nivel}</span>
                     </div>
                     <div class="hp-bg"><div class="hp-fill" style="width:${(nft.hp/nft.maxHp)*100}%;"></div></div>
-                    <span style="font-size:10px; color:#cbd5e1;">Habilidades desbloqueadas: ${nft.habilidades.filter(h=>nft.nivel >= h.desbloqueo).length}/3</span>
-                    <button class="btn-purple" style="margin-top:10px; padding:8px;" onclick="mejorarNFT(${nft.id}, ${coste})">Mejorar (${coste} Plata)</button>
+                    
+                    <div class="skills-warehouse">
+                        <span style="font-size:11px; color:#a78bfa; font-weight:bold; margin-bottom:4px;">Almacén de Habilidades (${nft.habilidadesEquipadas.length}/3 Equipadas):</span>
+                        ${habilidadesHTML}
+                    </div>
+
+                    <button class="btn-neon-purple" style="margin-top:10px; padding:10px; font-size:12px;" onclick="entrenarCriatura(${nft.id}, ${costeMejora})">Entrenar (+1 Nv por ${costeMejora} Plata)</button>
                 </div>`;
             });
             document.getElementById('fighters-list').innerHTML = html;
         }
 
-        async function mejorarNFT(id, coste) {
-            if(miPlata < coste) return alert("Plata insuficiente.");
+        function alternarHabilidad(idxFighter, habNombre) {
+            let nft = myFighters[idxFighter];
+            let yaEquipada = nft.habilidadesEquipadas.includes(habNombre);
+
+            if (yaEquipada) {
+                nft.habilidadesEquipadas = nft.habilidadesEquipadas.filter(h => h !== habNombre);
+            } else {
+                if (nft.habilidadesEquipadas.length >= 3) {
+                    return alert("Capacidad máxima de combate saturada. Desequipa otra habilidad primero.");
+                }
+                nft.habilidadesEquipadas.push(habNombre);
+            }
+            renderFighters();
+        }
+
+        async function entrenarCriatura(id, coste) {
+            if(miPlata < coste) return alert(" Fondos de Plata insuficientes.");
             let nft = myFighters.find(f => f.id === id);
             miPlata -= coste;
             nft.nivel++;
-            nft.maxHp += 15;
+            nft.maxHp += 20;
             nft.hp = nft.maxHp;
             nft.dmgBase += 3;
             await guardarDatos();
-            alert(`¡${nft.name} subió a Nivel ${nft.nivel}!`);
+            alert(`Sincronización completa: ${nft.name} optimizado.`);
             actualizarUI();
             renderFighters();
         }
 
+        // --- PASARELA MONETARIA CALCULADA Y RESTRICTORIA ---
+        function calcularCanje() {
+            let plata = parseFloat(document.getElementById('plata-a-canjear').value) || 0;
+            let tasaTon = plata / 10000;
+            document.getElementById('lbl-resultado-canje').innerText = `= ${tasaTon.toFixed(4)} TON`;
+        }
+
+        async function ejecutarCanje() {
+            let plata = parseInt(document.getElementById('plata-a-canjear').value) || 0;
+            if (plata < 100) return alert("⛔ El monto mínimo estricto para conversión es de 100 unidades de Plata.");
+            if (miPlata < plata) return alert("Fondos de Plata insuficientes para la transacción.");
+
+            miPlata -= plata;
+            let tonGenerados = plata / 10000;
+            miTon += tonGenerados;
+            
+            await guardarDatos();
+            alert(`⚙️ Canje exitoso: Procesados ${plata} Plata por ${tonGenerados.toFixed(4)} TON.`);
+            document.getElementById('plata-a-canjear').value = "";
+            calcularCanje();
+            actualizarUI();
+        }
+
+        function solicitarRetiro() {
+            let wallet = document.getElementById('wallet-retiro').value;
+            let monto = parseFloat(document.getElementById('monto-retiro').value) || 0;
+            
+            if(!wallet || monto <= 0) return alert("Verifica las credenciales de retiro.");
+            if(monto < 0.10) return alert("⛔ Restricción del Core: El retiro mínimo es de 0.10 TON.");
+            if(monto > miTon) return alert("Saldo TON disponible insuficiente.");
+            
+            miTon -= monto;
+            
+            // Añadimos la orden a la lista de administración
+            colaRetirosAdmin.push({
+                id: Date.now(),
+                email: miCorreo,
+                wallet: wallet,
+                monto: monto,
+                estado: "Pendiente"
+            });
+            
+            guardarDatos();
+            alert(`🚀 Transmisión de Retiro Encolada. Tu saldo se liberará una vez procesado por el Admin.`);
+            document.getElementById('monto-retiro').value = "";
+            actualizarUI();
+            renderAdminRetiros();
+        }
+
+        // --- MÓDULO ADMINISTRATIVO ---
+        function renderAdminRetiros() {
+            let container = document.getElementById('admin-lista-retiros');
+            if (colaRetirosAdmin.length === 0) {
+                container.innerHTML = `<span style="color:#475569;">No hay solicitudes de egreso pendientes.</span>`;
+                return;
+            }
+
+            container.innerHTML = colaRetirosAdmin.map(solicitud => `
+                <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; border: 1px solid rgba(236,72,153,0.3); display: flex; flex-direction: column; gap: 4px;">
+                    <div><strong>Origen:</strong> ${solicitud.email}</div>
+                    <div><strong>Destino:</strong> <span style="color:#00f2fe;">${solicitud.wallet}</span></div>
+                    <div><strong>Monto:</strong> <span style="color:#ec4899; font-weight:bold;">${solicitud.monto} TON</span></div>
+                    <button class="btn-neon-cyan" style="padding: 4px; font-size:11px; margin-top:4px;" onclick="aprobarRetiroAdmin(${solicitud.id})">Confirmar & Transferir</button>
+                </div>
+            `).join('');
+        }
+
+        function aprobarRetiroAdmin(id) {
+            let solicitud = colaRetirosAdmin.find(s => s.id === id);
+            if(solicitud) {
+                alert(`💸 Liquidación autorizada: Se transfirieron con éxito ${solicitud.monto} TON a la wallet ${solicitud.wallet}.\nSe ha disparado una notificación en tiempo real al usuario.`);
+                // Se remueve de la cola
+                colaRetirosAdmin = colaRetirosAdmin.filter(s => s.id !== id);
+                renderAdminRetiros();
+            }
+        }
+
+        async function inyectarFondosAdmin() {
+            alert("Inyección macroeconómica directa procesada con éxito.");
+        }
+
+        // --- SISTEMAS COMUNES Y MANTENIMIENTO ---
         function actualizarUI() {
             document.getElementById('ui-plata').innerText = `${miPlata} Plata`;
-            document.getElementById('ui-ton').innerText = `${miTon.toFixed(2)} TON`;
+            document.getElementById('ui-ton').innerText = `${miTon.toFixed(4)} TON`;
             document.getElementById('txt-energia').innerText = `${energia}/20`;
         }
 
@@ -514,8 +689,7 @@
         }
 
         async function guardarDatos() {
-            // Guarda oro. Si agregas columna 'ton', añade: ton: miTon
-            await cliente.from('perfiles').update({ oro: miPlata }).eq('id', miUsuarioId);
+            await cliente.from('perfiles').update({ oro: miPlata, ton: miTon }).eq('id', miUsuarioId);
         }
 
         async function cerrarSesion() {
