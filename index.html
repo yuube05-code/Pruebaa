@@ -3,48 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto RPG - Play to Earn</title>
+    <title>Crypto RPG - V2 Expandida</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #0b0f19; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 6px; }
+        body { background-color: #050505; color: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 10px; overflow: hidden;}
 
-        .game-container { width: 100%; max-width: 430px; background-color: #1e293b; border: 2px solid #8b5cf6; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+        /* Contenedor principal: Más alto, simulando la pantalla de un móvil */
+        .game-container { 
+            width: 100%; max-width: 420px; height: 95vh; max-height: 850px; 
+            background-color: #1e293b; border: 2px solid #8b5cf6; border-radius: 12px; 
+            padding: 10px; display: flex; flex-direction: column; gap: 10px; 
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); 
+            overflow: hidden;
+        }
 
         /* Auth Screen */
-        #auth-screen { display: flex; flex-direction: column; gap: 10px; text-align: center; padding: 20px;}
-        input { padding: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; }
+        #auth-screen { flex-direction: column; gap: 15px; text-align: center; padding: 30px 10px; justify-content: center;}
+        input { padding: 12px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; font-size: 14px;}
 
-        /* Top Bar */
-        .top-bar { display: flex; justify-content: space-between; background-color: #020617; padding: 8px; border-radius: 6px; font-size: 11px; border: 1px solid #334155; }
-        .crypto-txt { color: #10b981; font-weight: bold; text-shadow: 0 0 5px #10b981; }
+        /* Top Bar Expandida */
+        .top-bar { display: flex; flex-direction: column; gap: 5px; background-color: #020617; padding: 10px; border-radius: 6px; font-size: 12px; border: 1px solid #334155; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; }
+        .crypto-txt { color: #10b981; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px #10b981; }
+        .energy-bar { background: #475569; height: 6px; border-radius: 3px; margin-top: 2px; overflow: hidden; }
+        .energy-fill { background: #eab308; height: 100%; width: 100%; transition: width 0.3s; }
 
         /* Tabs */
-        .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-        .tab-btn { background-color: #334155; color: #94a3b8; border: 1px solid #475569; padding: 8px 2px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase;}
-        .tab-btn.active { background-color: #8b5cf6; color: #fff; border-color: #c4b5fd; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .nav-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+        .tab-btn { background-color: #334155; color: #94a3b8; border: 1px solid #475569; padding: 8px 2px; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase;}
+        .tab-btn.active { background-color: #8b5cf6; color: #fff; border-color: #c4b5fd; }
 
-        .screen { display: none; }
-        .screen.active { display: flex; flex-direction: column; gap: 10px; }
+        .screen { display: none; flex-grow: 1; overflow-y: auto; flex-direction: column; gap: 10px; padding-bottom: 5px;}
+        .screen.active { display: flex; }
 
-        /* Estilos de Batalla */
-        .battle-arena { background: linear-gradient(to bottom, #2e1065, #0f172a); border-radius: 8px; padding: 15px; border: 2px solid #6d28d9; display: flex; flex-direction: column; gap: 15px; position: relative; overflow: hidden;}
-        .character-card { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.4); padding: 8px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); }
+        /* Batalla */
+        .battle-arena { background: linear-gradient(to bottom, #2e1065, #0f172a); border-radius: 8px; padding: 15px; border: 2px solid #6d28d9; display: flex; flex-direction: column; gap: 20px; flex-grow: 1; justify-content: center;}
+        .character-card { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); }
         .reverse { flex-direction: row-reverse; }
-        .sprite { font-size: 48px; transition: transform 0.2s; }
+        
+        .sprite { font-size: 50px; display: inline-block; }
         .info-panel { width: 65%; }
         .meta-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;}
-        
         .hp-bg { background-color: #475569; border-radius: 4px; overflow: hidden; height: 12px; border: 1px solid #000;}
         .hp-fill { width: 100%; height: 100%; background-color: #22c55e; transition: width 0.4s ease-out; }
-        
         .badge { padding: 2px 5px; border-radius: 3px; font-size: 9px; color: #fff; text-transform: uppercase;}
-        .b-fuego { background-color: #ef4444; } .b-agua { background-color: #3b82f6; } .b-planta { background-color: #10b981; } .b-bot { background-color: #f59e0b; }
+        .b-fuego { background-color: #ef4444; } .b-agua { background-color: #3b82f6; } .b-planta { background-color: #10b981; }
 
-        .battle-log { height: 70px; background-color: #020617; border: 1px solid #334155; border-radius: 6px; padding: 6px; font-size: 11px; overflow-y: auto; color: #c4b5fd; }
+        .battle-log { min-height: 80px; max-height: 100px; background-color: #020617; border: 1px solid #334155; border-radius: 6px; padding: 8px; font-size: 11px; overflow-y: auto; color: #c4b5fd; }
 
-        /* Botones Generales */
-        button { padding: 10px; font-size: 11px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; color: white; transition: all 0.2s;}
+        button { padding: 12px; font-size: 12px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; color: white; transition: all 0.2s;}
         button:active { transform: scale(0.95); }
         button:disabled { background-color: #475569 !important; color: #64748b !important; cursor: not-allowed; transform: none;}
         
@@ -52,32 +60,38 @@
         .btn-skill { background-color: #3b82f6; border-bottom: 3px solid #1e3a8a; }
         .btn-item { background-color: #0f766e; border-bottom: 3px solid #042f2e; }
         .btn-danger { background-color: #e11d48; border-bottom: 3px solid #881337; }
+        .btn-upgrade { background-color: #f59e0b; border-bottom: 3px solid #b45309; color: #000; font-size: 10px; padding: 8px;}
         
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-        /* Listas y Exploración */
-        .list-container { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
-        .card-item { background-color: #1e293b; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; }
+        .list-container { display: flex; flex-direction: column; gap: 8px; }
+        .card-item { background-color: #1e293b; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; }
         
-        /* --- ANIMACIONES CSS --- */
-        @keyframes attackShake { 0% { transform: translateX(0); } 25% { transform: translateX(10px) rotate(5deg); } 50% { transform: translateX(-10px) rotate(-5deg); } 75% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        /* --- ANIMACIONES --- */
+        @keyframes idleFloat { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
+        .anim-idle { animation: idleFloat 2s ease-in-out infinite; }
+
+        @keyframes attackShake { 0% { transform: translateX(0); } 25% { transform: translateX(15px) rotate(10deg); } 50% { transform: translateX(-15px) rotate(-10deg); } 75% { transform: translateX(15px); } 100% { transform: translateX(0); } }
         .anim-attack { animation: attackShake 0.4s ease-in-out; }
 
-        @keyframes damageFlash { 0% { filter: brightness(1) invert(0); } 50% { filter: brightness(2) invert(1) hue-rotate(180deg); } 100% { filter: brightness(1) invert(0); } }
+        @keyframes damageFlash { 0% { filter: brightness(1); } 50% { filter: brightness(3) invert(1) drop-shadow(0 0 10px red); } 100% { filter: brightness(1); } }
         .anim-damage { animation: damageFlash 0.4s ease-in-out; }
 
-        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.5; } }
+        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.3); opacity: 1; text-shadow: 0 0 15px #8b5cf6;} 100% { transform: scale(0.8); opacity: 0.5; } }
         
-        /* Pantalla de Radar */
-        #radar-screen { display: none; text-align: center; padding: 40px 10px; background: #020617; border-radius: 8px; border: 1px dashed #8b5cf6; }
-        .radar-icon { font-size: 50px; display: inline-block; animation: radarPulse 1.5s infinite; margin-bottom: 15px;}
+        #radar-screen { display: none; text-align: center; padding: 60px 10px; background: #020617; border-radius: 8px; border: 1px dashed #8b5cf6; flex-grow: 1;}
+        .radar-icon { font-size: 60px; display: inline-block; animation: radarPulse 1.2s infinite; margin-bottom: 20px;}
+
+        /* Ranking List */
+        .rank-list { list-style: none; padding: 0; }
+        .rank-list li { background: #334155; margin: 5px 0; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 12px;}
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="game-container">
-        <h1 style="color: #a78bfa; text-shadow: 0 0 10px #8b5cf6;">CRYPTO ARENA</h1>
-        <p style="font-size: 12px; color: #94a3b8;">Conecta tu perfil para ganar $META</p>
+    <div id="auth-screen" class="game-container" style="display: flex;">
+        <h1 style="color: #a78bfa; text-shadow: 0 0 10px #8b5cf6; font-size: 28px;">CRYPTO ARENA</h1>
+        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Forja tu imperio y gana $META</p>
         
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
@@ -87,147 +101,166 @@
     </div>
 
     <div id="main-game" class="game-container" style="display: none;">
+        
         <div class="top-bar">
-            <div>🎒 Items: <span id="global-balls">📦 x3</span> | <span id="global-potions">🧪 x2</span></div>
-            <div class="crypto-txt" id="global-token">💎 0 $META</div>
+            <div class="top-row">
+                <div class="crypto-txt" id="global-token">💎 0 $META</div>
+                <div>🎒 <span id="global-balls">📦 x3</span> | <span id="global-potions">🧪 x2</span></div>
+            </div>
+            <div class="top-row" style="margin-top: 5px;">
+                <div style="font-size: 10px; color: #eab308; width: 100%;">
+                    ⚡ Energía: <span id="txt-energia">20/20</span>
+                    <div class="energy-bar"><div id="bar-energia" class="energy-fill"></div></div>
+                </div>
+            </div>
         </div>
 
         <div class="nav-tabs">
-            <button id="t-explore" class="tab-btn active" onclick="changeTab('explore')">🧭 Explorar</button>
-            <button id="t-battle" class="tab-btn" onclick="changeTab('battle')" disabled>⚔️ Batalla</button>
+            <button id="t-explore" class="tab-btn active" onclick="changeTab('explore')">🧭 Buscar</button>
+            <button id="t-battle" class="tab-btn" onclick="changeTab('battle')" disabled>⚔️ Arena</button>
             <button id="t-fighters" class="tab-btn" onclick="changeTab('fighters')">👾 NFTs</button>
             <button id="t-shop" class="tab-btn" onclick="changeTab('shop')">🛒 Market</button>
+            <button id="t-social" class="tab-btn" onclick="changeTab('social')">🏆 Social</button>
         </div>
 
         <div id="s-explore" class="screen active">
             <div id="explore-options">
-                <h4 style="font-size:13px; color: #a78bfa; margin-bottom: 10px;">Selecciona un modo de juego:</h4>
+                <h4 style="font-size:14px; color: #a78bfa; margin-bottom: 15px; text-align: center;">Zonas de Exploración</h4>
                 
-                <div class="card-item" style="border-color: #10b981;">
-                    <div>
-                        <strong style="color:#10b981;">🌿 PvE: Zonas Salvajes</strong><br>
-                        <span style="font-size:10px; color:#94a3b8;">Busca monstruos para capturar o farmear $META.</span>
+                <div class="card-item" style="border-color: #10b981; flex-direction: column; align-items: flex-start; gap: 10px;">
+                    <div style="width: 100%; display: flex; justify-content: space-between;">
+                        <strong style="color:#10b981; font-size: 14px;">🌿 PvE: Jungla Salvaje</strong>
+                        <span style="font-size: 10px; color: #eab308;">Coste: 5 ⚡</span>
                     </div>
-                    <button class="btn-item" onclick="iniciarBusqueda('pve')">Buscar</button>
+                    <span style="font-size:11px; color:#94a3b8;">Busca monstruos para capturar y ganar XP.</span>
+                    <button class="btn-item" style="width: 100%;" onclick="iniciarBusqueda('pve')">Iniciar Búsqueda</button>
                 </div>
 
-                <div class="card-item" style="border-color: #ef4444; margin-top: 10px;">
-                    <div>
-                        <strong style="color:#ef4444;">⚔️ PvP: Arena Clasificatoria</strong><br>
-                        <span style="font-size:10px; color:#94a3b8;">Lucha contra el equipo de otro inversor (Simulado).</span>
+                <div class="card-item" style="border-color: #ef4444; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 10px;">
+                    <div style="width: 100%; display: flex; justify-content: space-between;">
+                        <strong style="color:#ef4444; font-size: 14px;">⚔️ PvP: Ranked Simulado</strong>
+                        <span style="font-size: 10px; color: #eab308;">Coste: 10 ⚡</span>
                     </div>
-                    <button class="btn-danger" onclick="iniciarBusqueda('pvp')">Emparejar</button>
+                    <span style="font-size:11px; color:#94a3b8;">Lucha a muerte por una mayor recompensa en $META.</span>
+                    <button class="btn-danger" style="width: 100%;" onclick="iniciarBusqueda('pvp')">Emparejar Rival</button>
                 </div>
             </div>
 
             <div id="radar-screen">
-                <div class="radar-icon">🚶‍♂️...</div>
-                <h3 style="color: #a78bfa;" id="radar-text">Explorando el mapa...</h3>
-                <p style="font-size: 11px; color: #64748b; margin-top: 10px;">Gasta algo de energía encontrando un objetivo.</p>
+                <div class="radar-icon">📡</div>
+                <h3 style="color: #a78bfa; font-size: 16px;" id="radar-text">Escaneando el bloque...</h3>
+                <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Preparando conexión para el combate.</p>
             </div>
         </div>
 
         <div id="s-battle" class="screen">
             <div class="battle-arena">
                 <div class="character-card reverse">
-                    <div id="e-sprite" class="sprite">🦅</div>
+                    <div id="e-sprite" class="sprite anim-idle">🦅</div>
                     <div class="info-panel">
-                        <div class="meta-row">
-                            <span id="e-name">Pidgey</span>
-                            <span id="e-badge" class="badge b-agua">AGUA</span>
-                        </div>
+                        <div class="meta-row"><span id="e-name">Rival</span><span id="e-badge" class="badge b-agua">AGUA</span></div>
                         <div class="hp-bg"><div id="e-hp" class="hp-fill"></div></div>
+                        <div style="font-size: 9px; text-align: right; margin-top: 2px;" id="e-hp-txt">100/100</div>
                     </div>
                 </div>
                 
                 <div class="character-card">
-                    <div id="p-sprite" class="sprite">🔥</div>
+                    <div id="p-sprite" class="sprite anim-idle">🔥</div>
                     <div class="info-panel">
-                        <div class="meta-row">
-                            <span id="p-name">Mi NFT</span>
-                            <span id="p-badge" class="badge b-fuego">FUEGO</span>
-                        </div>
+                        <div class="meta-row"><span id="p-name">Mi NFT</span><span id="p-badge" class="badge b-fuego">FUEGO</span></div>
                         <div class="hp-bg"><div id="p-hp" class="hp-fill"></div></div>
+                        <div style="font-size: 9px; text-align: right; margin-top: 2px;" id="p-hp-txt">100/100</div>
                     </div>
                 </div>
             </div>
 
-            <div id="log-console" class="battle-log">El combate está a punto de empezar...</div>
+            <div id="log-console" class="battle-log">Esperando acción...</div>
 
             <div class="actions-grid" id="battle-controls">
-                <button id="sk-0" class="btn-skill" onclick="atacar()">Atacar ⚔️</button>
-                <button id="btn-item-heal" class="btn-item" onclick="usarPocion()">Curar 🧪</button>
-                <button id="btn-item-catch" class="btn-primary" onclick="capturar()" style="grid-column: span 2;">Lanzar Cápsula de Captura 📦</button>
+                <button id="btn-attack" class="btn-skill" onclick="atacar()">Atacar ⚔️</button>
+                <button id="btn-heal" class="btn-item" onclick="usarPocion()">Curar 🧪</button>
+                <button id="btn-catch" class="btn-primary" onclick="capturar()" style="grid-column: span 2;">Intentar Captura 📦</button>
             </div>
             
-            <button id="btn-flee" class="btn-danger" onclick="huir()" style="display: none; width: 100%;">Terminar y Salir 🚪</button>
+            <button id="btn-flee" class="btn-danger" onclick="huir()" style="display: none;">Retirada Táctica 🚪</button>
         </div>
 
         <div id="s-fighters" class="screen">
-            <h4 style="font-size:13px; color: #a78bfa;">Mis NFTs (Combatientes Activos)</h4>
+            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Tus NFTs Combatientes</h4>
             <div id="fighters-list" class="list-container"></div>
         </div>
 
         <div id="s-shop" class="screen">
-            <h4 style="font-size:13px; color: #a78bfa;">Marketplace Web3</h4>
+            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Marketplace Web3</h4>
             <div class="list-container">
                 <div class="card-item">
-                    <div><strong>Cápsula Captura 📦</strong><br><span style="font-size:10px;">Coste: 30 $META</span></div>
+                    <div><strong>Cápsula Captura 📦</strong><br><span style="font-size:11px; color:#94a3b8;">Coste: 30 $META</span></div>
                     <button class="btn-primary" onclick="comprarItem('ball', 30)">Comprar</button>
                 </div>
                 <div class="card-item">
-                    <div><strong>Poción de Vida 🧪</strong><br><span style="font-size:10px;">Coste: 15 $META</span></div>
+                    <div><strong>Poción de Vida 🧪</strong><br><span style="font-size:11px; color:#94a3b8;">Coste: 15 $META</span></div>
                     <button class="btn-primary" onclick="comprarItem('potion', 15)">Comprar</button>
                 </div>
             </div>
-            <button class="btn-danger" style="margin-top: 20px;" onclick="cerrarSesion()">Desconectar Wallet (Salir)</button>
+            <button class="btn-danger" style="margin-top: auto;" onclick="cerrarSesion()">Desconectar Wallet (Salir)</button>
+        </div>
+
+        <div id="s-social" class="screen">
+            <h4 style="font-size:14px; color: #a78bfa; text-align: center;">Centro Comunitario</h4>
+            
+            <div class="card-item" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <strong>🔗 Tu Enlace de Referido</strong>
+                <p style="font-size: 11px; color: #94a3b8;">Invita a otros inversores y gana un % de sus farmeos (Simulado).</p>
+                <button class="btn-item" onclick="copiarReferido()">Copiar Mi Enlace</button>
+            </div>
+
+            <h4 style="font-size:13px; color: #eab308; margin-top: 10px;">🏆 Top Holders ($META)</h4>
+            <ul id="lista-ranking" class="rank-list">
+                <li>Cargando red...</li>
+            </ul>
         </div>
     </div>
 
     <script>
-        // Configuración Supabase
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
         const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Variables de Juego
         let miUsuarioId = null;
-        let miToken = 0; // Oro cripto
+        let miToken = 0; 
         let globalBalls = 3;
         let globalPotions = 2;
+        let energia = 20;
+        let maxEnergia = 20;
 
-        let myFighter = { name: "Cripto Zorro", type: "fuego", sprite: "🦊", hp: 100, maxHp: 100, dmg: 20 };
+        let myFighters = [
+            { id: 1, name: "Cripto Zorro", type: "fuego", sprite: "🦊", nivel: 1, xp: 0, hp: 100, maxHp: 100, dmg: 20 }
+        ];
+        
+        let activoIdx = 0; // NFT principal
         let enemy = { name: "?", type: "?", sprite: "❓", hp: 100, maxHp: 100, dmg: 10 };
         let isCombatLocked = false;
-        let currentMode = ""; // 'pve' o 'pvp'
+        let currentMode = "";
 
         const wildBots = [
-            { name: "Lobo Mutante", type: "agua", sprite: "🐺", hp: 60, dmg: 12 },
-            { name: "Golem de Piedra", type: "planta", sprite: "🪨", hp: 90, dmg: 8 },
-            { name: "Dragón Menor", type: "fuego", sprite: "🐉", hp: 75, dmg: 18 }
+            { name: "Cíclope", type: "fuego", sprite: "👁️", hp: 70, dmg: 14 },
+            { name: "Cangrejo Red", type: "agua", sprite: "🦀", hp: 60, dmg: 10 },
+            { name: "Treant", type: "planta", sprite: "🌲", hp: 100, dmg: 8 }
         ];
 
-        // --- SISTEMA DE AUTENTICACIÓN ---
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             if(!email || !password) return alert("Faltan datos.");
-            
             const { data, error } = await cliente.auth.signUp({ email, password });
             if (error) return alert("Error: " + error.message);
-
-            const { error: dbError } = await cliente.from('perfiles').insert([
-                { id: data.user.id, username: email.split('@')[0], oro: 100 }
-            ]);
-            
-            if (dbError) return alert("Error creando wallet interna.");
-            alert("Cuenta creada. Ya puedes entrar.");
+            await cliente.from('perfiles').insert([{ id: data.user.id, username: email.split('@')[0], oro: 100 }]);
+            alert("Cuenta creada. Entra ahora.");
         }
 
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
             const { data, error } = await cliente.auth.signInWithPassword({ email, password });
             if (error) return alert("Credenciales incorrectas.");
 
@@ -241,28 +274,34 @@
             renderFighters();
         }
 
-        // --- NAVEGACIÓN ---
         function changeTab(tab) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`s-${tab}`).classList.add('active');
             document.getElementById(`t-${tab}`).classList.add('active');
+            
+            if(tab === 'social') cargarRanking();
+            if(tab === 'fighters') renderFighters();
         }
 
-        // --- LÓGICA DE EXPLORACIÓN (RADAR) ---
         function iniciarBusqueda(modo) {
+            let coste = modo === 'pvp' ? 10 : 5;
+            if (energia < coste) return alert("⚡ No tienes suficiente energía.");
+            
+            energia -= coste;
             currentMode = modo;
+            
             document.getElementById('explore-options').style.display = 'none';
             document.getElementById('radar-screen').style.display = 'block';
-            document.getElementById('radar-text').innerText = modo === 'pvp' ? "Buscando oponente en la red..." : "Rastreando zona salvaje...";
+            document.getElementById('radar-text').innerText = modo === 'pvp' ? "Buscando nodo oponente..." : "Escaneando jungla...";
             
-            // Animación de búsqueda por 3 segundos
+            actualizarUI();
+
             setTimeout(() => {
                 generarEnemigo(modo);
                 document.getElementById('explore-options').style.display = 'block';
                 document.getElementById('radar-screen').style.display = 'none';
                 
-                // Habilitar y saltar a la pestaña de batalla
                 document.getElementById('t-battle').disabled = false;
                 changeTab('battle');
                 iniciarCombate();
@@ -272,67 +311,66 @@
         function generarEnemigo(modo) {
             if (modo === 'pve') {
                 let r = wildBots[Math.floor(Math.random() * wildBots.length)];
-                enemy = { name: "Salvaje " + r.name, type: r.type, sprite: r.sprite, hp: r.hp, maxHp: r.hp, dmg: r.dmg };
-                document.getElementById('btn-item-catch').style.display = 'block'; // En PvE se puede capturar
+                let factor = 1 + (myFighters[activoIdx].nivel * 0.1); // Escala un poco con tu nivel
+                enemy = { name: "Salvaje " + r.name, type: r.type, sprite: r.sprite, hp: Math.floor(r.hp * factor), maxHp: Math.floor(r.hp * factor), dmg: Math.floor(r.dmg * factor) };
+                document.getElementById('btn-catch').style.display = 'block';
             } else {
-                enemy = { name: "Bot_Inversor_X", type: "fuego", sprite: "🥷", hp: 120, maxHp: 120, dmg: 15 };
-                document.getElementById('btn-item-catch').style.display = 'none'; // En PvP no puedes robar NFTs
+                enemy = { name: "Bot_Holder_77", type: "fuego", sprite: "🥷", hp: 150, maxHp: 150, dmg: 25 };
+                document.getElementById('btn-catch').style.display = 'none';
             }
             actualizarUI();
         }
 
         function iniciarCombate() {
-            document.getElementById('log-console').innerHTML = "¡Combate iniciado!";
+            document.getElementById('log-console').innerHTML = "¡La batalla ha comenzado!";
             document.getElementById('battle-controls').style.display = 'grid';
             document.getElementById('btn-flee').style.display = 'none';
-            isCombatLocked = false;
-        }
+            
+            // Asegurar que tu NFT inicie con la vida correcta al entrar
+            let miNFT = myFighters[activoIdx];
+            if(miNFT.hp <= 0) miNFT.hp = miNFT.maxHp; 
 
-        // --- SISTEMA DE BATALLA MANUAL Y ANIMADA ---
-        function logMsg(msg) {
-            let logBox = document.getElementById('log-console');
-            logBox.innerHTML = `• ${msg}<br>` + logBox.innerHTML;
+            isCombatLocked = false;
+            actualizarUI();
         }
 
         function triggerAnimation(elementId, animClass) {
             let el = document.getElementById(elementId);
-            el.classList.remove(animClass);
-            void el.offsetWidth; // Forzar reflow para reiniciar animación
+            el.classList.remove(animClass, 'anim-idle');
+            void el.offsetWidth; 
             el.classList.add(animClass);
+            setTimeout(() => { el.classList.remove(animClass); el.classList.add('anim-idle'); }, 400);
         }
 
         function atacar() {
             if (isCombatLocked) return;
             isCombatLocked = true;
+            let miNFT = myFighters[activoIdx];
 
-            // Animación del jugador atacando y enemigo recibiendo daño
             triggerAnimation('p-sprite', 'anim-attack');
             setTimeout(() => triggerAnimation('e-sprite', 'anim-damage'), 200);
 
-            // Daño aleatorio basado en el daño base del NFT
-            let dmgHecho = Math.floor(Math.random() * 10) + myFighter.dmg;
+            let dmgHecho = Math.floor(Math.random() * 8) + miNFT.dmg;
             enemy.hp = Math.max(0, enemy.hp - dmgHecho);
-            logMsg(`Tu ${myFighter.name} ataca causando ${dmgHecho} de daño.`);
+            logMsg(`⚔️ ¡Atacas! Haces ${dmgHecho} de daño.`);
             actualizarUI();
 
-            if (enemy.hp <= 0) {
-                setTimeout(ganarBatalla, 800);
-            } else {
-                setTimeout(turnoEnemigo, 1000);
-            }
+            if (enemy.hp <= 0) setTimeout(ganarBatalla, 800);
+            else setTimeout(turnoEnemigo, 1000);
         }
 
         function turnoEnemigo() {
+            let miNFT = myFighters[activoIdx];
             triggerAnimation('e-sprite', 'anim-attack');
             setTimeout(() => triggerAnimation('p-sprite', 'anim-damage'), 200);
 
             let dmgRecibido = Math.floor(Math.random() * 5) + enemy.dmg;
-            myFighter.hp = Math.max(0, myFighter.hp - dmgRecibido);
-            logMsg(`El ${enemy.name} contraataca y te quita ${dmgRecibido} HP.`);
+            miNFT.hp = Math.max(0, miNFT.hp - dmgRecibido);
+            logMsg(`💥 El rival golpea quitándote ${dmgRecibido} HP.`);
             actualizarUI();
 
-            if (myFighter.hp <= 0) {
-                logMsg("💀 Tu NFT ha sido derrotado.");
+            if (miNFT.hp <= 0) {
+                logMsg("💀 Tu NFT ha sido debilitado.");
                 finalizarCombate();
             } else {
                 isCombatLocked = false;
@@ -340,43 +378,58 @@
         }
 
         async function ganarBatalla() {
-            let recompensa = currentMode === 'pvp' ? 50 : 20; // PvP da más tokens
+            let miNFT = myFighters[activoIdx];
+            let recompensa = currentMode === 'pvp' ? 60 : 25; 
             miToken += recompensa;
-            logMsg(`🏆 ¡VICTORIA! Ganaste ${recompensa} $META.`);
             
-            // Guardar token en Supabase
+            // Sistema de XP restaurado
+            let expGanada = currentMode === 'pvp' ? 50 : 35;
+            miNFT.xp += expGanada;
+            logMsg(`🏆 ¡Ganaste ${recompensa} $META y ${expGanada} XP!`);
+
+            if (miNFT.xp >= 100) {
+                miNFT.nivel++;
+                miNFT.xp -= 100;
+                miNFT.maxHp += 15;
+                miNFT.dmg += 5;
+                miNFT.hp = miNFT.maxHp;
+                logMsg(`⭐ ¡Tu NFT subió a Nivel ${miNFT.nivel}!`);
+            }
+            
             await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
             actualizarUI();
             finalizarCombate();
+        }
+
+        function usarPocion() {
+            if (globalPotions <= 0 || isCombatLocked) return;
+            let miNFT = myFighters[activoIdx];
+            globalPotions--;
+            miNFT.hp = Math.min(miNFT.maxHp, miNFT.hp + 50);
+            logMsg("🧪 Te has curado 50 HP.");
+            actualizarUI();
+            isCombatLocked = true;
+            setTimeout(turnoEnemigo, 1000);
         }
 
         function capturar() {
             if (isCombatLocked || globalBalls <= 0) return;
             globalBalls--;
             actualizarUI();
-            logMsg("📦 Has lanzado una cápsula criptográfica...");
-            
+            logMsg("📦 Has lanzado una cápsula...");
             isCombatLocked = true;
+            
             setTimeout(() => {
-                let chance = 1 - (enemy.hp / enemy.maxHp); // Más fácil si tiene poca vida
-                if (Math.random() < chance + 0.3) {
-                    logMsg("✨ ¡Captura exitosa! El NFT fue minteado en tu cuenta.");
+                let chance = 1 - (enemy.hp / enemy.maxHp); 
+                if (Math.random() < chance + 0.25) {
+                    logMsg("✨ ¡NFT Capturado!");
+                    myFighters.push({ id: Date.now(), name: enemy.name.replace("Salvaje ", ""), type: enemy.type, sprite: enemy.sprite, nivel: 1, xp: 0, hp: enemy.maxHp, maxHp: enemy.maxHp, dmg: enemy.dmg });
                     setTimeout(ganarBatalla, 1000);
                 } else {
-                    logMsg("❌ Falló la captura. El monstruo se resiste.");
+                    logMsg("❌ Falló la captura.");
                     turnoEnemigo();
                 }
             }, 1000);
-        }
-
-        function usarPocion() {
-            if (globalPotions <= 0 || isCombatLocked) return;
-            globalPotions--;
-            myFighter.hp = Math.min(myFighter.maxHp, myFighter.hp + 50);
-            logMsg("🧪 Recuperaste 50 HP.");
-            actualizarUI();
-            isCombatLocked = true;
-            setTimeout(turnoEnemigo, 1000);
         }
 
         function finalizarCombate() {
@@ -386,37 +439,91 @@
         }
 
         function huir() {
-            myFighter.hp = myFighter.maxHp; // Curamos al volver al menú (puedes cambiarlo luego)
+            let miNFT = myFighters[activoIdx];
+            if(miNFT.hp <= 0) miNFT.hp = miNFT.maxHp; // Curar auto al salir si murió
             changeTab('explore');
             actualizarUI();
         }
 
-        // --- UI Y TIENDA ---
+        function renderFighters() {
+            let html = "";
+            myFighters.forEach((nft, index) => {
+                let costeMejora = nft.nivel * 40; // El coste sube con el nivel
+                html += `
+                <div class="card-item" style="border: 2px solid ${index === activoIdx ? '#10b981' : '#475569'}; flex-direction: column; gap: 8px; align-items: stretch;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size:24px;">${nft.sprite}</span>
+                            <strong>${nft.name}</strong> <span class="badge b-${nft.type}">${nft.type}</span>
+                        </div>
+                        <span style="font-size:12px; color:#eab308;">Nv. ${nft.nivel}</span>
+                    </div>
+                    <div style="font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between;">
+                        <span>HP: ${nft.hp}/${nft.maxHp} | Daño: ${nft.dmg}</span>
+                        <span>XP: ${nft.xp}/100</span>
+                    </div>
+                    <button class="btn-upgrade" onclick="entrenarNFT(${index}, ${costeMejora})">Entrenar (Coste: ${costeMejora} $META)</button>
+                </div>`;
+            });
+            document.getElementById('fighters-list').innerHTML = html;
+        }
+
+        async function entrenarNFT(index, coste) {
+            if (miToken < coste) return alert("❌ No tienes suficiente $META para entrenarlo.");
+            miToken -= coste;
+            let nft = myFighters[index];
+            nft.nivel++;
+            nft.maxHp += 20;
+            nft.hp = nft.maxHp;
+            nft.dmg += 8;
+            nft.xp = 0;
+            
+            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
+            alert(`✅ ${nft.name} ha mejorado enormemente. Nuevo Nivel: ${nft.nivel}`);
+            actualizarUI();
+            renderFighters();
+        }
+
+        async function cargarRanking() {
+            const lista = document.getElementById('lista-ranking');
+            lista.innerHTML = "<li>Conectando con la Blockchain...</li>";
+            const { data, error } = await cliente.from('perfiles').select('username, oro').order('oro', { ascending: false }).limit(5);
+            if (error) { lista.innerHTML = "<li>Error al cargar la red</li>"; return; }
+            
+            lista.innerHTML = data.map((j, i) => {
+                let medalla = i === 0 ? "👑" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🔸";
+                return `<li><span>${medalla} ${j.username}</span> <span style="color:#10b981;">${j.oro} $META</span></li>`;
+            }).join('');
+        }
+
+        function copiarReferido() {
+            const link = window.location.href.split('?')[0] + "?ref=" + miUsuarioId;
+            navigator.clipboard.writeText(link);
+            alert("🔗 Enlace copiado al portapapeles:\n" + link);
+        }
+
+        function logMsg(msg) {
+            let logBox = document.getElementById('log-console');
+            logBox.innerHTML = `• ${msg}<br>` + logBox.innerHTML;
+        }
+
         function actualizarUI() {
             document.getElementById('global-token').innerText = `💎 ${miToken} $META`;
             document.getElementById('global-balls').innerText = `📦 x${globalBalls}`;
             document.getElementById('global-potions').innerText = `🧪 x${globalPotions}`;
+            document.getElementById('txt-energia').innerText = `${energia}/${maxEnergia}`;
+            document.getElementById('bar-energia').style.width = (energia / maxEnergia * 100) + '%';
 
-            // Actualizar barras de vida
-            document.getElementById('p-name').innerText = myFighter.name;
-            document.getElementById('p-hp').style.width = (myFighter.hp / myFighter.maxHp * 100) + '%';
+            let miNFT = myFighters[activoIdx];
+            document.getElementById('p-name').innerText = miNFT.name;
+            document.getElementById('p-sprite').innerText = miNFT.sprite;
+            document.getElementById('p-hp').style.width = (miNFT.hp / miNFT.maxHp * 100) + '%';
+            document.getElementById('p-hp-txt').innerText = `${miNFT.hp}/${miNFT.maxHp}`;
             
             document.getElementById('e-name').innerText = enemy.name;
             document.getElementById('e-sprite').innerText = enemy.sprite;
             document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
-        }
-
-        function renderFighters() {
-            let html = `
-                <div class="card-item" style="border: 2px solid #10b981;">
-                    <div>
-                        <strong>${myFighter.sprite} ${myFighter.name}</strong> <span class="badge b-${myFighter.type}">${myFighter.type}</span><br>
-                        <span style="font-size: 11px; color: #94a3b8;">HP: ${myFighter.hp}/${myFighter.maxHp} | Daño: ${myFighter.dmg}</span>
-                    </div>
-                    <button class="btn-primary" disabled>Equipado</button>
-                </div>
-            `;
-            document.getElementById('fighters-list').innerHTML = html;
+            document.getElementById('e-hp-txt').innerText = `${enemy.hp}/${enemy.maxHp}`;
         }
 
         async function comprarItem(item, coste) {
@@ -424,7 +531,6 @@
             miToken -= coste;
             if (item === 'ball') globalBalls++;
             if (item === 'potion') globalPotions++;
-            
             await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
             actualizarUI();
         }
