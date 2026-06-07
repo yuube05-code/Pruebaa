@@ -3,58 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combatientes RPG - Online</title>
+    <title>Aventura Pokémon Online</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #0b0f19; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
-        .container { width: 100%; max-width: 400px; background-color: #1e293b; border: 4px solid #f59e0b; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0px 10px 25px rgba(0,0,0,0.8); }
+        body { background-color: #1e293b; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+        
+        /* Tema Pokédex */
+        .container { width: 100%; max-width: 400px; background-color: #f8fafc; border: 8px solid #dc2626; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0px 10px 25px rgba(0,0,0,0.8); color: #0f172a;}
+        
         input, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; }
-        input { background-color: #0f172a; border: 1px solid #334155; color: white; }
-        .btn-primary { background-color: #2563eb; color: white; border: none; cursor: pointer; }
-        .btn-secondary { background-color: #10b981; color: white; border: none; cursor: pointer; }
-        .btn-action { background-color: #f59e0b; color: #0b0f19; border: none; cursor: pointer; font-size: 16px; margin-top: 15px;}
-        .btn-shop { background-color: #8b5cf6; color: white; border: none; cursor: pointer; margin-top: 5px; font-size: 13px; }
+        input { background-color: #f1f5f9; border: 2px solid #cbd5e1; color: #0f172a; }
+        
+        .btn-primary { background-color: #2563eb; color: white; border: none; cursor: pointer; border-bottom: 4px solid #1e40af;}
+        .btn-secondary { background-color: #10b981; color: white; border: none; cursor: pointer; border-bottom: 4px solid #047857;}
+        .btn-action { background-color: #22c55e; color: white; border: none; cursor: pointer; font-size: 16px; margin-top: 15px; border-bottom: 4px solid #166534;}
+        .btn-shop { background-color: #f59e0b; color: #0f172a; border: none; cursor: pointer; margin-top: 5px; font-size: 13px; border-bottom: 4px solid #b45309;}
+        .btn-danger { background-color: #ef4444; color: white; border: none; cursor: pointer; border-bottom: 4px solid #b91c1c; margin-top: 20px;}
+        
         #game-screen { display: none; }
         
-        /* Nuevos estilos para la tienda y el top */
-        .section { margin-top: 20px; border-top: 1px solid #334155; padding-top: 15px; text-align: left; }
-        .section h3 { color: #fbbf24; margin-bottom: 10px; text-align: center; font-size: 18px;}
+        .section { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 15px; text-align: left; }
+        .section h3 { color: #dc2626; margin-bottom: 10px; text-align: center; font-size: 18px; text-transform: uppercase;}
+        
         ul { list-style: none; padding: 0; }
-        li { background: #0f172a; margin: 5px 0; padding: 10px; border-radius: 6px; font-size: 14px; display: flex; justify-content: space-between; border: 1px solid #1e293b;}
+        li { background: #e2e8f0; margin: 5px 0; padding: 10px; border-radius: 6px; font-size: 14px; display: flex; justify-content: space-between; border: 1px solid #cbd5e1; font-weight: bold;}
+        
+        .pokemon-text { font-size: 14px; margin-top: 10px; color: #dc2626; font-weight: bold; min-height: 20px;}
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="container">
-        <h1 style="color: #fbbf24; margin-bottom: 10px;">RPG Online</h1>
-        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Inicia sesión o regístrate.</p>
+        <h1 style="color: #dc2626; margin-bottom: 5px;">🔴 POKÉ-RPG ⚪</h1>
+        <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Identifícate, Entrenador.</p>
         
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
         
-        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Juego</button>
-        <button class="btn-secondary" onclick="crearCuenta()">Crear Cuenta Nueva</button>
+        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Mundo</button>
+        <button class="btn-secondary" onclick="crearCuenta()">Nuevo Entrenador</button>
     </div>
 
     <div id="game-screen" class="container">
-        <h2 style="color: #10b981;">Refugio Seguro</h2>
-        <p id="datos-jugador" style="font-size: 16px; margin-top: 10px; color: #fbbf24; font-weight: bold;"></p>
+        <h2 style="color: #2563eb;">Centro Pokémon 🏥</h2>
+        <p id="datos-jugador" style="font-size: 18px; margin-top: 10px; color: #0f172a; font-weight: bold;"></p>
+        <p id="accion-texto" class="pokemon-text"></p>
         
-        <button class="btn-action" onclick="cazarMonstruos()">⚔️ Cazar Monstruos</button>
+        <button class="btn-action" onclick="explorarHierba()">🌿 Explorar Hierba Alta</button>
         
         <div class="section">
-            <h3>Tienda</h3>
-            <button class="btn-shop" onclick="comprar('Poción de Salud', 20)">Comprar Poción (20 💰)</button>
-            <button class="btn-shop" onclick="comprar('Espada de Hierro', 100)">Comprar Espada (100 💰)</button>
+            <h3>Poké Mart 🏪</h3>
+            <button class="btn-shop" onclick="comprar('Pokéball', 50)">🔴 Comprar Pokéball (50 ₽)</button>
+            <button class="btn-shop" onclick="comprar('Poción', 20)">🧴 Comprar Poción (20 ₽)</button>
         </div>
 
         <div class="section">
-            <h3>Top Jugadores 🏆</h3>
+            <h3>Liga Pokémon 🏆</h3>
             <ul id="lista-top"></ul>
         </div>
         
-        <button class="btn-primary" style="background-color: #ef4444; margin-top: 30px;" onclick="cerrarSesion()">Cerrar Sesión</button>
+        <button class="btn-danger" onclick="cerrarSesion()">Cerrar Sesión / Guardar</button>
     </div>
 
     <script>
@@ -65,6 +74,8 @@
         let miUsuarioId = null;
         let miOro = 0;
 
+        const listaPokemones = ["Pidgey 🐦", "Rattata 🐀", "Pikachu ⚡", "Charmander 🔥", "Squirtle 💧", "Bulbasaur 🍃", "Zubat 🦇", "Geodude 🪨", "Snorlax 💤", "Mewtwo 🌌"];
+
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -74,12 +85,13 @@
             const { data, error } = await cliente.auth.signUp({ email: email, password: password });
             if (error) return alert("Error: " + error.message);
 
+            // Te regalamos 100 Pokédolares iniciales (se guardan en tu columna 'oro')
             const { error: dbError } = await cliente.from('perfiles').insert([
-                { id: data.user.id, username: email.split('@')[0], oro: 50 }
+                { id: data.user.id, username: email.split('@')[0], oro: 100 }
             ]);
             
-            if (dbError) return alert("Error al guardar perfil: " + dbError.message);
-            alert("¡Cuenta creada! Ya puedes Entrar al Juego.");
+            if (dbError) return alert("Error al registrar entrenador: " + dbError.message);
+            alert("¡Licencia de Entrenador creada! Ya puedes entrar.");
         }
 
         async function iniciarSesion() {
@@ -87,10 +99,10 @@
             const password = document.getElementById('password').value;
 
             const { data, error } = await cliente.auth.signInWithPassword({ email: email, password: password });
-            if (error) return alert("Credenciales incorrectas.");
+            if (error) return alert("Datos incorrectos.");
 
             const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
-            if (perfil.error) return alert("Error buscando oro.");
+            if (perfil.error) return alert("Error leyendo tu perfil.");
 
             miUsuarioId = data.user.id;
             miOro = perfil.data.oro;
@@ -99,70 +111,72 @@
             document.getElementById('game-screen').style.display = 'block';
             
             actualizarUI();
-            mostrarTop(); // Cargamos la lista de los mejores al entrar
+            mostrarTop();
         }
 
-        async function cazarMonstruos() {
-            document.getElementById('datos-jugador').innerText = "Peleando... ⚔️";
+        async function explorarHierba() {
+            const pokeAlAzar = listaPokemones[Math.floor(Math.random() * listaPokemones.length)];
+            document.getElementById('accion-texto').innerText = "Caminando por la hierba...";
 
-            const oroGanado = Math.floor(Math.random() * 15) + 1;
-            miOro = miOro + oroGanado;
+            setTimeout(async () => {
+                // Ganancia aleatoria entre 5 y 25 Pokédólares
+                const ganancia = Math.floor(Math.random() * 20) + 5;
+                miOro += ganancia;
 
-            const { error } = await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
+                const { error } = await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
 
-            if (error) {
-                alert("Hubo un error al guardar tu oro: " + error.message);
-            } else {
-                document.getElementById('datos-jugador').innerText = "Tu Oro: " + miOro + " 💰 (Ganaste +" + oroGanado + ")";
-                mostrarTop(); // Actualizamos el top por si ganaste mucho oro y subiste de puesto
-            }
+                if (!error) {
+                    document.getElementById('accion-texto').innerText = `¡Un salvaje ${pokeAlAzar} apareció! Lo venciste y ganaste ${ganancia} ₽.`;
+                    actualizarUI();
+                    mostrarTop();
+                } else {
+                    document.getElementById('accion-texto').innerText = "Error de conexión con la Pokédex.";
+                }
+            }, 800); // Pequeña pausa para dar emoción
         }
 
-        // --- NUEVA FUNCIÓN: COMPRAR ---
         async function comprar(item, costo) {
             if (miOro < costo) {
-                return alert("¡No tienes suficiente oro para " + item + "!");
+                return alert("¡No tienes suficientes Pokédólares para esta compra!");
             }
             
-            miOro = miOro - costo; // Restamos el oro
-            
-            // Avisamos a Supabase del nuevo saldo
+            miOro -= costo;
             const { error } = await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
             
-            if (error) {
-                alert("Error en la compra: " + error.message);
-                miOro = miOro + costo; // Si falla la red, te devolvemos el oro
-            } else {
-                alert("¡Has comprado: " + item + "!");
+            if (!error) {
+                document.getElementById('accion-texto').innerText = `Compraste: ${item} por ${costo} ₽.`;
                 actualizarUI();
-                mostrarTop(); // Actualizamos el top porque acabas de gastar dinero
+                mostrarTop();
+            } else {
+                miOro += costo; // Devolvemos el dinero si falla
             }
         }
 
-        // --- NUEVA FUNCIÓN: TOP JUGADORES ---
         async function mostrarTop() {
             const lista = document.getElementById('lista-top');
-            lista.innerHTML = "<li>Cargando tabla...</li>";
+            lista.innerHTML = "<li>Conectando con la Liga...</li>";
 
-            // Pedimos a Supabase los 3 perfiles con más oro
             const { data, error } = await cliente.from('perfiles')
                 .select('username, oro')
                 .order('oro', { ascending: false })
-                .limit(3);
+                .limit(4);
 
             if (error) {
-                lista.innerHTML = "<li>Error al cargar la tabla</li>";
+                lista.innerHTML = "<li>Error al cargar la Liga</li>";
                 return;
             }
 
-            // Transformamos los datos en la lista visual
-            lista.innerHTML = data.map(jugador => 
-                `<li><span>👤 ${jugador.username}</span> <span>${jugador.oro} 💰</span></li>`
-            ).join('');
+            lista.innerHTML = data.map((jugador, index) => {
+                let medalla = "🏅";
+                if (index === 0) medalla = "👑";
+                if (index === 1) medalla = "🥈";
+                if (index === 2) medalla = "🥉";
+                return `<li><span>${medalla} ${jugador.username}</span> <span>${jugador.oro} ₽</span></li>`;
+            }).join('');
         }
 
         function actualizarUI() {
-            document.getElementById('datos-jugador').innerText = "Tu Oro: " + miOro + " 💰";
+            document.getElementById('datos-jugador').innerText = `Cartera: ${miOro} ₽`;
         }
 
         async function cerrarSesion() {
@@ -172,6 +186,7 @@
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'block';
             document.getElementById('password').value = '';
+            document.getElementById('accion-texto').innerText = '';
         }
     </script>
 </body>
