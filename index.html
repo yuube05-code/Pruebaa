@@ -3,190 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aventura Pokémon Online</title>
+    <title>Crypto RPG - Play to Earn</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #1e293b; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+        body { background-color: #0b0f19; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 6px; }
+
+        .game-container { width: 100%; max-width: 430px; background-color: #1e293b; border: 2px solid #8b5cf6; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5); }
+
+        /* Auth Screen */
+        #auth-screen { display: flex; flex-direction: column; gap: 10px; text-align: center; padding: 20px;}
+        input { padding: 10px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 6px; }
+
+        /* Top Bar */
+        .top-bar { display: flex; justify-content: space-between; background-color: #020617; padding: 8px; border-radius: 6px; font-size: 11px; border: 1px solid #334155; }
+        .crypto-txt { color: #10b981; font-weight: bold; text-shadow: 0 0 5px #10b981; }
+
+        /* Tabs */
+        .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .tab-btn { background-color: #334155; color: #94a3b8; border: 1px solid #475569; padding: 8px 2px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase;}
+        .tab-btn.active { background-color: #8b5cf6; color: #fff; border-color: #c4b5fd; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; gap: 10px; }
+
+        /* Estilos de Batalla */
+        .battle-arena { background: linear-gradient(to bottom, #2e1065, #0f172a); border-radius: 8px; padding: 15px; border: 2px solid #6d28d9; display: flex; flex-direction: column; gap: 15px; position: relative; overflow: hidden;}
+        .character-card { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.4); padding: 8px; border-radius: 8px; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .reverse { flex-direction: row-reverse; }
+        .sprite { font-size: 48px; transition: transform 0.2s; }
+        .info-panel { width: 65%; }
+        .meta-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-bottom: 4px;}
         
-        /* Tema Pokédex */
-        .container { width: 100%; max-width: 400px; background-color: #f8fafc; border: 8px solid #dc2626; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0px 10px 25px rgba(0,0,0,0.8); color: #0f172a;}
+        .hp-bg { background-color: #475569; border-radius: 4px; overflow: hidden; height: 12px; border: 1px solid #000;}
+        .hp-fill { width: 100%; height: 100%; background-color: #22c55e; transition: width 0.4s ease-out; }
         
-        input, button { width: 100%; margin: 10px 0; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; }
-        input { background-color: #f1f5f9; border: 2px solid #cbd5e1; color: #0f172a; }
+        .badge { padding: 2px 5px; border-radius: 3px; font-size: 9px; color: #fff; text-transform: uppercase;}
+        .b-fuego { background-color: #ef4444; } .b-agua { background-color: #3b82f6; } .b-planta { background-color: #10b981; } .b-bot { background-color: #f59e0b; }
+
+        .battle-log { height: 70px; background-color: #020617; border: 1px solid #334155; border-radius: 6px; padding: 6px; font-size: 11px; overflow-y: auto; color: #c4b5fd; }
+
+        /* Botones Generales */
+        button { padding: 10px; font-size: 11px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; color: white; transition: all 0.2s;}
+        button:active { transform: scale(0.95); }
+        button:disabled { background-color: #475569 !important; color: #64748b !important; cursor: not-allowed; transform: none;}
         
-        .btn-primary { background-color: #2563eb; color: white; border: none; cursor: pointer; border-bottom: 4px solid #1e40af;}
-        .btn-secondary { background-color: #10b981; color: white; border: none; cursor: pointer; border-bottom: 4px solid #047857;}
-        .btn-action { background-color: #22c55e; color: white; border: none; cursor: pointer; font-size: 16px; margin-top: 15px; border-bottom: 4px solid #166534;}
-        .btn-shop { background-color: #f59e0b; color: #0f172a; border: none; cursor: pointer; margin-top: 5px; font-size: 13px; border-bottom: 4px solid #b45309;}
-        .btn-danger { background-color: #ef4444; color: white; border: none; cursor: pointer; border-bottom: 4px solid #b91c1c; margin-top: 20px;}
+        .btn-primary { background-color: #8b5cf6; border-bottom: 3px solid #5b21b6; }
+        .btn-skill { background-color: #3b82f6; border-bottom: 3px solid #1e3a8a; }
+        .btn-item { background-color: #0f766e; border-bottom: 3px solid #042f2e; }
+        .btn-danger { background-color: #e11d48; border-bottom: 3px solid #881337; }
         
-        #game-screen { display: none; }
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        /* Listas y Exploración */
+        .list-container { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+        .card-item { background-color: #1e293b; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #475569; }
         
-        .section { margin-top: 20px; border-top: 2px dashed #cbd5e1; padding-top: 15px; text-align: left; }
-        .section h3 { color: #dc2626; margin-bottom: 10px; text-align: center; font-size: 18px; text-transform: uppercase;}
+        /* --- ANIMACIONES CSS --- */
+        @keyframes attackShake { 0% { transform: translateX(0); } 25% { transform: translateX(10px) rotate(5deg); } 50% { transform: translateX(-10px) rotate(-5deg); } 75% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        .anim-attack { animation: attackShake 0.4s ease-in-out; }
+
+        @keyframes damageFlash { 0% { filter: brightness(1) invert(0); } 50% { filter: brightness(2) invert(1) hue-rotate(180deg); } 100% { filter: brightness(1) invert(0); } }
+        .anim-damage { animation: damageFlash 0.4s ease-in-out; }
+
+        @keyframes radarPulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.5; } }
         
-        ul { list-style: none; padding: 0; }
-        li { background: #e2e8f0; margin: 5px 0; padding: 10px; border-radius: 6px; font-size: 14px; display: flex; justify-content: space-between; border: 1px solid #cbd5e1; font-weight: bold;}
-        
-        .pokemon-text { font-size: 14px; margin-top: 10px; color: #dc2626; font-weight: bold; min-height: 20px;}
+        /* Pantalla de Radar */
+        #radar-screen { display: none; text-align: center; padding: 40px 10px; background: #020617; border-radius: 8px; border: 1px dashed #8b5cf6; }
+        .radar-icon { font-size: 50px; display: inline-block; animation: radarPulse 1.5s infinite; margin-bottom: 15px;}
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="container">
-        <h1 style="color: #dc2626; margin-bottom: 5px;">🔴 POKÉ-RPG ⚪</h1>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Identifícate, Entrenador.</p>
+    <div id="auth-screen" class="game-container">
+        <h1 style="color: #a78bfa; text-shadow: 0 0 10px #8b5cf6;">CRYPTO ARENA</h1>
+        <p style="font-size: 12px; color: #94a3b8;">Conecta tu perfil para ganar $META</p>
         
         <input type="email" id="email" placeholder="Correo electrónico">
         <input type="password" id="password" placeholder="Contraseña">
         
-        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Mundo</button>
-        <button class="btn-secondary" onclick="crearCuenta()">Nuevo Entrenador</button>
+        <button class="btn-primary" onclick="iniciarSesion()">Entrar al Ecosistema</button>
+        <button class="btn-skill" style="background: #10b981; border-color:#047857;" onclick="crearCuenta()">Crear Wallet / Cuenta</button>
     </div>
 
-    <div id="game-screen" class="container">
-        <h2 style="color: #2563eb;">Centro Pokémon 🏥</h2>
-        <p id="datos-jugador" style="font-size: 18px; margin-top: 10px; color: #0f172a; font-weight: bold;"></p>
-        <p id="accion-texto" class="pokemon-text"></p>
-        
-        <button class="btn-action" onclick="explorarHierba()">🌿 Explorar Hierba Alta</button>
-        
-        <div class="section">
-            <h3>Poké Mart 🏪</h3>
-            <button class="btn-shop" onclick="comprar('Pokéball', 50)">🔴 Comprar Pokéball (50 ₽)</button>
-            <button class="btn-shop" onclick="comprar('Poción', 20)">🧴 Comprar Poción (20 ₽)</button>
+    <div id="main-game" class="game-container" style="display: none;">
+        <div class="top-bar">
+            <div>🎒 Items: <span id="global-balls">📦 x3</span> | <span id="global-potions">🧪 x2</span></div>
+            <div class="crypto-txt" id="global-token">💎 0 $META</div>
         </div>
 
-        <div class="section">
-            <h3>Liga Pokémon 🏆</h3>
-            <ul id="lista-top"></ul>
+        <div class="nav-tabs">
+            <button id="t-explore" class="tab-btn active" onclick="changeTab('explore')">🧭 Explorar</button>
+            <button id="t-battle" class="tab-btn" onclick="changeTab('battle')" disabled>⚔️ Batalla</button>
+            <button id="t-fighters" class="tab-btn" onclick="changeTab('fighters')">👾 NFTs</button>
+            <button id="t-shop" class="tab-btn" onclick="changeTab('shop')">🛒 Market</button>
         </div>
-        
-        <button class="btn-danger" onclick="cerrarSesion()">Cerrar Sesión / Guardar</button>
+
+        <div id="s-explore" class="screen active">
+            <div id="explore-options">
+                <h4 style="font-size:13px; color: #a78bfa; margin-bottom: 10px;">Selecciona un modo de juego:</h4>
+                
+                <div class="card-item" style="border-color: #10b981;">
+                    <div>
+                        <strong style="color:#10b981;">🌿 PvE: Zonas Salvajes</strong><br>
+                        <span style="font-size:10px; color:#94a3b8;">Busca monstruos para capturar o farmear $META.</span>
+                    </div>
+                    <button class="btn-item" onclick="iniciarBusqueda('pve')">Buscar</button>
+                </div>
+
+                <div class="card-item" style="border-color: #ef4444; margin-top: 10px;">
+                    <div>
+                        <strong style="color:#ef4444;">⚔️ PvP: Arena Clasificatoria</strong><br>
+                        <span style="font-size:10px; color:#94a3b8;">Lucha contra el equipo de otro inversor (Simulado).</span>
+                    </div>
+                    <button class="btn-danger" onclick="iniciarBusqueda('pvp')">Emparejar</button>
+                </div>
+            </div>
+
+            <div id="radar-screen">
+                <div class="radar-icon">🚶‍♂️...</div>
+                <h3 style="color: #a78bfa;" id="radar-text">Explorando el mapa...</h3>
+                <p style="font-size: 11px; color: #64748b; margin-top: 10px;">Gasta algo de energía encontrando un objetivo.</p>
+            </div>
+        </div>
+
+        <div id="s-battle" class="screen">
+            <div class="battle-arena">
+                <div class="character-card reverse">
+                    <div id="e-sprite" class="sprite">🦅</div>
+                    <div class="info-panel">
+                        <div class="meta-row">
+                            <span id="e-name">Pidgey</span>
+                            <span id="e-badge" class="badge b-agua">AGUA</span>
+                        </div>
+                        <div class="hp-bg"><div id="e-hp" class="hp-fill"></div></div>
+                    </div>
+                </div>
+                
+                <div class="character-card">
+                    <div id="p-sprite" class="sprite">🔥</div>
+                    <div class="info-panel">
+                        <div class="meta-row">
+                            <span id="p-name">Mi NFT</span>
+                            <span id="p-badge" class="badge b-fuego">FUEGO</span>
+                        </div>
+                        <div class="hp-bg"><div id="p-hp" class="hp-fill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="log-console" class="battle-log">El combate está a punto de empezar...</div>
+
+            <div class="actions-grid" id="battle-controls">
+                <button id="sk-0" class="btn-skill" onclick="atacar()">Atacar ⚔️</button>
+                <button id="btn-item-heal" class="btn-item" onclick="usarPocion()">Curar 🧪</button>
+                <button id="btn-item-catch" class="btn-primary" onclick="capturar()" style="grid-column: span 2;">Lanzar Cápsula de Captura 📦</button>
+            </div>
+            
+            <button id="btn-flee" class="btn-danger" onclick="huir()" style="display: none; width: 100%;">Terminar y Salir 🚪</button>
+        </div>
+
+        <div id="s-fighters" class="screen">
+            <h4 style="font-size:13px; color: #a78bfa;">Mis NFTs (Combatientes Activos)</h4>
+            <div id="fighters-list" class="list-container"></div>
+        </div>
+
+        <div id="s-shop" class="screen">
+            <h4 style="font-size:13px; color: #a78bfa;">Marketplace Web3</h4>
+            <div class="list-container">
+                <div class="card-item">
+                    <div><strong>Cápsula Captura 📦</strong><br><span style="font-size:10px;">Coste: 30 $META</span></div>
+                    <button class="btn-primary" onclick="comprarItem('ball', 30)">Comprar</button>
+                </div>
+                <div class="card-item">
+                    <div><strong>Poción de Vida 🧪</strong><br><span style="font-size:10px;">Coste: 15 $META</span></div>
+                    <button class="btn-primary" onclick="comprarItem('potion', 15)">Comprar</button>
+                </div>
+            </div>
+            <button class="btn-danger" style="margin-top: 20px;" onclick="cerrarSesion()">Desconectar Wallet (Salir)</button>
+        </div>
     </div>
 
     <script>
+        // Configuración Supabase
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co';
         const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';
         const cliente = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        // Variables de Juego
         let miUsuarioId = null;
-        let miOro = 0;
+        let miToken = 0; // Oro cripto
+        let globalBalls = 3;
+        let globalPotions = 2;
 
-        const listaPokemones = ["Pidgey 🐦", "Rattata 🐀", "Pikachu ⚡", "Charmander 🔥", "Squirtle 💧", "Bulbasaur 🍃", "Zubat 🦇", "Geodude 🪨", "Snorlax 💤", "Mewtwo 🌌"];
+        let myFighter = { name: "Cripto Zorro", type: "fuego", sprite: "🦊", hp: 100, maxHp: 100, dmg: 20 };
+        let enemy = { name: "?", type: "?", sprite: "❓", hp: 100, maxHp: 100, dmg: 10 };
+        let isCombatLocked = false;
+        let currentMode = ""; // 'pve' o 'pvp'
 
+        const wildBots = [
+            { name: "Lobo Mutante", type: "agua", sprite: "🐺", hp: 60, dmg: 12 },
+            { name: "Golem de Piedra", type: "planta", sprite: "🪨", hp: 90, dmg: 8 },
+            { name: "Dragón Menor", type: "fuego", sprite: "🐉", hp: 75, dmg: 18 }
+        ];
+
+        // --- SISTEMA DE AUTENTICACIÓN ---
         async function crearCuenta() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
-            if(!email || !password) return alert("Error: Faltan datos.");
+            if(!email || !password) return alert("Faltan datos.");
             
-            const { data, error } = await cliente.auth.signUp({ email: email, password: password });
+            const { data, error } = await cliente.auth.signUp({ email, password });
             if (error) return alert("Error: " + error.message);
 
-            // Te regalamos 100 Pokédolares iniciales (se guardan en tu columna 'oro')
             const { error: dbError } = await cliente.from('perfiles').insert([
                 { id: data.user.id, username: email.split('@')[0], oro: 100 }
             ]);
             
-            if (dbError) return alert("Error al registrar entrenador: " + dbError.message);
-            alert("¡Licencia de Entrenador creada! Ya puedes entrar.");
+            if (dbError) return alert("Error creando wallet interna.");
+            alert("Cuenta creada. Ya puedes entrar.");
         }
 
         async function iniciarSesion() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const { data, error } = await cliente.auth.signInWithPassword({ email: email, password: password });
-            if (error) return alert("Datos incorrectos.");
+            const { data, error } = await cliente.auth.signInWithPassword({ email, password });
+            if (error) return alert("Credenciales incorrectas.");
 
             const perfil = await cliente.from('perfiles').select('*').eq('id', data.user.id).single();
-            if (perfil.error) return alert("Error leyendo tu perfil.");
-
             miUsuarioId = data.user.id;
-            miOro = perfil.data.oro;
+            miToken = perfil.data ? perfil.data.oro : 0;
 
             document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            
+            document.getElementById('main-game').style.display = 'flex';
             actualizarUI();
-            mostrarTop();
+            renderFighters();
         }
 
-        async function explorarHierba() {
-            const pokeAlAzar = listaPokemones[Math.floor(Math.random() * listaPokemones.length)];
-            document.getElementById('accion-texto').innerText = "Caminando por la hierba...";
-
-            setTimeout(async () => {
-                // Ganancia aleatoria entre 5 y 25 Pokédólares
-                const ganancia = Math.floor(Math.random() * 20) + 5;
-                miOro += ganancia;
-
-                const { error } = await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
-
-                if (!error) {
-                    document.getElementById('accion-texto').innerText = `¡Un salvaje ${pokeAlAzar} apareció! Lo venciste y ganaste ${ganancia} ₽.`;
-                    actualizarUI();
-                    mostrarTop();
-                } else {
-                    document.getElementById('accion-texto').innerText = "Error de conexión con la Pokédex.";
-                }
-            }, 800); // Pequeña pausa para dar emoción
+        // --- NAVEGACIÓN ---
+        function changeTab(tab) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`s-${tab}`).classList.add('active');
+            document.getElementById(`t-${tab}`).classList.add('active');
         }
 
-        async function comprar(item, costo) {
-            if (miOro < costo) {
-                return alert("¡No tienes suficientes Pokédólares para esta compra!");
-            }
+        // --- LÓGICA DE EXPLORACIÓN (RADAR) ---
+        function iniciarBusqueda(modo) {
+            currentMode = modo;
+            document.getElementById('explore-options').style.display = 'none';
+            document.getElementById('radar-screen').style.display = 'block';
+            document.getElementById('radar-text').innerText = modo === 'pvp' ? "Buscando oponente en la red..." : "Rastreando zona salvaje...";
             
-            miOro -= costo;
-            const { error } = await cliente.from('perfiles').update({ oro: miOro }).eq('id', miUsuarioId);
-            
-            if (!error) {
-                document.getElementById('accion-texto').innerText = `Compraste: ${item} por ${costo} ₽.`;
-                actualizarUI();
-                mostrarTop();
+            // Animación de búsqueda por 3 segundos
+            setTimeout(() => {
+                generarEnemigo(modo);
+                document.getElementById('explore-options').style.display = 'block';
+                document.getElementById('radar-screen').style.display = 'none';
+                
+                // Habilitar y saltar a la pestaña de batalla
+                document.getElementById('t-battle').disabled = false;
+                changeTab('battle');
+                iniciarCombate();
+            }, 3000);
+        }
+
+        function generarEnemigo(modo) {
+            if (modo === 'pve') {
+                let r = wildBots[Math.floor(Math.random() * wildBots.length)];
+                enemy = { name: "Salvaje " + r.name, type: r.type, sprite: r.sprite, hp: r.hp, maxHp: r.hp, dmg: r.dmg };
+                document.getElementById('btn-item-catch').style.display = 'block'; // En PvE se puede capturar
             } else {
-                miOro += costo; // Devolvemos el dinero si falla
+                enemy = { name: "Bot_Inversor_X", type: "fuego", sprite: "🥷", hp: 120, maxHp: 120, dmg: 15 };
+                document.getElementById('btn-item-catch').style.display = 'none'; // En PvP no puedes robar NFTs
+            }
+            actualizarUI();
+        }
+
+        function iniciarCombate() {
+            document.getElementById('log-console').innerHTML = "¡Combate iniciado!";
+            document.getElementById('battle-controls').style.display = 'grid';
+            document.getElementById('btn-flee').style.display = 'none';
+            isCombatLocked = false;
+        }
+
+        // --- SISTEMA DE BATALLA MANUAL Y ANIMADA ---
+        function logMsg(msg) {
+            let logBox = document.getElementById('log-console');
+            logBox.innerHTML = `• ${msg}<br>` + logBox.innerHTML;
+        }
+
+        function triggerAnimation(elementId, animClass) {
+            let el = document.getElementById(elementId);
+            el.classList.remove(animClass);
+            void el.offsetWidth; // Forzar reflow para reiniciar animación
+            el.classList.add(animClass);
+        }
+
+        function atacar() {
+            if (isCombatLocked) return;
+            isCombatLocked = true;
+
+            // Animación del jugador atacando y enemigo recibiendo daño
+            triggerAnimation('p-sprite', 'anim-attack');
+            setTimeout(() => triggerAnimation('e-sprite', 'anim-damage'), 200);
+
+            // Daño aleatorio basado en el daño base del NFT
+            let dmgHecho = Math.floor(Math.random() * 10) + myFighter.dmg;
+            enemy.hp = Math.max(0, enemy.hp - dmgHecho);
+            logMsg(`Tu ${myFighter.name} ataca causando ${dmgHecho} de daño.`);
+            actualizarUI();
+
+            if (enemy.hp <= 0) {
+                setTimeout(ganarBatalla, 800);
+            } else {
+                setTimeout(turnoEnemigo, 1000);
             }
         }
 
-        async function mostrarTop() {
-            const lista = document.getElementById('lista-top');
-            lista.innerHTML = "<li>Conectando con la Liga...</li>";
+        function turnoEnemigo() {
+            triggerAnimation('e-sprite', 'anim-attack');
+            setTimeout(() => triggerAnimation('p-sprite', 'anim-damage'), 200);
 
-            const { data, error } = await cliente.from('perfiles')
-                .select('username, oro')
-                .order('oro', { ascending: false })
-                .limit(4);
+            let dmgRecibido = Math.floor(Math.random() * 5) + enemy.dmg;
+            myFighter.hp = Math.max(0, myFighter.hp - dmgRecibido);
+            logMsg(`El ${enemy.name} contraataca y te quita ${dmgRecibido} HP.`);
+            actualizarUI();
 
-            if (error) {
-                lista.innerHTML = "<li>Error al cargar la Liga</li>";
-                return;
+            if (myFighter.hp <= 0) {
+                logMsg("💀 Tu NFT ha sido derrotado.");
+                finalizarCombate();
+            } else {
+                isCombatLocked = false;
             }
-
-            lista.innerHTML = data.map((jugador, index) => {
-                let medalla = "🏅";
-                if (index === 0) medalla = "👑";
-                if (index === 1) medalla = "🥈";
-                if (index === 2) medalla = "🥉";
-                return `<li><span>${medalla} ${jugador.username}</span> <span>${jugador.oro} ₽</span></li>`;
-            }).join('');
         }
 
+        async function ganarBatalla() {
+            let recompensa = currentMode === 'pvp' ? 50 : 20; // PvP da más tokens
+            miToken += recompensa;
+            logMsg(`🏆 ¡VICTORIA! Ganaste ${recompensa} $META.`);
+            
+            // Guardar token en Supabase
+            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
+            actualizarUI();
+            finalizarCombate();
+        }
+
+        function capturar() {
+            if (isCombatLocked || globalBalls <= 0) return;
+            globalBalls--;
+            actualizarUI();
+            logMsg("📦 Has lanzado una cápsula criptográfica...");
+            
+            isCombatLocked = true;
+            setTimeout(() => {
+                let chance = 1 - (enemy.hp / enemy.maxHp); // Más fácil si tiene poca vida
+                if (Math.random() < chance + 0.3) {
+                    logMsg("✨ ¡Captura exitosa! El NFT fue minteado en tu cuenta.");
+                    setTimeout(ganarBatalla, 1000);
+                } else {
+                    logMsg("❌ Falló la captura. El monstruo se resiste.");
+                    turnoEnemigo();
+                }
+            }, 1000);
+        }
+
+        function usarPocion() {
+            if (globalPotions <= 0 || isCombatLocked) return;
+            globalPotions--;
+            myFighter.hp = Math.min(myFighter.maxHp, myFighter.hp + 50);
+            logMsg("🧪 Recuperaste 50 HP.");
+            actualizarUI();
+            isCombatLocked = true;
+            setTimeout(turnoEnemigo, 1000);
+        }
+
+        function finalizarCombate() {
+            document.getElementById('battle-controls').style.display = 'none';
+            document.getElementById('btn-flee').style.display = 'block';
+            document.getElementById('t-battle').disabled = true;
+        }
+
+        function huir() {
+            myFighter.hp = myFighter.maxHp; // Curamos al volver al menú (puedes cambiarlo luego)
+            changeTab('explore');
+            actualizarUI();
+        }
+
+        // --- UI Y TIENDA ---
         function actualizarUI() {
-            document.getElementById('datos-jugador').innerText = `Cartera: ${miOro} ₽`;
+            document.getElementById('global-token').innerText = `💎 ${miToken} $META`;
+            document.getElementById('global-balls').innerText = `📦 x${globalBalls}`;
+            document.getElementById('global-potions').innerText = `🧪 x${globalPotions}`;
+
+            // Actualizar barras de vida
+            document.getElementById('p-name').innerText = myFighter.name;
+            document.getElementById('p-hp').style.width = (myFighter.hp / myFighter.maxHp * 100) + '%';
+            
+            document.getElementById('e-name').innerText = enemy.name;
+            document.getElementById('e-sprite').innerText = enemy.sprite;
+            document.getElementById('e-hp').style.width = (enemy.hp / enemy.maxHp * 100) + '%';
+        }
+
+        function renderFighters() {
+            let html = `
+                <div class="card-item" style="border: 2px solid #10b981;">
+                    <div>
+                        <strong>${myFighter.sprite} ${myFighter.name}</strong> <span class="badge b-${myFighter.type}">${myFighter.type}</span><br>
+                        <span style="font-size: 11px; color: #94a3b8;">HP: ${myFighter.hp}/${myFighter.maxHp} | Daño: ${myFighter.dmg}</span>
+                    </div>
+                    <button class="btn-primary" disabled>Equipado</button>
+                </div>
+            `;
+            document.getElementById('fighters-list').innerHTML = html;
+        }
+
+        async function comprarItem(item, coste) {
+            if (miToken < coste) return alert("Fondos $META insuficientes.");
+            miToken -= coste;
+            if (item === 'ball') globalBalls++;
+            if (item === 'potion') globalPotions++;
+            
+            await cliente.from('perfiles').update({ oro: miToken }).eq('id', miUsuarioId);
+            actualizarUI();
         }
 
         async function cerrarSesion() {
             await cliente.auth.signOut();
-            miUsuarioId = null;
-            miOro = 0;
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'block';
-            document.getElementById('password').value = '';
-            document.getElementById('accion-texto').innerText = '';
+            document.getElementById('main-game').style.display = 'none';
+            document.getElementById('auth-screen').style.display = 'flex';
         }
     </script>
 </body>
