@@ -282,6 +282,7 @@
     </nav>
 
     <script>
+        // ¡RECUERDA PONER TUS DATOS DE SUPABASE AQUÍ ABAJO!
         const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
@@ -294,7 +295,6 @@
         let oro = 0;
         let baseRatePerHour = 5;
 
-        // Nuevos campos de base de datos
         let hasDeposited = false;
         let wordleBasicDate = "";
         let wordleVipDate = "";
@@ -347,7 +347,7 @@
         function getWordleCycleInfo(mode) {
             const now = new Date();
             const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const vetMs = utcMs - (4 * 3600000); // UTC-4 (Venezuela)
+            const vetMs = utcMs - (4 * 3600000); 
             const vetDate = new Date(vetMs);
 
             let cycleDate = new Date(vetMs);
@@ -358,7 +358,6 @@
             let hash = 0;
             for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
             
-            // Variación para que la palabra VIP sea diferente a la básica
             let offset = mode === 'vip' ? 7 : 0; 
             const index = (Math.abs(hash) + offset) % WORDS.length;
             
@@ -369,7 +368,6 @@
             const { cycleId, word } = getWordleCycleInfo(mode);
             const savedState = JSON.parse(localStorage.getItem(`wordle_${mode}_${userTelegramId}`) || "{}");
             
-            // Validar contra la base de datos para prevenir trampas si borran el caché
             let dbDate = mode === 'basic' ? wordleBasicDate : wordleVipDate;
             let isAlreadyWonInDb = (dbDate === cycleId);
 
@@ -379,7 +377,6 @@
                 wordleStates[mode] = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" };
             }
 
-            // Si en la base de datos dice que ya ganó hoy, forzamos el estado a ganado
             if (isAlreadyWonInDb) wordleStates[mode].status = "won";
 
             saveWordleLocal(mode);
@@ -502,7 +499,6 @@
                     let premio = currentMode === 'basic' ? 250 : 2000;
                     plata += premio;
                     
-                    // Actualizar las fechas de victoria para la base de datos
                     if (currentMode === 'basic') wordleBasicDate = state.cycleId;
                     else wordleVipDate = state.cycleId;
 
@@ -510,13 +506,13 @@
                     document.getElementById('wordleStatus').style.color = "var(--success)";
                     
                     updateInterface();
-                    saveProgress(); // Guardado automático en DB al ganar
+                    saveProgress(); 
 
                 } else if (state.guesses.length >= 6) {
                     state.status = "lost";
                     document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${state.target}`;
                     document.getElementById('wordleStatus').style.color = "#ff3333";
-                    saveProgress(); // Guardar intentos fallidos para sincronizar DB
+                    saveProgress(); 
                 }
 
                 state.currentAttempt++;
@@ -536,7 +532,6 @@
             }
         }
         // ====== FIN LÓGICA WORDLE ======
-
 
         function showError(msg) {
             const errBox = document.getElementById('debugStatus');
@@ -565,7 +560,7 @@
             document.getElementById('usernameDisplay').innerText = "@" + username;
             
             loadProgress().then(() => {
-                switchWordleMode('basic'); // Inicia la pestaña básica después de cargar datos
+                switchWordleMode('basic'); 
                 calculateTotalRate(); 
                 startAutomaticMiningLoop();
             });
@@ -631,7 +626,7 @@
             let bloques = Math.floor(mineral / 100);
             oro += bloques * 1; plata += bloques * 1;
             mineral -= (bloques * 100);
-            updateInterface(); saveProgress(); // Guardado automático
+            updateInterface(); saveProgress(); 
             alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques} Oro y +${bloques} Plata.`);
         }
 
@@ -640,7 +635,7 @@
             let nextLevel = storageLevels[storageLevel];
             if (plata >= nextLevel.cost) {
                 plata -= nextLevel.cost; storageLevel++;
-                updateInterface(); saveProgress(); // Guardado automático
+                updateInterface(); saveProgress(); 
                 alert(`¡Almacén mejorado al Nivel ${storageLevel}!`);
             } else { alert(`Necesitas ${nextLevel.cost.toLocaleString()} Plata.`); }
         }
@@ -648,7 +643,7 @@
         function buyMiner(minerId, cost) {
             if (plata >= cost) {
                 plata -= cost; inventory[minerId]++;
-                calculateTotalRate(); updateInterface(); saveProgress(); // Guardado automático
+                calculateTotalRate(); updateInterface(); saveProgress(); 
                 alert(`¡Minero adquirido con éxito!`);
             } else { alert(`Requiere ${cost.toLocaleString()} Plata.`); }
         }
@@ -658,15 +653,38 @@
             document.getElementById('screen-' + tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
-            if (tabId === 'puzzle') switchWordleMode(currentMode); // Refresca el estado al entrar
+            if (tabId === 'puzzle') switchWordleMode(currentMode); 
         }
 
         function syncManual() { saveProgress(); alert("Sincronización forzada con éxito."); }
 
+        // ====== SISTEMA DE CARGA ======
         async function loadProgress() {
+            const localSave = localStorage.getItem(`neon_miner_progress_${userTelegramId}`);
+            if (localSave) {
+                const localData = JSON.parse(localSave);
+                mineral = parseFloat(localData.mineral || 0); 
+                plata = parseInt(localData.plata || 0); 
+                oro = parseInt(localData.oro || 0); 
+                storageLevel = parseInt(localData.storageLevel || 1);
+                if (localData.inventory) inventory = localData.inventory;
+                wordleBasicDate = localData.wordleBasicDate || "";
+                wordleVipDate = localData.wordleVipDate || "";
+                
+                calculateTotalRate(); 
+                updateInterface();
+                document.getElementById('dbStatus').innerText = "Carga Local Completa";
+            }
+
             try {
-                if (!supabaseClient) { document.getElementById('dbStatus').innerText = "Modo Local"; return; }
-                let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).single();
+                if (!supabaseClient) { 
+                    if(!localSave) updateInterface(); 
+                    document.getElementById('dbStatus').innerText = "Modo Local"; 
+                    return; 
+                }
+                
+                let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).maybeSingle();
+                
                 if (data) {
                     mineral = parseFloat(data.mineral || 0); 
                     plata = parseInt(data.plata || 0); 
@@ -676,22 +694,34 @@
                     inventory.miner2 = parseInt(data.miner2 || 0); 
                     inventory.miner3 = parseInt(data.miner3 || 0); 
                     inventory.miner4 = parseInt(data.miner4 || 0);
-                    
-                    // Cargar nuevos campos de DB
                     hasDeposited = data.has_deposited || false;
                     wordleBasicDate = data.wordle_basic_date || "";
                     wordleVipDate = data.wordle_vip_date || "";
 
-                    calculateTotalRate(); updateInterface();
+                    calculateTotalRate(); 
+                    updateInterface();
                     document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                    
+                    const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate };
+                    localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
+                } else {
+                    document.getElementById('dbStatus').innerText = "Nuevo Usuario";
+                    saveProgress();
                 }
-            } catch (e) { showError("Error al cargar: " + e.message); }
+            } catch (e) { 
+                showError("Error al sincronizar DB: " + e.message); 
+            }
         }
 
+        // ====== SISTEMA DE GUARDADO CON UPSERT ======
         async function saveProgress() {
+            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate };
+            localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
+
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('players').update({ 
+                    await supabaseClient.from('players').upsert({ 
+                        telegram_id: userTelegramId, 
                         mineral: mineral, 
                         plata: plata, 
                         oro: oro, 
@@ -700,12 +730,12 @@
                         miner2: inventory.miner2, 
                         miner3: inventory.miner3, 
                         miner4: inventory.miner4,
-                        wordle_basic_date: wordleBasicDate, // Guarda la fecha de victoria Básica
-                        wordle_vip_date: wordleVipDate      // Guarda la fecha de victoria VIP
-                        // Nota: has_deposited no se actualiza desde aquí por seguridad, 
-                        // asumiendo que el bot backend lo cambia cuando verifica el pago en TON.
-                    }).eq('telegram_id', userTelegramId);
-                } catch(e) { showError("Error guardando: " + e.message); }
+                        wordle_basic_date: wordleBasicDate, 
+                        wordle_vip_date: wordleVipDate      
+                    }, { onConflict: 'telegram_id' }); 
+                } catch(e) { 
+                    showError("Error guardando en la nube: " + e.message); 
+                }
             }
         }
     </script>
