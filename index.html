@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* Variables de diseño con la estética Azul Neón */
         :root {
             --bg-color: #070a13;
             --panel-bg: #111625;
@@ -21,246 +20,45 @@
             --success: #00ff88;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--white); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--white);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
 
-        /* Cabecera */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent);
-            border-bottom: 1px solid rgba(0, 243, 255, 0.05);
-        }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 90px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 24px; padding: 30px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
+        .balance-title { color: var(--text-main); font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .balance-amount { font-size: 42px; font-weight: 800; color: var(--neon-blue); text-shadow: 0 0 20px rgba(0, 243, 255, 0.6); margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .mining-rate { font-size: 14px; color: var(--text-main); margin-bottom: 25px; }
 
-        .avatar {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue));
-            border-radius: 50%;
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
-        }
+        .btn-neon { position: relative; background: linear-gradient(90deg, var(--dark-blue), #00aaff); color: white; border: none; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; overflow: hidden; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 85, 255, 0.4); }
+        .btn-neon:active { transform: scale(0.97); }
+        .btn-neon::after { content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent); transform: skewX(-30deg); animation: sweep 4s infinite ease-in-out; }
+        @keyframes sweep { 0% { left: -100%; } 30% { left: 150%; } 100% { left: 150%; } }
 
-        /* Contenedor de Pantallas */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            padding-bottom: 90px;
-        }
+        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); }
 
-        .screen {
-            display: none;
-        }
-        .screen.active {
-            display: block;
-        }
+        .btn-buy { background: var(--dark-blue); border: none; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-buy:active { background: var(--neon-blue); color: black; }
 
-        /* Tarjeta de Balance y Minería */
-        .mining-card {
-            background: linear-gradient(145deg, #121829, #0a0d1a);
-            border: 1px solid rgba(0, 243, 255, 0.15);
-            border-radius: 24px;
-            padding: 30px 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 243, 255, 0.05);
-            margin-bottom: 20px;
-        }
+        .puzzle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
+        .puzzle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+        .puzzle-cell { aspect-ratio: 1; background: #192239; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; }
+        .puzzle-cell.selected { background: rgba(157, 78, 221, 0.2); border: 2px solid var(--neon-purple); color: var(--white); }
+        .puzzle-status { font-size: 14px; margin-bottom: 15px; min-height: 20px; color: var(--text-main); }
 
-        .balance-title {
-            color: var(--text-main);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-        }
+        .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
 
-        .balance-amount {
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--neon-blue);
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .mining-rate {
-            font-size: 14px;
-            color: var(--text-main);
-            margin-bottom: 25px;
-        }
-
-        /* Botones Estilo Neón con animación de brillo suave */
-        .btn-neon {
-            position: relative;
-            background: linear-gradient(90deg, var(--dark-blue), #00aaff);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 85, 255, 0.4);
-            transition: transform 0.1s ease;
-        }
-
-        .btn-neon:active {
-            transform: scale(0.97);
-        }
-
-        /* Rayo de luz pasando suavemente */
-        .btn-neon::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 40%;
-            height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent);
-            transform: skewX(-30deg);
-            animation: sweep 4s infinite ease-in-out;
-        }
-
-        @keyframes sweep {
-            0% { left: -100%; }
-            30% { left: 150%; }
-            100% { left: 150%; }
-        }
-
-        /* Cuadrícula de Acciones */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .action-card {
-            background: var(--panel-bg);
-            border-radius: 16px;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        /* --- MÓDULO ROMPECABEZAS DIARIO --- */
-        .puzzle-container {
-            background: var(--panel-bg);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(157, 78, 221, 0.2);
-            box-shadow: 0 0 15px rgba(157, 78, 221, 0.05);
-            text-align: center;
-        }
-
-        .puzzle-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .puzzle-cell {
-            aspect-ratio: 1;
-            background: #192239;
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .puzzle-cell.selected {
-            border-color: var(--neon-purple);
-            background: rgba(157, 78, 221, 0.2);
-            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
-            color: var(--white);
-        }
-
-        .puzzle-status {
-            font-size: 14px;
-            margin-bottom: 15px;
-            min-height: 20px;
-            color: var(--text-main);
-        }
-
-        /* --- MÓDULO BILLETERA (Depósitos / Retiros) --- */
-        .wallet-card {
-            background: linear-gradient(135deg, #111625, #0a0d1a);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid rgba(0, 243, 255, 0.1);
-            margin-bottom: 15px;
-        }
-
-        /* Navegación Inferior Fixed */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--panel-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid rgba(0, 243, 255, 0.1);
-            border-radius: 24px 24px 0 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
-        }
-
-        .nav-item {
-            color: var(--text-main);
-            text-align: center;
-            font-size: 11px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            width: 20%;
-        }
-
-        .nav-item.active {
-            color: var(--neon-blue);
-            text-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
-        }
-
-        .nav-icon {
-            font-size: 22px;
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
+        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 20%; }
+        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
+        .nav-icon { font-size: 22px; }
     </style>
 </head>
 <body>
@@ -285,7 +83,7 @@
                     <span style="color: var(--neon-blue)">⚡</span>
                     <span id="balanceDisplay">0.000</span>
                 </div>
-                <div class="mining-rate" id="rateDisplay">Café de Minería: +1.000 ⚡ / hora</div>
+                <div class="mining-rate" id="rateDisplay">Poder: +1.000 ⚡ / hora</div>
                 
                 <button class="btn-neon" id="btnMine" onclick="toggleMining()">
                     INICIAR MINERÍA
@@ -296,7 +94,7 @@
                 <div class="action-card">
                     <span style="font-size: 24px;">🚀</span>
                     <div>
-                        <div style="font-size: 11px; color: var(--text-main);">Multiplicador</div>
+                        <div style="font-size: 11px; color: var(--text-main);">Nivel de Minero</div>
                         <div style="font-size: 13px; font-weight: bold;" id="levelDisplay">Nivel 1</div>
                     </div>
                 </div>
@@ -312,12 +110,30 @@
 
         <div id="screen-shop" class="screen">
             <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Adquirir Mineros</h3>
+            <p style="font-size: 12px; color: var(--text-main); margin-bottom: 20px;">Compra mineros para aumentar tu Nivel y ganar más ⚡ por hora.</p>
+
             <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold;">Micro-Procesador Cuántico</div>
-                    <div style="font-size: 12px; color: var(--text-main);">+0.5 ⚡/hr permanentemente</div>
+                    <div style="font-weight: bold;">Placa de Video (GPU)</div>
+                    <div style="font-size: 12px; color: var(--text-main);">+1 Nivel Extra</div>
                 </div>
-                <button style="background: var(--dark-blue); border:none; color:white; padding:8px 12px; border-radius:8px;">100 ⚡</button>
+                <button class="btn-buy" onclick="buyMiner('Placa de Video', 100, 1)">100 ⚡</button>
+            </div>
+
+            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: bold;">Granja ASIC</div>
+                    <div style="font-size: 12px; color: var(--text-main);">+5 Niveles Extra</div>
+                </div>
+                <button class="btn-buy" onclick="buyMiner('Granja ASIC', 500, 5)">500 ⚡</button>
+            </div>
+
+            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: bold;">Procesador Cuántico</div>
+                    <div style="font-size: 12px; color: var(--text-main);">+15 Niveles Extra</div>
+                </div>
+                <button class="btn-buy" onclick="buyMiner('Procesador Cuántico', 2000, 15)">2000 ⚡</button>
             </div>
         </div>
 
@@ -325,14 +141,11 @@
             <div class="puzzle-container">
                 <h3 style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(157,78,221,0.3);">Rompecabezas Diario</h3>
                 <p style="font-size: 12px; color: var(--text-main); margin-top: 5px;">
-                    Selecciona exactamente 5 posiciones correctas para reclamar el premio diario de <span style="color:var(--neon-blue)">+50.000 ⚡</span>.
+                    Selecciona exactamente 5 posiciones para reclamar <span style="color:var(--neon-blue)">+50.000 ⚡</span>.
                 </p>
-                
                 <div class="puzzle-grid" id="gridElement"></div>
-                
                 <div class="puzzle-status" id="puzzleStatus">Selecciona 5 casillas.</div>
-                
-                <button class="btn-neon" style="background: linear-gradient(90deg, var(--neon-purple), #b5179e); box-shadow: 0 4px 15px rgba(181,23,158,0.3);" onclick="verifyPuzzle()">
+                <button class="btn-neon" style="background: linear-gradient(90deg, var(--neon-purple), #b5179e);" onclick="verifyPuzzle()">
                     VERIFICAR COMBINACIÓN
                 </button>
             </div>
@@ -340,19 +153,12 @@
 
         <div id="screen-wallet" class="screen">
             <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Operaciones Financieras</h3>
-            
             <div class="wallet-card">
                 <div style="font-size: 12px; color: var(--text-main);">Dirección de Depósito (TON)</div>
                 <div style="font-family: monospace; font-size: 13px; background:#000; padding:10px; border-radius:8px; margin: 10px 0; word-break: break-all;">
                     EQB3nVoRFMzXKi...
                 </div>
                 <button style="background:none; border: 1px solid var(--neon-blue); color:var(--neon-blue); padding:6px 12px; border-radius:8px; font-size:12px;">Copiar Dirección</button>
-            </div>
-
-            <div class="wallet-card">
-                <div style="font-size: 12px; color: var(--text-main); margin-bottom: 8px;">Retirar Fondos</div>
-                <input type="text" placeholder="Monto en ⚡" style="width:100%; padding:10px; background:#070a13; border: 1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-bottom:10px;">
-                <button class="btn-neon" style="padding:10px; font-size:14px;">SOLICITAR RETIRO</button>
             </div>
         </div>
 
@@ -378,49 +184,91 @@
     </nav>
 
     <script>
-        // --- CONFIGURACIÓN DE SUPABASE ---
-        // Coloca aquí tus llaves de Supabase cuando crees tu proyecto
-        const SUPABASE_URL = "https://TU_PROYECTO.supabase.co";
-        const SUPABASE_ANON_KEY = "TU_LLAVE_ANON_DE_SUPABASE";
-        let supabase = null;
+        // --- LLAVES DE SUPABASE ---
+        const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
+        const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
+        let supabaseClient = null;
 
-        if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co") {
-            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Corrección de seguridad para crear el cliente de Supabase
+        if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        // --- DATOS Y ESTADO DEL JUGADOR ---
-        let userTelegramId = "999999"; // Valor por defecto local
+        let userTelegramId = "999999"; 
         let username = "Local_Miner";
         let balance = 0.000;
-        let baseRatePerHour = 1.000; 
         let currentLevel = 1;
+        let baseRatePerHour = 1.000; 
         let isMining = false;
         let miningInterval = null;
 
-        // --- SISTEMA DEL PUZZLE DIARIO ---
-        // Combinación correcta del día (puedes cambiarla manualmente o generarla dinámicamente)
         const dailyWinningCombo = [1, 4, 6, 7, 10]; 
         let selectedCells = [];
 
-        // Inicializar la interfaz de Telegram al arrancar
+        // Iniciar App de forma segura
         document.addEventListener("DOMContentLoaded", () => {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand(); // Expandir la app a pantalla completa en Telegram
-                
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    userTelegramId = tg.initDataUnsafe.user.id.toString();
-                    username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                        userTelegramId = tg.initDataUnsafe.user.id.toString();
+                        username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
+                    }
                 }
+            } catch (e) {
+                console.log("Ejecutando fuera de Telegram");
             }
             
             document.getElementById('usernameDisplay').innerText = "@" + username;
             buildPuzzleGrid();
+            updateInterface();
             loadProgress();
         });
 
-        // Generar las celdas del Puzzle (3x4 = 12 celdas)
+        function updateInterface() {
+            document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
+            document.getElementById('levelDisplay').innerText = "Nivel " + currentLevel;
+            const currentRate = baseRatePerHour * currentLevel;
+            document.getElementById('rateDisplay').innerText = `Poder: +${currentRate.toFixed(3)} ⚡ / hora`;
+        }
+
+        // --- LÓGICA DE LA TIENDA ---
+        function buyMiner(itemName, cost, levelIncrease) {
+            if (balance >= cost) {
+                balance -= cost;
+                currentLevel += levelIncrease;
+                updateInterface();
+                saveProgress();
+                alert(`¡Éxito! Compraste ${itemName}. Tu Nivel subió a ${currentLevel}.`);
+            } else {
+                alert(`Fondos insuficientes. Necesitas ${cost} ⚡ para comprar ${itemName}.`);
+            }
+        }
+
+        function toggleMining() {
+            const btn = document.getElementById('btnMine');
+            if (!isMining) {
+                isMining = true;
+                btn.innerText = "MINANDO...";
+                btn.style.background = "linear-gradient(90deg, #092042, var(--dark-blue))";
+                
+                miningInterval = setInterval(() => {
+                    const ratePerSecond = (baseRatePerHour * currentLevel) / 3600;
+                    balance += ratePerSecond;
+                    document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
+                }, 1000);
+            } else {
+                isMining = false;
+                clearInterval(miningInterval);
+                btn.innerText = "INICIAR MINERÍA";
+                btn.style.background = "linear-gradient(90deg, var(--dark-blue), #00aaff)";
+                saveProgress();
+            }
+        }
+
         function buildPuzzleGrid() {
             const grid = document.getElementById('gridElement');
             grid.innerHTML = "";
@@ -428,21 +276,18 @@
                 const cell = document.createElement('div');
                 cell.classList.add('puzzle-cell');
                 cell.innerText = i + 1;
-                cell.onclick = () => selectPuzzleCell(i, cell);
+                cell.onclick = () => selectPuzzleCell(i + 1, cell);
                 grid.appendChild(cell);
             }
         }
 
-        // Controlar la selección de casillas del Rompecabezas
         function selectPuzzleCell(index, cellElement) {
             if (selectedCells.includes(index)) {
-                // Si ya estaba seleccionada, la removemos
                 selectedCells = selectedCells.filter(item => item !== index);
                 cellElement.classList.remove('selected');
             } else {
-                // Permitir máximo 5 selecciones
                 if (selectedCells.length >= 5) {
-                    document.getElementById('puzzleStatus').innerText = "Ya seleccionaste las 5 posiciones.";
+                    document.getElementById('puzzleStatus').innerText = "Ya seleccionaste 5 casillas.";
                     return;
                 }
                 selectedCells.push(index);
@@ -452,115 +297,72 @@
             document.getElementById('puzzleStatus').innerText = `Seleccionadas: ${selectedCells.length} de 5`;
         }
 
-        // Verificar el Rompecabezas Diario
         function verifyPuzzle() {
             if (selectedCells.length !== 5) {
-                document.getElementById('puzzleStatus').innerText = "Debes elegir exactamente 5 posiciones.";
+                document.getElementById('puzzleStatus').innerText = "Elige exactamente 5 posiciones.";
                 return;
             }
-
-            // Ordenar los arreglos para compararlos correctamente
             const sortedSelected = [...selectedCells].sort((a, b) => a - b);
             const sortedWinning = [...dailyWinningCombo].sort((a, b) => a - b);
-
-            // Verificar si coinciden todas
             const isWinner = sortedSelected.every((val, index) => val === sortedWinning[index]);
 
             if (isWinner) {
-                balance += 50000.000; // Premio
-                document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
+                balance += 50000.000;
+                updateInterface();
                 document.getElementById('puzzleStatus').style.color = "var(--success)";
-                document.getElementById('puzzleStatus').innerText = "¡Acertaste! Se añadieron +50.000 ⚡ a tu cuenta.";
+                document.getElementById('puzzleStatus').innerText = "¡Ganaste +50.000 ⚡!";
                 saveProgress();
             } else {
                 document.getElementById('puzzleStatus').style.color = "#ff4d4d";
-                document.getElementById('puzzleStatus').innerText = "Combinación incorrecta. ¡Vuelve a intentarlo!";
+                document.getElementById('puzzleStatus').innerText = "Combinación incorrecta.";
             }
         }
 
-        // --- SISTEMA DE MINERÍA ---
-        function toggleMining() {
-            const btn = document.getElementById('btnMine');
-            
-            if (!isMining) {
-                isMining = true;
-                btn.innerText = "MINANDO AUTOMÁTICAMENTE...";
-                btn.style.background = "linear-gradient(90deg, #092042, var(--dark-blue))";
-                
-                const ratePerSecond = (baseRatePerHour * currentLevel) / 3600;
-                
-                miningInterval = setInterval(() => {
-                    balance += ratePerSecond;
-                    document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
-                }, 1000);
-            } else {
-                // Detener minería y guardar progreso en la nube
-                isMining = false;
-                clearInterval(miningInterval);
-                btn.innerText = "INICIAR MINERÍA";
-                btn.style.background = "linear-gradient(90deg, var(--dark-blue), #00aaff)";
-                saveProgress();
-            }
-        }
-
-        // --- INTEGRACIÓN CON SUPABASE (GUARDAR / CARGAR) ---
         async function loadProgress() {
-            if (!supabase) {
-                document.getElementById('dbStatus').innerText = "Modo Local (Sin DB)";
+            if (!supabaseClient) {
+                document.getElementById('dbStatus').innerText = "Modo Local";
                 document.getElementById('dbStatus').style.color = "orange";
                 return;
             }
-
-            document.getElementById('dbStatus').innerText = "Sincronizando...";
+            document.getElementById('dbStatus').innerText = "Cargando DB...";
             
-            // Buscar datos del usuario por su Telegram ID
-            let { data, error } = await supabase
+            let { data, error } = await supabaseClient
                 .from('players')
                 .select('balance, level')
                 .eq('telegram_id', userTelegramId)
                 .single();
 
             if (error && error.code === 'PGRST116') {
-                // Si el jugador no existe, lo registramos por primera vez
-                let { error: insertError } = await supabase
+                let { error: insertError } = await supabaseClient
                     .from('players')
                     .insert([{ telegram_id: userTelegramId, username: username, balance: 0.0, level: 1 }]);
-                
                 if (!insertError) {
-                    document.getElementById('dbStatus').innerText = "Cuenta creada";
+                    document.getElementById('dbStatus').innerText = "Online";
                     document.getElementById('dbStatus').style.color = "var(--success)";
                 }
             } else if (data) {
                 balance = parseFloat(data.balance);
                 currentLevel = data.level;
-                document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
-                document.getElementById('levelDisplay').innerText = "Nivel " + currentLevel;
-                document.getElementById('dbStatus').innerText = "Sincronizado";
+                updateInterface();
+                document.getElementById('dbStatus').innerText = "Online";
                 document.getElementById('dbStatus').style.color = "var(--success)";
             }
         }
 
         async function saveProgress() {
-            if (!supabase) return;
-
-            await supabase
+            if (!supabaseClient) return;
+            await supabaseClient
                 .from('players')
                 .update({ balance: balance, level: currentLevel })
                 .eq('telegram_id', userTelegramId);
         }
 
-        function syncManual() {
-            loadProgress();
-        }
+        function syncManual() { loadProgress(); }
 
-        // Cambiar pestañas de la interfaz
         function switchTab(tabId, element) {
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + tabId).classList.add('active');
-
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(nav => nav.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
         }
     </script>
