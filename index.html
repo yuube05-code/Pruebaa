@@ -20,6 +20,8 @@
             --success: #00ff88;
             --warning: #ffb703;
             --dark-gray: #2d3748;
+            --light-card: #f8f6f0;
+            --text-dark: #2d3748;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -27,7 +29,7 @@
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); display: flex; justify-content: center; align-items: center; font-size: 20px;}
 
         .icon-silver { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%); border-radius: 50%; box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8; vertical-align: middle; margin-right: 4px; }
         .icon-gold { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%); border-radius: 50%; box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500; vertical-align: middle; margin-right: 4px; }
@@ -36,8 +38,32 @@
         .res-item { display: flex; align-items: center; background: var(--panel-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
 
         .main-content { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 90px; }
-        .screen { display: none; }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
         .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ====== ANIMACIÓN PREMIUM DE BRILLO ====== */
+        @keyframes shine-sweep {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-premium::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shine-sweep 5s infinite; /* Rayo de luz cada 5 segundos */
+            pointer-events: none;
+        }
 
         .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
         .mineral-display-container { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 18px 10px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
@@ -64,37 +90,65 @@
         .preview-val { font-size: 18px; font-weight: bold; }
         .preview-arrow { color: var(--text-main); font-size: 18px; opacity: 0.5; }
 
-        /* ESTILOS WORDLE */
+        /* ====== ESTILOS DEL PERFIL ====== */
+        .profile-banner { background: linear-gradient(90deg, #8b5cf6, var(--neon-purple)); color: white; padding: 12px; border-radius: 14px; text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3); }
+        
+        .carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding-bottom: 10px; margin-bottom: 5px; scrollbar-width: none; }
+        .carousel-wrapper::-webkit-scrollbar { display: none; }
+        .carousel-card { flex: 0 0 100%; scroll-snap-align: center; background: linear-gradient(135deg, #2d1b69, #1a103c); border-radius: 16px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.3); display: flex; align-items: center; gap: 15px; }
+        .carousel-icon { font-size: 30px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; }
+        .carousel-info h4 { margin-bottom: 4px; font-size: 16px; }
+        .carousel-info p { font-size: 12px; color: #d8b4fe; }
+        .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
+        .dot { width: 8px; height: 8px; background: #4b5563; border-radius: 50%; transition: 0.3s; }
+        .dot.active { background: var(--neon-purple); width: 16px; border-radius: 4px; }
+
+        .light-card { background: var(--light-card); border-radius: 20px; padding: 20px; color: var(--text-dark); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .profile-header-card { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
+        .profile-header-card .avatar-big { width: 60px; height: 60px; background: #000; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 35px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .profile-header-card h2 { font-size: 18px; margin-bottom: 2px; }
+        .profile-header-card p { font-size: 13px; color: #718096; font-weight: 500; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { background: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 4px; }
+        .stat-label { font-size: 11px; color: #718096; font-weight: 600; }
+        .stat-value { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+
+        .ref-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; padding: 4px; margin-top: 10px; margin-bottom: 15px; }
+        .ref-box input { flex: 1; border: none; background: transparent; padding: 10px; font-size: 12px; color: #4a5568; outline: none; }
+        .ref-box button { background: #edf2f7; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: #4a5568; font-size: 16px; transition: 0.2s;}
+        .ref-box button:active { background: #cbd5e1; }
+        
+        .btn-green-solid { background: #658864; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(101, 136, 100, 0.3); }
+        .btn-ghost-purple { background: #f3e8ff; color: #6b21a8; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; }
+
+        /* ====== ESTILOS WORDLE (Sin cambios) ====== */
         .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
         .wordle-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #121829; color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
         .tab-btn.active { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
         .tab-btn.vip.active { background: var(--neon-purple); border-color: var(--neon-purple); color: white; box-shadow: 0 0 10px rgba(157,78,221,0.3); }
-
         .wordle-board { display: flex; flex-direction: column; gap: 6px; margin: 15px auto; width: max-content; }
         .wordle-row { display: flex; gap: 6px; }
         .wordle-cell { width: 48px; height: 48px; border: 2px solid var(--dark-gray); background: #0a0d1a; color: white; font-size: 24px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 8px; text-transform: uppercase; transition: all 0.3s; }
         .wordle-cell.correct { background: var(--success); border-color: var(--success); color: black; }
         .wordle-cell.present { background: var(--warning); border-color: var(--warning); color: black; }
         .wordle-cell.absent { background: var(--dark-gray); border-color: var(--dark-gray); color: #718096; }
-
         .keyboard { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; width: 100%; max-width: 350px; margin-left: auto; margin-right: auto; }
         .key-row { display: flex; justify-content: center; gap: 4px; }
         .key { flex: 1; min-width: 28px; max-width: 35px; height: 45px; background: var(--dark-gray); color: white; font-weight: bold; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; text-transform: uppercase; }
         .key.wide { min-width: 50px; max-width: 65px; font-size: 12px; }
-        .key:active { transform: scale(0.95); }
         .key.correct { background: var(--success); color: black; }
         .key.present { background: var(--warning); color: black; }
         .key.absent { background: #1a202c; color: #4a5568; }
-
         #lockScreen { padding: 40px 20px; background: rgba(0,0,0,0.4); border-radius: 16px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
 
         .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
         .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
-        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 20%; }
-        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
+        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 20%; transition: 0.2s;}
+        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
         .nav-icon { font-size: 22px; }
 
         #debugStatus { display: none; background: #ff3333; color: white; font-size: 11px; padding: 10px; text-align: center; font-weight: bold; z-index: 999; word-break: break-all; }
@@ -106,7 +160,7 @@
 
     <header class="header">
         <div class="user-info">
-            <div class="avatar"></div>
+            <div class="avatar">🕷️</div>
             <div>
                 <div style="font-size: 11px; color: var(--text-main);" id="dbStatus">Conectando...</div>
                 <div style="font-weight: bold; font-size: 14px;" id="usernameDisplay">Cargando...</div>
@@ -135,7 +189,7 @@
                     <div class="balance-amount" id="balanceDisplay">0</div>
                 </div>
                 
-                <button class="btn-neon" id="btnSell" onclick="sellMinerals()">Vender</button>
+                <button class="btn-neon btn-premium" id="btnSell" onclick="sellMinerals()">Vender</button>
 
                 <div class="mining-info-specs">
                     <div class="rate-spec" id="rateDisplay">Velocidad actual: 5/hora</div>
@@ -182,7 +236,7 @@
                     <div style="font-size: 12px; color: var(--success);">+75 mineral/h</div>
                     <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner1">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner1', 1000)">1.000 Plata</button>
+                <button class="btn-buy btn-premium" onclick="buyMiner('miner1', 1000)">1.000 Plata</button>
             </div>
 
             <div class="action-card" style="justify-content: space-between;">
@@ -191,7 +245,7 @@
                     <div style="font-size: 12px; color: var(--success);">+1.650 mineral/h</div>
                     <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner2">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner2', 20000)">20.000 Plata</button>
+                <button class="btn-buy btn-premium" onclick="buyMiner('miner2', 20000)">20.000 Plata</button>
             </div>
 
             <div class="action-card" style="justify-content: space-between;">
@@ -200,7 +254,7 @@
                     <div style="font-size: 12px; color: var(--success);">+9.300 mineral/h</div>
                     <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner3">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner3', 100000)">100k Plata</button>
+                <button class="btn-buy btn-premium" onclick="buyMiner('miner3', 100000)">100k Plata</button>
             </div>
 
             <div class="action-card" style="justify-content: space-between;">
@@ -209,7 +263,94 @@
                     <div style="font-size: 12px; color: var(--success);">+36.000 mineral/h</div>
                     <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner4">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner4', 350000)">350k Plata</button>
+                <button class="btn-buy btn-premium" onclick="buyMiner('miner4', 350000)">350k Plata</button>
+            </div>
+        </div>
+
+        <div id="screen-profile" class="screen">
+            <div class="profile-banner">Perfil</div>
+            
+            <div class="carousel-wrapper" id="promoCarousel" onscroll="updateCarouselDots()">
+                <div class="carousel-card">
+                    <div class="carousel-icon">🎁</div>
+                    <div class="carousel-info">
+                        <h4>Misión del minero / Airdrops</h4>
+                        <p>Próximamente</p>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <div class="carousel-icon">🎟️</div>
+                    <div class="carousel-info">
+                        <h4>Sorteos Exclusivos</h4>
+                        <p>Próximamente</p>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-dots">
+                <span class="dot active" id="dot1"></span>
+                <span class="dot" id="dot2"></span>
+            </div>
+
+            <div class="light-card">
+                <div class="profile-header-card">
+                    <div class="avatar-big">🕷️</div>
+                    <div>
+                        <h2 id="profTopName">Usuario</h2>
+                        <p>Maestro del pico</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-label">Nombre de usuario</span>
+                        <span class="stat-value" id="profUsername">@Cargando...</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Fecha de registro</span>
+                        <span class="stat-value" id="profRegDate">--/--/----</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Mineral extraído</span>
+                        <span class="stat-value"><span id="profTotalMined">0</span> 🪨</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Nivel de la mina</span>
+                        <span class="stat-value" id="profMineLevel">1</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Gnomos comprados</span>
+                        <span class="stat-value" id="profTotalMiners">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Invitados</span>
+                        <span class="stat-value" id="profInvites">0 pers.</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Depositado</span>
+                        <span class="stat-value" id="profDeposited">$0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Retirado</span>
+                        <span class="stat-value" id="profWithdrawn">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="light-card" style="padding-top: 25px;">
+                <h3 style="font-size: 18px; margin-bottom: 8px;">Sistema de referidos</h3>
+                <p style="font-size: 13px; color: #718096; margin-bottom: 15px; line-height: 1.4;">Comparte el enlace, invita a tus amigos al juego y desbloquea toda la sección de socios.</p>
+                
+                <div class="ref-box">
+                    <input type="text" id="refLink" readonly value="Cargando link...">
+                    <button onclick="copyRefLink()">📄</button>
+                </div>
+
+                <button class="btn-green-solid" onclick="shareRef()">Invitar a amigos</button>
+                <button class="btn-ghost-purple" onclick="alert('Programa de socios próximamente')">Abrir programa de socios</button>
+
+                <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #718096;">
+                    Tu referente: <strong style="color: var(--text-dark);">Ninguno</strong>
+                </div>
             </div>
         </div>
 
@@ -219,18 +360,15 @@
                     <button class="tab-btn active" id="tabBasic" onclick="switchWordleMode('basic')">Básico</button>
                     <button class="tab-btn vip" id="tabVip" onclick="switchWordleMode('vip')">VIP 👑</button>
                 </div>
-
                 <p style="font-size: 12px; color: var(--text-main); margin-bottom: 10px;">
                     Premio de hoy: <strong style="color: var(--white);" id="wordlePrizeText">250 Plata</strong><br>
                     <span style="font-size: 10px; color: #718096;">Nueva palabra todos los días a las 12 PM (Hora VE).</span>
                 </p>
-
                 <div id="lockScreen" style="display: none;">
                     <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
                     <h3 style="color: var(--warning);">Modo VIP Bloqueado</h3>
                     <p style="font-size: 13px; color: var(--text-main); margin-top: 10px;">Realiza un depósito en la billetera para desbloquear el modo VIP permanentemente y ganar 2.000 Plata diarios.</p>
                 </div>
-
                 <div id="gameArea">
                     <div class="wordle-board" id="wordleBoard"></div>
                     <div id="wordleStatus" style="font-size: 14px; margin: 10px 0; min-height: 20px; color: var(--white); font-weight: bold;"></div>
@@ -241,48 +379,33 @@
 
         <div id="screen-wallet" class="screen">
             <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Sistema Financiero (TON)</h3>
-            
             <div class="wallet-card">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📥 Depósitos</h4>
-                <div class="wallet-info-row">
-                    <span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span>
-                </div>
-                <div class="wallet-info-row">
-                    <span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span>
-                </div>
-                <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">
-                    EQB3nVoRFMzXKi...U7Xp9wQ
-                </div>
-                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">
-                    *Depositar desbloquea automáticamente el Wordle VIP.
-                </div>
+                <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span></div>
+                <div class="wallet-info-row"><span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span></div>
+                <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">EQB3nVoRFMzXKi...U7Xp9wQ</div>
+                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">*Depositar desbloquea automáticamente el Wordle VIP.</div>
             </div>
-
             <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
-                <div class="wallet-info-row">
-                    <span>Tasa de cambio:</span><span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span>
-                </div>
-                <div class="wallet-info-row">
-                    <span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON</span>
-                </div>
-                <button class="btn-neon" style="margin-top: 10px; padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="alert('Módulo de retiro en desarrollo')">
-                    SOLICITAR RETIRO
-                </button>
+                <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span></div>
+                <div class="wallet-info-row"><span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON</span></div>
+                <button class="btn-neon" style="margin-top: 10px; padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="alert('Módulo de retiro en desarrollo')">SOLICITAR RETIRO</button>
             </div>
         </div>
 
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">🏠</div><span>Minería</span></div>
+        <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">⛏️</div><span>Minas</span></div>
         <div class="nav-item" onclick="switchTab('shop', this)"><div class="nav-icon">🛒</div><span>Tienda</span></div>
+        <div class="nav-item" onclick="switchTab('profile', this)"><div class="nav-icon">👤</div><span>Perfil</span></div>
         <div class="nav-item" onclick="switchTab('puzzle', this)"><div class="nav-icon">🎮</div><span>Wordle</span></div>
         <div class="nav-item" onclick="switchTab('wallet', this)"><div class="nav-icon">💼</div><span>Billetera</span></div>
     </nav>
 
     <script>
-        // ¡RECUERDA PONER TUS DATOS DE SUPABASE AQUÍ ABAJO!
+        // ====== CONFIGURACIÓN DE SUPABASE ======
         const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
@@ -309,241 +432,89 @@
 
         let inventory = { miner1: 0, miner2: 0, miner3: 0, miner4: 0 };
 
-        // ====== LÓGICA DEL WORDLE ======
+        // ====== NUEVAS VARIABLES DE PERFIL ======
+        let registrationDate = "";
+        let totalMined = 0.00;
+        let totalDeposited = 0;
+        let totalWithdrawn = 0;
+        let referralsCount = 0;
+
+        // ====== LÓGICA DEL WORDLE (Mantenida intacta) ======
         const WORDS = ["PLATA", "MINAS", "TOKEN", "BLOCK", "DATOS", "CLAVE", "ROCAS", "EXTRA", "FASES", "CICLO", "FONDO", "VALOR", "PAGOS", "REDES", "CABLE", "NEXOS", "RAMPA", "GANAR", "NIVEL", "CESTA", "SALDO", "COBRO", "REGLA", "PULSO", "JUEGO", "BOTON", "POZOS", "NEON", "FIBRA"];
-        
         let currentMode = 'basic';
-        let wordleStates = {
-            basic: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" },
-            vip: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }
-        };
+        let wordleStates = { basic: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }, vip: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" } };
 
         function switchWordleMode(mode) {
             currentMode = mode;
-            document.getElementById('tabBasic').classList.remove('active');
-            document.getElementById('tabVip').classList.remove('active');
-            
-            if (mode === 'basic') {
-                document.getElementById('tabBasic').classList.add('active');
-                document.getElementById('wordlePrizeText').innerText = "250 Plata";
-                document.getElementById('lockScreen').style.display = 'none';
-                document.getElementById('gameArea').style.display = 'block';
-            } else {
-                document.getElementById('tabVip').classList.add('active');
-                document.getElementById('wordlePrizeText').innerText = "2.000 Plata";
-                
-                if (!hasDeposited) {
-                    document.getElementById('lockScreen').style.display = 'block';
-                    document.getElementById('gameArea').style.display = 'none';
-                } else {
-                    document.getElementById('lockScreen').style.display = 'none';
-                    document.getElementById('gameArea').style.display = 'block';
-                }
-            }
-            
+            document.getElementById('tabBasic').classList.remove('active'); document.getElementById('tabVip').classList.remove('active');
+            if (mode === 'basic') { document.getElementById('tabBasic').classList.add('active'); document.getElementById('wordlePrizeText').innerText = "250 Plata"; document.getElementById('lockScreen').style.display = 'none'; document.getElementById('gameArea').style.display = 'block'; }
+            else { document.getElementById('tabVip').classList.add('active'); document.getElementById('wordlePrizeText').innerText = "2.000 Plata"; if (!hasDeposited) { document.getElementById('lockScreen').style.display = 'block'; document.getElementById('gameArea').style.display = 'none'; } else { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('gameArea').style.display = 'block'; } }
             initWordleMode(mode);
         }
 
         function getWordleCycleInfo(mode) {
-            const now = new Date();
-            const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const vetMs = utcMs - (4 * 3600000); 
-            const vetDate = new Date(vetMs);
-
-            let cycleDate = new Date(vetMs);
-            if (vetDate.getHours() < 12) cycleDate.setDate(cycleDate.getDate() - 1);
-            
+            const now = new Date(); const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000); const vetMs = utcMs - (4 * 3600000); const vetDate = new Date(vetMs);
+            let cycleDate = new Date(vetMs); if (vetDate.getHours() < 12) cycleDate.setDate(cycleDate.getDate() - 1);
             const cycleId = `${cycleDate.getFullYear()}-${cycleDate.getMonth()+1}-${cycleDate.getDate()}`;
-            
-            let hash = 0;
-            for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
-            
-            let offset = mode === 'vip' ? 7 : 0; 
-            const index = (Math.abs(hash) + offset) % WORDS.length;
-            
+            let hash = 0; for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
+            let offset = mode === 'vip' ? 7 : 0; const index = (Math.abs(hash) + offset) % WORDS.length;
             return { cycleId, word: WORDS[index] };
         }
 
         function initWordleMode(mode) {
-            const { cycleId, word } = getWordleCycleInfo(mode);
-            const savedState = JSON.parse(localStorage.getItem(`wordle_${mode}_${userTelegramId}`) || "{}");
-            
-            let dbDate = mode === 'basic' ? wordleBasicDate : wordleVipDate;
-            let isAlreadyWonInDb = (dbDate === cycleId);
-
-            if (savedState.cycleId === cycleId) {
-                wordleStates[mode] = savedState;
-            } else {
-                wordleStates[mode] = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" };
-            }
-
+            const { cycleId, word } = getWordleCycleInfo(mode); const savedState = JSON.parse(localStorage.getItem(`wordle_${mode}_${userTelegramId}`) || "{}");
+            let dbDate = mode === 'basic' ? wordleBasicDate : wordleVipDate; let isAlreadyWonInDb = (dbDate === cycleId);
+            if (savedState.cycleId === cycleId) { wordleStates[mode] = savedState; } else { wordleStates[mode] = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }; }
             if (isAlreadyWonInDb) wordleStates[mode].status = "won";
-
-            saveWordleLocal(mode);
-            renderWordleBoard();
-            renderKeyboard();
-            updateKeyboardColors();
-            
-            const statusEl = document.getElementById('wordleStatus');
-            statusEl.innerText = "";
-            if (wordleStates[mode].status === "won") {
-                statusEl.innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM.";
-                statusEl.style.color = "var(--success)";
-            } else if (wordleStates[mode].status === "lost") {
-                statusEl.innerText = `Perdiste. La palabra era ${wordleStates[mode].target}. Vuelve mañana.`;
-                statusEl.style.color = "#ff3333";
-            }
+            saveWordleLocal(mode); renderWordleBoard(); renderKeyboard(); updateKeyboardColors();
+            const statusEl = document.getElementById('wordleStatus'); statusEl.innerText = "";
+            if (wordleStates[mode].status === "won") { statusEl.innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM."; statusEl.style.color = "var(--success)"; } else if (wordleStates[mode].status === "lost") { statusEl.innerText = `Perdiste. La palabra era ${wordleStates[mode].target}.`; statusEl.style.color = "#ff3333"; }
         }
 
-        function saveWordleLocal(mode) {
-            localStorage.setItem(`wordle_${mode}_${userTelegramId}`, JSON.stringify(wordleStates[mode]));
-        }
-
+        function saveWordleLocal(mode) { localStorage.setItem(`wordle_${mode}_${userTelegramId}`, JSON.stringify(wordleStates[mode])); }
         function renderWordleBoard() {
-            const state = wordleStates[currentMode];
-            const board = document.getElementById('wordleBoard');
-            board.innerHTML = "";
+            const state = wordleStates[currentMode]; const board = document.getElementById('wordleBoard'); board.innerHTML = "";
             for (let i = 0; i < 6; i++) {
-                const row = document.createElement('div');
-                row.className = "wordle-row";
-                
-                let rowText = "";
-                if (i < state.guesses.length) rowText = state.guesses[i];
-                else if (i === state.currentAttempt) rowText = state.currentLetters;
-
+                const row = document.createElement('div'); row.className = "wordle-row";
+                let rowText = ""; if (i < state.guesses.length) rowText = state.guesses[i]; else if (i === state.currentAttempt) rowText = state.currentLetters;
                 for (let j = 0; j < 5; j++) {
-                    const cell = document.createElement('div');
-                    cell.className = "wordle-cell";
-                    cell.innerText = rowText[j] || "";
-                    
-                    if (i < state.guesses.length) {
-                        const targetArr = state.target.split('');
-                        const guessArr = rowText.split('');
-                        
-                        if (guessArr[j] === targetArr[j]) {
-                            cell.classList.add('correct');
-                            targetArr[j] = null; 
-                        } else if (targetArr.includes(guessArr[j])) {
-                            cell.classList.add('present');
-                            targetArr[targetArr.indexOf(guessArr[j])] = null;
-                        } else {
-                            cell.classList.add('absent');
-                        }
-                    }
-                    row.appendChild(cell);
-                }
-                board.appendChild(row);
+                    const cell = document.createElement('div'); cell.className = "wordle-cell"; cell.innerText = rowText[j] || "";
+                    if (i < state.guesses.length) { const targetArr = state.target.split(''); const guessArr = rowText.split('');
+                        if (guessArr[j] === targetArr[j]) { cell.classList.add('correct'); targetArr[j] = null; } else if (targetArr.includes(guessArr[j])) { cell.classList.add('present'); targetArr[targetArr.indexOf(guessArr[j])] = null; } else { cell.classList.add('absent'); }
+                    } row.appendChild(cell);
+                } board.appendChild(row);
             }
         }
-
         function renderKeyboard() {
-            const kbd = document.getElementById('keyboard');
-            kbd.innerHTML = "";
-            const layout = [
-                ['Q','W','E','R','T','Y','U','I','O','P'],
-                ['A','S','D','F','G','H','J','K','L'],
-                ['ENTER','Z','X','C','V','B','N','M','DEL']
-            ];
-
-            layout.forEach(rowKeys => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = "key-row";
-                rowKeys.forEach(key => {
-                    const btn = document.createElement('button');
-                    btn.className = "key";
-                    btn.innerText = key === 'DEL' ? '⌫' : key;
-                    btn.id = `key-${key}`;
-                    if (key === 'ENTER' || key === 'DEL') btn.classList.add('wide');
-                    btn.onclick = () => handleKey(key);
-                    rowDiv.appendChild(btn);
-                });
-                kbd.appendChild(rowDiv);
+            const kbd = document.getElementById('keyboard'); kbd.innerHTML = "";
+            const layout = [ ['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['ENTER','Z','X','C','V','B','N','M','DEL'] ];
+            layout.forEach(rowKeys => { const rowDiv = document.createElement('div'); rowDiv.className = "key-row";
+                rowKeys.forEach(key => { const btn = document.createElement('button'); btn.className = "key"; btn.innerText = key === 'DEL' ? '⌫' : key; btn.id = `key-${key}`; if (key === 'ENTER' || key === 'DEL') btn.classList.add('wide'); btn.onclick = () => handleKey(key); rowDiv.appendChild(btn); }); kbd.appendChild(rowDiv);
             });
         }
-
         function updateKeyboardColors() {
-            const state = wordleStates[currentMode];
-            state.guesses.forEach(guess => {
-                for (let i = 0; i < 5; i++) {
-                    const letter = guess[i];
-                    const btn = document.getElementById(`key-${letter}`);
-                    if (!btn) continue;
-                    
-                    if (state.target[i] === letter) {
-                        btn.className = "key correct"; 
-                    } else if (state.target.includes(letter) && !btn.classList.contains('correct')) {
-                        btn.className = "key present";
-                    } else if (!state.target.includes(letter)) {
-                        btn.classList.add('absent');
-                    }
-                }
-            });
+            const state = wordleStates[currentMode]; state.guesses.forEach(guess => { for (let i = 0; i < 5; i++) {
+                    const letter = guess[i]; const btn = document.getElementById(`key-${letter}`); if (!btn) continue;
+                    if (state.target[i] === letter) { btn.className = "key correct"; } else if (state.target.includes(letter) && !btn.classList.contains('correct')) { btn.className = "key present"; } else if (!state.target.includes(letter)) { btn.classList.add('absent'); }
+            }});
         }
-
         function handleKey(key) {
-            const state = wordleStates[currentMode];
-            if (state.status !== "playing") return;
-
+            const state = wordleStates[currentMode]; if (state.status !== "playing") return;
             if (key === 'ENTER') {
-                if (state.currentLetters.length !== 5) {
-                    document.getElementById('wordleStatus').innerText = "Faltan letras.";
-                    setTimeout(() => document.getElementById('wordleStatus').innerText = "", 1500);
-                    return;
-                }
-                
-                const guess = state.currentLetters;
-                state.guesses.push(guess);
-                
-                if (guess === state.target) {
-                    state.status = "won";
-                    let premio = currentMode === 'basic' ? 250 : 2000;
-                    plata += premio;
-                    
-                    if (currentMode === 'basic') wordleBasicDate = state.cycleId;
-                    else wordleVipDate = state.cycleId;
-
-                    document.getElementById('wordleStatus').innerText = `¡Excelente! +${premio.toLocaleString()} Plata.`;
-                    document.getElementById('wordleStatus').style.color = "var(--success)";
-                    
-                    updateInterface();
-                    saveProgress(); 
-
-                } else if (state.guesses.length >= 6) {
-                    state.status = "lost";
-                    document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${state.target}`;
-                    document.getElementById('wordleStatus').style.color = "#ff3333";
-                    saveProgress(); 
-                }
-
-                state.currentAttempt++;
-                state.currentLetters = "";
-                saveWordleLocal(currentMode);
-                renderWordleBoard();
-                updateKeyboardColors();
-
-            } else if (key === 'DEL') {
-                state.currentLetters = state.currentLetters.slice(0, -1);
-                renderWordleBoard();
-            } else {
-                if (state.currentLetters.length < 5) {
-                    state.currentLetters += key;
-                    renderWordleBoard();
-                }
-            }
+                if (state.currentLetters.length !== 5) { document.getElementById('wordleStatus').innerText = "Faltan letras."; setTimeout(() => document.getElementById('wordleStatus').innerText = "", 1500); return; }
+                const guess = state.currentLetters; state.guesses.push(guess);
+                if (guess === state.target) { state.status = "won"; let premio = currentMode === 'basic' ? 250 : 2000; plata += premio; if (currentMode === 'basic') wordleBasicDate = state.cycleId; else wordleVipDate = state.cycleId; document.getElementById('wordleStatus').innerText = `¡Excelente! +${premio.toLocaleString()} Plata.`; document.getElementById('wordleStatus').style.color = "var(--success)"; updateInterface(); saveProgress(); } else if (state.guesses.length >= 6) { state.status = "lost"; document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${state.target}`; document.getElementById('wordleStatus').style.color = "#ff3333"; saveProgress(); }
+                state.currentAttempt++; state.currentLetters = ""; saveWordleLocal(currentMode); renderWordleBoard(); updateKeyboardColors();
+            } else if (key === 'DEL') { state.currentLetters = state.currentLetters.slice(0, -1); renderWordleBoard(); } else { if (state.currentLetters.length < 5) { state.currentLetters += key; renderWordleBoard(); } }
         }
-        // ====== FIN LÓGICA WORDLE ======
 
-        function showError(msg) {
-            const errBox = document.getElementById('debugStatus');
-            errBox.style.display = "block";
-            errBox.innerText += "⚠️ " + msg + " | ";
-        }
+        // ====== INICIALIZACIÓN ======
+        function showError(msg) { const errBox = document.getElementById('debugStatus'); errBox.style.display = "block"; errBox.innerText += "⚠️ " + msg + " | "; }
 
         document.addEventListener("DOMContentLoaded", () => {
             try {
                 if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp;
-                    tg.ready(); tg.expand();
+                    const tg = window.Telegram.WebApp; tg.ready(); tg.expand();
                     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         userTelegramId = tg.initDataUnsafe.user.id.toString();
                         username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
@@ -552,12 +523,13 @@
             } catch (e) {}
 
             try {
-                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                }
+                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
             } catch (e) {}
 
             document.getElementById('usernameDisplay').innerText = "@" + username;
+            
+            // Generar Link de Referido
+            document.getElementById('refLink').value = `https://t.me/TuBotAca/app?startapp=${userTelegramId}`;
             
             loadProgress().then(() => {
                 switchWordleMode('basic'); 
@@ -566,9 +538,8 @@
             });
         });
 
-        function calculateTotalRate() {
-            baseRatePerHour = 5 + (inventory.miner1 * 75) + (inventory.miner2 * 1650) + (inventory.miner3 * 9300) + (inventory.miner4 * 36000);
-        }
+        // ====== LÓGICA DE JUEGO Y PERFIL ======
+        function calculateTotalRate() { baseRatePerHour = 5 + (inventory.miner1 * 75) + (inventory.miner2 * 1650) + (inventory.miner3 * 9300) + (inventory.miner4 * 36000); }
 
         function updateInterface() {
             let currentCap = storageLevels[storageLevel - 1].capacity;
@@ -586,35 +557,31 @@
             let pct = (mineral / currentCap) * 100;
             document.getElementById('storageBar').style.width = Math.min(pct, 100) + "%";
 
-            document.getElementById('previewCurrentLevel').innerText = storageLevel;
-            document.getElementById('previewCurrentCap').innerText = currentCap.toLocaleString();
+            document.getElementById('previewCurrentLevel').innerText = storageLevel; document.getElementById('previewCurrentCap').innerText = currentCap.toLocaleString();
+            const previewBox = document.getElementById('upgradePreview'); const btnUpgrade = document.getElementById('btnUpgradeStorage');
+            if (storageLevel >= storageLevels.length) { btnUpgrade.innerText = "NIVEL MÁXIMO"; btnUpgrade.style.background = "#2d3748"; btnUpgrade.style.color = "#718096"; previewBox.style.display = "none"; btnUpgrade.disabled = true; } else { let nextLevel = storageLevels[storageLevel]; document.getElementById('previewNextLevel').innerText = nextLevel.level; document.getElementById('previewNextCap').innerText = nextLevel.capacity.toLocaleString(); previewBox.style.display = "flex"; btnUpgrade.disabled = false; btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver"></span>`; }
 
-            const previewBox = document.getElementById('upgradePreview');
-            const btnUpgrade = document.getElementById('btnUpgradeStorage');
-            
-            if (storageLevel >= storageLevels.length) {
-                btnUpgrade.innerText = "NIVEL MÁXIMO";
-                btnUpgrade.style.background = "#2d3748"; btnUpgrade.style.color = "#718096";
-                previewBox.style.display = "none"; btnUpgrade.disabled = true;
-            } else {
-                let nextLevel = storageLevels[storageLevel];
-                document.getElementById('previewNextLevel').innerText = nextLevel.level;
-                document.getElementById('previewNextCap').innerText = nextLevel.capacity.toLocaleString();
-                previewBox.style.display = "flex"; btnUpgrade.disabled = false;
-                btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver"></span>`;
-            }
+            document.getElementById('qtyMiner1').innerText = inventory.miner1; document.getElementById('qtyMiner2').innerText = inventory.miner2; document.getElementById('qtyMiner3').innerText = inventory.miner3; document.getElementById('qtyMiner4').innerText = inventory.miner4;
 
-            document.getElementById('qtyMiner1').innerText = inventory.miner1;
-            document.getElementById('qtyMiner2').innerText = inventory.miner2;
-            document.getElementById('qtyMiner3').innerText = inventory.miner3;
-            document.getElementById('qtyMiner4').innerText = inventory.miner4;
+            // Actualizar variables del Perfil
+            document.getElementById('profTopName').innerText = username;
+            document.getElementById('profUsername').innerText = "@" + username;
+            document.getElementById('profRegDate').innerText = registrationDate;
+            document.getElementById('profTotalMined').innerText = Math.floor(totalMined).toLocaleString();
+            document.getElementById('profMineLevel').innerText = storageLevel;
+            document.getElementById('profTotalMiners').innerText = (inventory.miner1 + inventory.miner2 + inventory.miner3 + inventory.miner4);
+            document.getElementById('profInvites').innerText = referralsCount + " pers.";
+            document.getElementById('profDeposited').innerText = "$" + totalDeposited;
+            document.getElementById('profWithdrawn').innerText = "$" + totalWithdrawn;
         }
 
         function startAutomaticMiningLoop() {
             setInterval(() => {
                 let cap = storageLevels[storageLevel - 1].capacity;
                 if (mineral < cap) {
-                    mineral += (baseRatePerHour / 3600);
+                    let generated = (baseRatePerHour / 3600);
+                    mineral += generated;
+                    totalMined += generated; // Sumamos al histórico de extracción
                     if (mineral > cap) mineral = cap;
                     updateInterface();
                 }
@@ -623,31 +590,21 @@
 
         function sellMinerals() {
             if (mineral < 100) { alert("Mínimo 100 minerales para vender."); return; }
-            let bloques = Math.floor(mineral / 100);
-            oro += bloques * 1; plata += bloques * 1;
-            mineral -= (bloques * 100);
-            updateInterface(); saveProgress(); 
-            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques} Oro y +${bloques} Plata.`);
+            let bloques = Math.floor(mineral / 100); oro += bloques * 1; plata += bloques * 1; mineral -= (bloques * 100);
+            updateInterface(); saveProgress(); alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques} Oro y +${bloques} Plata.`);
         }
 
         function upgradeStorage() {
             if (storageLevel >= storageLevels.length) return;
             let nextLevel = storageLevels[storageLevel];
-            if (plata >= nextLevel.cost) {
-                plata -= nextLevel.cost; storageLevel++;
-                updateInterface(); saveProgress(); 
-                alert(`¡Almacén mejorado al Nivel ${storageLevel}!`);
-            } else { alert(`Necesitas ${nextLevel.cost.toLocaleString()} Plata.`); }
+            if (plata >= nextLevel.cost) { plata -= nextLevel.cost; storageLevel++; updateInterface(); saveProgress(); alert(`¡Almacén mejorado al Nivel ${storageLevel}!`); } else { alert(`Necesitas ${nextLevel.cost.toLocaleString()} Plata.`); }
         }
 
         function buyMiner(minerId, cost) {
-            if (plata >= cost) {
-                plata -= cost; inventory[minerId]++;
-                calculateTotalRate(); updateInterface(); saveProgress(); 
-                alert(`¡Minero adquirido con éxito!`);
-            } else { alert(`Requiere ${cost.toLocaleString()} Plata.`); }
+            if (plata >= cost) { plata -= cost; inventory[minerId]++; calculateTotalRate(); updateInterface(); saveProgress(); alert(`¡Minero adquirido con éxito!`); } else { alert(`Requiere ${cost.toLocaleString()} Plata.`); }
         }
 
+        // ====== UTILIDADES DE UI ======
         function switchTab(tabId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + tabId).classList.add('active');
@@ -658,84 +615,101 @@
 
         function syncManual() { saveProgress(); alert("Sincronización forzada con éxito."); }
 
-        // ====== SISTEMA DE CARGA ======
+        function copyRefLink() {
+            let copyText = document.getElementById("refLink");
+            copyText.select(); copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+            alert("Enlace de referido copiado al portapapeles.");
+        }
+
+        function shareRef() {
+            let link = document.getElementById("refLink").value;
+            let shareText = `¡Únete a mi equipo en Neon Miner y extraigamos oro juntos! ⛏️💰\n\n${link}`;
+            window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`);
+        }
+
+        function updateCarouselDots() {
+            const wrapper = document.getElementById('promoCarousel');
+            const scrollLeft = wrapper.scrollLeft;
+            const cardWidth = wrapper.offsetWidth;
+            const activeIndex = Math.round(scrollLeft / cardWidth);
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeIndex);
+            });
+        }
+
+        // ====== SISTEMA DE CARGA Y GUARDADO ACTUALIZADO ======
         async function loadProgress() {
             const localSave = localStorage.getItem(`neon_miner_progress_${userTelegramId}`);
+            
+            // Generar fecha actual si es usuario totalmente nuevo
+            const todayDate = new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
             if (localSave) {
                 const localData = JSON.parse(localSave);
-                mineral = parseFloat(localData.mineral || 0); 
-                plata = parseInt(localData.plata || 0); 
-                oro = parseInt(localData.oro || 0); 
-                storageLevel = parseInt(localData.storageLevel || 1);
+                mineral = parseFloat(localData.mineral || 0); plata = parseInt(localData.plata || 0); oro = parseInt(localData.oro || 0); storageLevel = parseInt(localData.storageLevel || 1);
                 if (localData.inventory) inventory = localData.inventory;
-                wordleBasicDate = localData.wordleBasicDate || "";
-                wordleVipDate = localData.wordleVipDate || "";
+                wordleBasicDate = localData.wordleBasicDate || ""; wordleVipDate = localData.wordleVipDate || "";
+                registrationDate = localData.registrationDate || todayDate;
+                totalMined = parseFloat(localData.totalMined || 0);
+                totalDeposited = localData.totalDeposited || 0;
+                totalWithdrawn = localData.totalWithdrawn || 0;
+                referralsCount = localData.referralsCount || 0;
                 
-                calculateTotalRate(); 
-                updateInterface();
-                document.getElementById('dbStatus').innerText = "Carga Local Completa";
+                calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "Carga Local Completa";
+            } else {
+                registrationDate = todayDate; // Si no hay nada local, asume que es hoy hasta que DB diga lo contrario
             }
 
             try {
                 if (!supabaseClient) { 
                     if(!localSave) updateInterface(); 
-                    document.getElementById('dbStatus').innerText = "Modo Local"; 
-                    return; 
+                    document.getElementById('dbStatus').innerText = "Modo Local"; return; 
                 }
                 
                 let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).maybeSingle();
                 
                 if (data) {
-                    mineral = parseFloat(data.mineral || 0); 
-                    plata = parseInt(data.plata || 0); 
-                    oro = parseInt(data.oro || 0); 
-                    storageLevel = parseInt(data.storage_level || 1);
-                    inventory.miner1 = parseInt(data.miner1 || 0); 
-                    inventory.miner2 = parseInt(data.miner2 || 0); 
-                    inventory.miner3 = parseInt(data.miner3 || 0); 
-                    inventory.miner4 = parseInt(data.miner4 || 0);
-                    hasDeposited = data.has_deposited || false;
-                    wordleBasicDate = data.wordle_basic_date || "";
-                    wordleVipDate = data.wordle_vip_date || "";
-
-                    calculateTotalRate(); 
-                    updateInterface();
-                    document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                    mineral = parseFloat(data.mineral || 0); plata = parseInt(data.plata || 0); oro = parseInt(data.oro || 0); storageLevel = parseInt(data.storage_level || 1);
+                    inventory.miner1 = parseInt(data.miner1 || 0); inventory.miner2 = parseInt(data.miner2 || 0); inventory.miner3 = parseInt(data.miner3 || 0); inventory.miner4 = parseInt(data.miner4 || 0);
+                    hasDeposited = data.has_deposited || false; wordleBasicDate = data.wordle_basic_date || ""; wordleVipDate = data.wordle_vip_date || "";
                     
-                    const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate };
+                    // Cargar nuevas variables
+                    registrationDate = data.registration_date || todayDate;
+                    totalMined = parseFloat(data.total_mined || 0);
+                    totalDeposited = parseFloat(data.total_deposited || 0);
+                    totalWithdrawn = parseFloat(data.total_withdrawn || 0);
+                    referralsCount = parseInt(data.referrals_count || 0);
+
+                    calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                    
+                    const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount };
                     localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
                 } else {
                     document.getElementById('dbStatus').innerText = "Nuevo Usuario";
-                    saveProgress();
+                    saveProgress(); // Guarda para insertar la fila nueva con la fecha de hoy
                 }
-            } catch (e) { 
-                showError("Error al sincronizar DB: " + e.message); 
-            }
+            } catch (e) { showError("Error DB: " + e.message); }
         }
 
-        // ====== SISTEMA DE GUARDADO CON UPSERT ======
         async function saveProgress() {
-            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate };
+            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount };
             localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
 
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('players').upsert({ 
                         telegram_id: userTelegramId, 
-                        mineral: mineral, 
-                        plata: plata, 
-                        oro: oro, 
-                        storage_level: storageLevel,
-                        miner1: inventory.miner1, 
-                        miner2: inventory.miner2, 
-                        miner3: inventory.miner3, 
-                        miner4: inventory.miner4,
-                        wordle_basic_date: wordleBasicDate, 
-                        wordle_vip_date: wordleVipDate      
+                        mineral: mineral, plata: plata, oro: oro, storage_level: storageLevel,
+                        miner1: inventory.miner1, miner2: inventory.miner2, miner3: inventory.miner3, miner4: inventory.miner4,
+                        wordle_basic_date: wordleBasicDate, wordle_vip_date: wordleVipDate,
+                        registration_date: registrationDate,
+                        total_mined: totalMined,
+                        total_deposited: totalDeposited,
+                        total_withdrawn: totalWithdrawn,
+                        referrals_count: referralsCount
                     }, { onConflict: 'telegram_id' }); 
-                } catch(e) { 
-                    showError("Error guardando en la nube: " + e.message); 
-                }
+                } catch(e) { showError("Guardado nube: " + e.message); }
             }
         }
     </script>
