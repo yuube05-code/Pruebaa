@@ -44,14 +44,15 @@
         .balance-title { color: var(--text-main); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
         .balance-amount { font-size: 34px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.15); }
         
-        .btn-neon { background: linear-gradient(90deg, #be7e0a, #844c00); color: white; border: none; padding: 15px; border-radius: 14px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 4px 15px rgba(132, 76, 0, 0.3); text-transform: uppercase; letter-spacing: 1px; }
-        .btn-neon:active { transform: scale(0.97); background: linear-gradient(90deg, #ffb703, #fb8500); }
+        .btn-neon { background: linear-gradient(90deg, #be7e0a, #844c00); color: white; border: none; padding: 15px; border-radius: 14px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 4px 15px rgba(132, 76, 0, 0.3); text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
+        .btn-neon:active { transform: scale(0.97); }
+        .btn-neon:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
 
         .mining-info-specs { margin-top: 18px; font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; gap: 5px; }
         .rate-spec { color: #a0aec0; }
         .exchange-spec { color: #ffb703; font-weight: 500; font-size: 12px; background: rgba(255, 183, 3, 0.06); padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 0 auto; }
 
-        .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); }
+        .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); margin-bottom: 10px;}
         .btn-buy { background: var(--dark-blue); border: none; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 110px; font-size: 13px; text-align: center; }
         .btn-buy:active { background: var(--neon-blue); color: black; }
 
@@ -65,6 +66,11 @@
 
         /* ESTILOS WORDLE */
         .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
+        .wordle-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #121829; color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .tab-btn.active { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
+        .tab-btn.vip.active { background: var(--neon-purple); border-color: var(--neon-purple); color: white; box-shadow: 0 0 10px rgba(157,78,221,0.3); }
+
         .wordle-board { display: flex; flex-direction: column; gap: 6px; margin: 15px auto; width: max-content; }
         .wordle-row { display: flex; gap: 6px; }
         .wordle-cell { width: 48px; height: 48px; border: 2px solid var(--dark-gray); background: #0a0d1a; color: white; font-size: 24px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 8px; text-transform: uppercase; transition: all 0.3s; }
@@ -80,6 +86,8 @@
         .key.correct { background: var(--success); color: black; }
         .key.present { background: var(--warning); color: black; }
         .key.absent { background: #1a202c; color: #4a5568; }
+
+        #lockScreen { padding: 40px 20px; background: rgba(0,0,0,0.4); border-radius: 16px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
 
         .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
         .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
@@ -127,32 +135,27 @@
                     <div class="balance-amount" id="balanceDisplay">0</div>
                 </div>
                 
-                <button class="btn-neon" id="btnSell" onclick="sellMinerals()">
-                    Vender
-                </button>
+                <button class="btn-neon" id="btnSell" onclick="sellMinerals()">Vender</button>
 
                 <div class="mining-info-specs">
-                    <div class="rate-spec" id="rateDisplay">Velocidad actual de minería: 5/hora</div>
-                    <div><span class="exchange-spec">100 de mineral = 1 oro + 1 plata</span></div>
+                    <div class="rate-spec" id="rateDisplay">Velocidad actual: 5/hora</div>
+                    <div><span class="exchange-spec">100 mineral = 1 oro + 1 plata</span></div>
                 </div>
             </div>
 
-            <div class="action-card" style="flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 15px;">
-                <h3 style="text-align: center; color: var(--neon-blue); font-size: 16px; margin-bottom: 5px;">Mejora del Almacén</h3>
-                
+            <div class="action-card" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <h3 style="text-align: center; color: var(--neon-blue); font-size: 16px;">Mejora del Almacén</h3>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-size: 24px;">📦</span>
                         <div>
-                            <div style="font-size: 11px; color: var(--text-main);">Estado Actual: <span id="lblStorageLevel" style="font-weight: bold; color: var(--white);">Nivel 1</span></div>
+                            <div style="font-size: 11px; color: var(--text-main);">Estado: <span id="lblStorageLevel" style="font-weight: bold; color: var(--white);">Nivel 1</span></div>
                             <div style="font-size: 14px; font-weight: bold; color: var(--white);" id="lblStorageRatio">0 / 500</div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="progress-container">
-                    <div class="progress-bar" id="storageBar"></div>
-                </div>
+                <div class="progress-container"><div class="progress-bar" id="storageBar"></div></div>
 
                 <div class="upgrade-preview-box" id="upgradePreview">
                     <div class="preview-col">
@@ -166,66 +169,73 @@
                     </div>
                 </div>
 
-                <button class="btn-buy" id="btnUpgradeStorage" onclick="upgradeStorage()" style="width: 100%; margin-top: 10px; background: linear-gradient(90deg, #1d4ed8, var(--dark-blue)); font-size: 14px; padding: 12px;">
-                    Mejorar por 10.000 <span class="icon-silver" style="margin-left: 4px;"></span>
-                </button>
+                <button class="btn-buy" id="btnUpgradeStorage" onclick="upgradeStorage()" style="width: 100%; margin-top: 10px; background: linear-gradient(90deg, #1d4ed8, var(--dark-blue)); padding: 12px;">Mejorar</button>
             </div>
         </div>
 
         <div id="screen-shop" class="screen">
             <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Mercado de Mineros</h3>
-            <p style="font-size: 12px; color: var(--text-main); margin-bottom: 15px;">Usa tu Plata para adquirir maquinaria de extracción.</p>
-
-            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+            
+            <div class="action-card" style="justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold; font-size: 15px;">Minero Básico</div>
-                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+75 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner1" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
+                    <div style="font-weight: bold;">Minero Básico</div>
+                    <div style="font-size: 12px; color: var(--success);">+75 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner1">0</span></div>
                 </div>
                 <button class="btn-buy" onclick="buyMiner('miner1', 1000)">1.000 Plata</button>
             </div>
 
-            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+            <div class="action-card" style="justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold; font-size: 15px;">Minero Avanzado</div>
-                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+1.650 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner2" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
+                    <div style="font-weight: bold;">Minero Avanzado</div>
+                    <div style="font-size: 12px; color: var(--success);">+1.650 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner2">0</span></div>
                 </div>
                 <button class="btn-buy" onclick="buyMiner('miner2', 20000)">20.000 Plata</button>
             </div>
 
-            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+            <div class="action-card" style="justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold; font-size: 15px;">Plataforma Industrial</div>
-                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+9.300 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner3" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
+                    <div style="font-weight: bold;">Plataforma Ind.</div>
+                    <div style="font-size: 12px; color: var(--success);">+9.300 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner3">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner3', 100000)">100.000 Plata</button>
+                <button class="btn-buy" onclick="buyMiner('miner3', 100000)">100k Plata</button>
             </div>
 
-            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+            <div class="action-card" style="justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold; font-size: 15px;">Granja Cuántica</div>
-                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+36.000 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner4" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
+                    <div style="font-weight: bold;">Granja Cuántica</div>
+                    <div style="font-size: 12px; color: var(--success);">+36.000 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner4">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('miner4', 350000)">350.000 Plata</button>
+                <button class="btn-buy" onclick="buyMiner('miner4', 350000)">350k Plata</button>
             </div>
         </div>
 
         <div id="screen-puzzle" class="screen">
             <div class="wordle-container">
-                <h3 style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(157,78,221,0.3);">Crypto Wordle</h3>
-                <p style="font-size: 12px; color: var(--text-main); margin-top: 5px;">
-                    Adivina la palabra. Premio: <strong style="color: var(--white);">10.000 Plata</strong><br>
+                <div class="wordle-tabs">
+                    <button class="tab-btn active" id="tabBasic" onclick="switchWordleMode('basic')">Básico</button>
+                    <button class="tab-btn vip" id="tabVip" onclick="switchWordleMode('vip')">VIP 👑</button>
+                </div>
+
+                <p style="font-size: 12px; color: var(--text-main); margin-bottom: 10px;">
+                    Premio de hoy: <strong style="color: var(--white);" id="wordlePrizeText">250 Plata</strong><br>
                     <span style="font-size: 10px; color: #718096;">Nueva palabra todos los días a las 12 PM (Hora VE).</span>
                 </p>
 
-                <div class="wordle-board" id="wordleBoard"></div>
-                
-                <div id="wordleStatus" style="font-size: 14px; margin: 10px 0; min-height: 20px; color: var(--white); font-weight: bold;"></div>
-                
-                <div class="keyboard" id="keyboard"></div>
+                <div id="lockScreen" style="display: none;">
+                    <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
+                    <h3 style="color: var(--warning);">Modo VIP Bloqueado</h3>
+                    <p style="font-size: 13px; color: var(--text-main); margin-top: 10px;">Realiza un depósito en la billetera para desbloquear el modo VIP permanentemente y ganar 2.000 Plata diarios.</p>
+                </div>
+
+                <div id="gameArea">
+                    <div class="wordle-board" id="wordleBoard"></div>
+                    <div id="wordleStatus" style="font-size: 14px; margin: 10px 0; min-height: 20px; color: var(--white); font-weight: bold;"></div>
+                    <div class="keyboard" id="keyboard"></div>
+                </div>
             </div>
         </div>
 
@@ -235,27 +245,26 @@
             <div class="wallet-card">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📥 Depósitos</h4>
                 <div class="wallet-info-row">
-                    <span>Tasa de cambio:</span>
-                    <span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span>
+                    <span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span>
                 </div>
                 <div class="wallet-info-row">
-                    <span>Depósito Mínimo:</span>
-                    <span style="color: #fff;">1 TON</span>
+                    <span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span>
                 </div>
                 <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">
                     EQB3nVoRFMzXKi...U7Xp9wQ
+                </div>
+                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">
+                    *Depositar desbloquea automáticamente el Wordle VIP.
                 </div>
             </div>
 
             <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
                 <div class="wallet-info-row">
-                    <span>Tasa de cambio:</span>
-                    <span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span>
+                    <span>Tasa de cambio:</span><span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span>
                 </div>
                 <div class="wallet-info-row">
-                    <span>Retiro Mínimo:</span>
-                    <span style="color: #fff;">0.05 TON</span>
+                    <span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON</span>
                 </div>
                 <button class="btn-neon" style="margin-top: 10px; padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="alert('Módulo de retiro en desarrollo')">
                     SOLICITAR RETIRO
@@ -266,18 +275,10 @@
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)">
-            <div class="nav-icon">🏠</div><span>Minería</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('shop', this)">
-            <div class="nav-icon">🛒</div><span>Tienda</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('puzzle', this)">
-            <div class="nav-icon">🎮</div><span>Diario</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
-            <div class="nav-icon">💼</div><span>Billetera</span>
-        </div>
+        <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">🏠</div><span>Minería</span></div>
+        <div class="nav-item" onclick="switchTab('shop', this)"><div class="nav-icon">🛒</div><span>Tienda</span></div>
+        <div class="nav-item" onclick="switchTab('puzzle', this)"><div class="nav-icon">🎮</div><span>Wordle</span></div>
+        <div class="nav-item" onclick="switchTab('wallet', this)"><div class="nav-icon">💼</div><span>Billetera</span></div>
     </nav>
 
     <script>
@@ -293,6 +294,11 @@
         let oro = 0;
         let baseRatePerHour = 5;
 
+        // Nuevos campos de base de datos
+        let hasDeposited = false;
+        let wordleBasicDate = "";
+        let wordleVipDate = "";
+
         let storageLevel = 1;
         const storageLevels = [
             { level: 1, capacity: 500, cost: 0 },
@@ -301,72 +307,103 @@
             { level: 4, capacity: 100000, cost: 80000 }
         ];
 
-        let inventory = {
-            miner1: 0, miner2: 0, miner3: 0, miner4: 0
-        };
+        let inventory = { miner1: 0, miner2: 0, miner3: 0, miner4: 0 };
 
         // ====== LÓGICA DEL WORDLE ======
         const WORDS = ["PLATA", "MINAS", "TOKEN", "BLOCK", "DATOS", "CLAVE", "ROCAS", "EXTRA", "FASES", "CICLO", "FONDO", "VALOR", "PAGOS", "REDES", "CABLE", "NEXOS", "RAMPA", "GANAR", "NIVEL", "CESTA", "SALDO", "COBRO", "REGLA", "PULSO", "JUEGO", "BOTON", "POZOS", "NEON", "FIBRA"];
         
-        let wordleState = {
-            cycleId: "",
-            target: "",
-            guesses: [],
-            currentAttempt: 0,
-            currentLetters: "",
-            status: "playing" // playing, won, lost
+        let currentMode = 'basic';
+        let wordleStates = {
+            basic: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" },
+            vip: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }
         };
 
-        function initWordle() {
-            const { cycleId, word } = getWordleCycleInfo();
+        function switchWordleMode(mode) {
+            currentMode = mode;
+            document.getElementById('tabBasic').classList.remove('active');
+            document.getElementById('tabVip').classList.remove('active');
             
-            // Cargar estado de localStorage
-            const savedState = JSON.parse(localStorage.getItem(`wordle_${userTelegramId}`) || "{}");
-            
-            if (savedState.cycleId === cycleId) {
-                // Si ya empezó a jugar este ciclo, cargamos todo
-                wordleState = savedState;
+            if (mode === 'basic') {
+                document.getElementById('tabBasic').classList.add('active');
+                document.getElementById('wordlePrizeText').innerText = "250 Plata";
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('gameArea').style.display = 'block';
             } else {
-                // Nuevo ciclo (día nuevo)
-                wordleState = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" };
-                saveWordleState();
+                document.getElementById('tabVip').classList.add('active');
+                document.getElementById('wordlePrizeText').innerText = "2.000 Plata";
+                
+                if (!hasDeposited) {
+                    document.getElementById('lockScreen').style.display = 'block';
+                    document.getElementById('gameArea').style.display = 'none';
+                } else {
+                    document.getElementById('lockScreen').style.display = 'none';
+                    document.getElementById('gameArea').style.display = 'block';
+                }
             }
-
-            renderWordleBoard();
-            renderKeyboard();
-            updateKeyboardColors();
             
-            if (wordleState.status === "won") document.getElementById('wordleStatus').innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM.";
-            if (wordleState.status === "lost") document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era ${wordleState.target}. Vuelve mañana.`;
+            initWordleMode(mode);
         }
 
-        function getWordleCycleInfo() {
+        function getWordleCycleInfo(mode) {
             const now = new Date();
             const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
             const vetMs = utcMs - (4 * 3600000); // UTC-4 (Venezuela)
             const vetDate = new Date(vetMs);
 
             let cycleDate = new Date(vetMs);
-            if (vetDate.getHours() < 12) {
-                // Si es antes del mediodía, pertenece al ciclo del día anterior
-                cycleDate.setDate(cycleDate.getDate() - 1);
-            }
+            if (vetDate.getHours() < 12) cycleDate.setDate(cycleDate.getDate() - 1);
             
             const cycleId = `${cycleDate.getFullYear()}-${cycleDate.getMonth()+1}-${cycleDate.getDate()}`;
             
-            // Usamos el cycleId para generar un índice consistente para todos
             let hash = 0;
             for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
-            const index = Math.abs(hash) % WORDS.length;
+            
+            // Variación para que la palabra VIP sea diferente a la básica
+            let offset = mode === 'vip' ? 7 : 0; 
+            const index = (Math.abs(hash) + offset) % WORDS.length;
             
             return { cycleId, word: WORDS[index] };
         }
 
-        function saveWordleState() {
-            localStorage.setItem(`wordle_${userTelegramId}`, JSON.stringify(wordleState));
+        function initWordleMode(mode) {
+            const { cycleId, word } = getWordleCycleInfo(mode);
+            const savedState = JSON.parse(localStorage.getItem(`wordle_${mode}_${userTelegramId}`) || "{}");
+            
+            // Validar contra la base de datos para prevenir trampas si borran el caché
+            let dbDate = mode === 'basic' ? wordleBasicDate : wordleVipDate;
+            let isAlreadyWonInDb = (dbDate === cycleId);
+
+            if (savedState.cycleId === cycleId) {
+                wordleStates[mode] = savedState;
+            } else {
+                wordleStates[mode] = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" };
+            }
+
+            // Si en la base de datos dice que ya ganó hoy, forzamos el estado a ganado
+            if (isAlreadyWonInDb) wordleStates[mode].status = "won";
+
+            saveWordleLocal(mode);
+            renderWordleBoard();
+            renderKeyboard();
+            updateKeyboardColors();
+            
+            const statusEl = document.getElementById('wordleStatus');
+            statusEl.innerText = "";
+            if (wordleStates[mode].status === "won") {
+                statusEl.innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM.";
+                statusEl.style.color = "var(--success)";
+            } else if (wordleStates[mode].status === "lost") {
+                statusEl.innerText = `Perdiste. La palabra era ${wordleStates[mode].target}. Vuelve mañana.`;
+                statusEl.style.color = "#ff3333";
+            }
+        }
+
+        function saveWordleLocal(mode) {
+            localStorage.setItem(`wordle_${mode}_${userTelegramId}`, JSON.stringify(wordleStates[mode]));
         }
 
         function renderWordleBoard() {
+            const state = wordleStates[currentMode];
             const board = document.getElementById('wordleBoard');
             board.innerHTML = "";
             for (let i = 0; i < 6; i++) {
@@ -374,22 +411,21 @@
                 row.className = "wordle-row";
                 
                 let rowText = "";
-                if (i < wordleState.guesses.length) rowText = wordleState.guesses[i];
-                else if (i === wordleState.currentAttempt) rowText = wordleState.currentLetters;
+                if (i < state.guesses.length) rowText = state.guesses[i];
+                else if (i === state.currentAttempt) rowText = state.currentLetters;
 
                 for (let j = 0; j < 5; j++) {
                     const cell = document.createElement('div');
                     cell.className = "wordle-cell";
                     cell.innerText = rowText[j] || "";
                     
-                    // Colorear si ya es un intento pasado
-                    if (i < wordleState.guesses.length) {
-                        const targetArr = wordleState.target.split('');
+                    if (i < state.guesses.length) {
+                        const targetArr = state.target.split('');
                         const guessArr = rowText.split('');
                         
                         if (guessArr[j] === targetArr[j]) {
                             cell.classList.add('correct');
-                            targetArr[j] = null; // Marcar como usado
+                            targetArr[j] = null; 
                         } else if (targetArr.includes(guessArr[j])) {
                             cell.classList.add('present');
                             targetArr[targetArr.indexOf(guessArr[j])] = null;
@@ -429,17 +465,18 @@
         }
 
         function updateKeyboardColors() {
-            wordleState.guesses.forEach(guess => {
+            const state = wordleStates[currentMode];
+            state.guesses.forEach(guess => {
                 for (let i = 0; i < 5; i++) {
                     const letter = guess[i];
                     const btn = document.getElementById(`key-${letter}`);
                     if (!btn) continue;
                     
-                    if (wordleState.target[i] === letter) {
-                        btn.className = "key correct"; // Verde sobrescribe todo
-                    } else if (wordleState.target.includes(letter) && !btn.classList.contains('correct')) {
+                    if (state.target[i] === letter) {
+                        btn.className = "key correct"; 
+                    } else if (state.target.includes(letter) && !btn.classList.contains('correct')) {
                         btn.className = "key present";
-                    } else if (!wordleState.target.includes(letter)) {
+                    } else if (!state.target.includes(letter)) {
                         btn.classList.add('absent');
                     }
                 }
@@ -447,43 +484,53 @@
         }
 
         function handleKey(key) {
-            if (wordleState.status !== "playing") return;
+            const state = wordleStates[currentMode];
+            if (state.status !== "playing") return;
 
             if (key === 'ENTER') {
-                if (wordleState.currentLetters.length !== 5) {
+                if (state.currentLetters.length !== 5) {
                     document.getElementById('wordleStatus').innerText = "Faltan letras.";
                     setTimeout(() => document.getElementById('wordleStatus').innerText = "", 1500);
                     return;
                 }
                 
-                const guess = wordleState.currentLetters;
-                wordleState.guesses.push(guess);
+                const guess = state.currentLetters;
+                state.guesses.push(guess);
                 
-                if (guess === wordleState.target) {
-                    wordleState.status = "won";
-                    plata += 10000;
-                    document.getElementById('wordleStatus').innerText = "¡Excelente! +10.000 Plata.";
+                if (guess === state.target) {
+                    state.status = "won";
+                    let premio = currentMode === 'basic' ? 250 : 2000;
+                    plata += premio;
+                    
+                    // Actualizar las fechas de victoria para la base de datos
+                    if (currentMode === 'basic') wordleBasicDate = state.cycleId;
+                    else wordleVipDate = state.cycleId;
+
+                    document.getElementById('wordleStatus').innerText = `¡Excelente! +${premio.toLocaleString()} Plata.`;
                     document.getElementById('wordleStatus').style.color = "var(--success)";
+                    
                     updateInterface();
-                    saveProgress();
-                } else if (wordleState.guesses.length >= 6) {
-                    wordleState.status = "lost";
-                    document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${wordleState.target}`;
+                    saveProgress(); // Guardado automático en DB al ganar
+
+                } else if (state.guesses.length >= 6) {
+                    state.status = "lost";
+                    document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${state.target}`;
                     document.getElementById('wordleStatus').style.color = "#ff3333";
+                    saveProgress(); // Guardar intentos fallidos para sincronizar DB
                 }
 
-                wordleState.currentAttempt++;
-                wordleState.currentLetters = "";
-                saveWordleState();
+                state.currentAttempt++;
+                state.currentLetters = "";
+                saveWordleLocal(currentMode);
                 renderWordleBoard();
                 updateKeyboardColors();
 
             } else if (key === 'DEL') {
-                wordleState.currentLetters = wordleState.currentLetters.slice(0, -1);
+                state.currentLetters = state.currentLetters.slice(0, -1);
                 renderWordleBoard();
             } else {
-                if (wordleState.currentLetters.length < 5) {
-                    wordleState.currentLetters += key;
+                if (state.currentLetters.length < 5) {
+                    state.currentLetters += key;
                     renderWordleBoard();
                 }
             }
@@ -501,8 +548,7 @@
             try {
                 if (window.Telegram && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
-                    tg.ready();
-                    tg.expand();
+                    tg.ready(); tg.expand();
                     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         userTelegramId = tg.initDataUnsafe.user.id.toString();
                         username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
@@ -516,13 +562,13 @@
                 }
             } catch (e) {}
 
-            try {
-                document.getElementById('usernameDisplay').innerText = "@" + username;
-                initWordle(); // Inicializa el Wordle al cargar
+            document.getElementById('usernameDisplay').innerText = "@" + username;
+            
+            loadProgress().then(() => {
+                switchWordleMode('basic'); // Inicia la pestaña básica después de cargar datos
                 calculateTotalRate(); 
                 startAutomaticMiningLoop();
-                loadProgress();
-            } catch (e) { showError("UI error: " + e.message); }
+            });
         });
 
         function calculateTotalRate() {
@@ -534,7 +580,7 @@
             if (mineral > currentCap) mineral = currentCap;
 
             document.getElementById('balanceDisplay').innerText = Math.floor(mineral).toLocaleString();
-            document.getElementById('rateDisplay').innerText = `Velocidad actual de minería: ${baseRatePerHour.toLocaleString()}/hora`;
+            document.getElementById('rateDisplay').innerText = `Velocidad actual: ${baseRatePerHour.toLocaleString()}/h`;
             
             document.getElementById('globalPlata').innerText = plata.toLocaleString();
             document.getElementById('globalOro').innerText = oro.toLocaleString();
@@ -552,19 +598,15 @@
             const btnUpgrade = document.getElementById('btnUpgradeStorage');
             
             if (storageLevel >= storageLevels.length) {
-                btnUpgrade.innerText = "ALMACÉN AL NIVEL MÁXIMO";
-                btnUpgrade.style.background = "#2d3748";
-                btnUpgrade.style.color = "#718096";
-                previewBox.style.display = "none";
+                btnUpgrade.innerText = "NIVEL MÁXIMO";
+                btnUpgrade.style.background = "#2d3748"; btnUpgrade.style.color = "#718096";
+                previewBox.style.display = "none"; btnUpgrade.disabled = true;
             } else {
                 let nextLevel = storageLevels[storageLevel];
                 document.getElementById('previewNextLevel').innerText = nextLevel.level;
                 document.getElementById('previewNextCap').innerText = nextLevel.capacity.toLocaleString();
-                previewBox.style.display = "flex";
-                
-                btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver" style="margin-left: 2px;"></span>`;
-                btnUpgrade.style.background = "linear-gradient(90deg, #1d4ed8, var(--dark-blue))";
-                btnUpgrade.style.color = "white";
+                previewBox.style.display = "flex"; btnUpgrade.disabled = false;
+                btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver"></span>`;
             }
 
             document.getElementById('qtyMiner1').innerText = inventory.miner1;
@@ -585,13 +627,12 @@
         }
 
         function sellMinerals() {
-            if (mineral < 100) { alert("El mínimo para vender minerales es de 100 minerales."); return; }
+            if (mineral < 100) { alert("Mínimo 100 minerales para vender."); return; }
             let bloques = Math.floor(mineral / 100);
-            oro += bloques * 1;
-            plata += bloques * 1;
+            oro += bloques * 1; plata += bloques * 1;
             mineral -= (bloques * 100);
-            updateInterface(); saveProgress();
-            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques * 1} Oro y +${bloques * 1} Plata.`);
+            updateInterface(); saveProgress(); // Guardado automático
+            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques} Oro y +${bloques} Plata.`);
         }
 
         function upgradeStorage() {
@@ -599,21 +640,17 @@
             let nextLevel = storageLevels[storageLevel];
             if (plata >= nextLevel.cost) {
                 plata -= nextLevel.cost; storageLevel++;
-                updateInterface(); saveProgress();
+                updateInterface(); saveProgress(); // Guardado automático
                 alert(`¡Almacén mejorado al Nivel ${storageLevel}!`);
-            } else {
-                alert(`Necesitas ${nextLevel.cost.toLocaleString()} de Plata.`);
-            }
+            } else { alert(`Necesitas ${nextLevel.cost.toLocaleString()} Plata.`); }
         }
 
         function buyMiner(minerId, cost) {
             if (plata >= cost) {
                 plata -= cost; inventory[minerId]++;
-                calculateTotalRate(); updateInterface(); saveProgress();
+                calculateTotalRate(); updateInterface(); saveProgress(); // Guardado automático
                 alert(`¡Minero adquirido con éxito!`);
-            } else {
-                alert(`Fondos insuficientes. Requiere ${cost.toLocaleString()} de Plata.`);
-            }
+            } else { alert(`Requiere ${cost.toLocaleString()} Plata.`); }
         }
 
         function switchTab(tabId, element) {
@@ -621,31 +658,54 @@
             document.getElementById('screen-' + tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
+            if (tabId === 'puzzle') switchWordleMode(currentMode); // Refresca el estado al entrar
         }
 
-        function syncManual() { saveProgress(); alert("Progreso guardado."); }
+        function syncManual() { saveProgress(); alert("Sincronización forzada con éxito."); }
 
         async function loadProgress() {
             try {
                 if (!supabaseClient) { document.getElementById('dbStatus').innerText = "Modo Local"; return; }
                 let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).single();
                 if (data) {
-                    mineral = parseFloat(data.mineral || 0); plata = parseInt(data.plata || 0); oro = parseInt(data.oro || 0); storageLevel = parseInt(data.storage_level || 1);
-                    inventory.miner1 = parseInt(data.miner1 || 0); inventory.miner2 = parseInt(data.miner2 || 0); inventory.miner3 = parseInt(data.miner3 || 0); inventory.miner4 = parseInt(data.miner4 || 0);
+                    mineral = parseFloat(data.mineral || 0); 
+                    plata = parseInt(data.plata || 0); 
+                    oro = parseInt(data.oro || 0); 
+                    storageLevel = parseInt(data.storage_level || 1);
+                    inventory.miner1 = parseInt(data.miner1 || 0); 
+                    inventory.miner2 = parseInt(data.miner2 || 0); 
+                    inventory.miner3 = parseInt(data.miner3 || 0); 
+                    inventory.miner4 = parseInt(data.miner4 || 0);
+                    
+                    // Cargar nuevos campos de DB
+                    hasDeposited = data.has_deposited || false;
+                    wordleBasicDate = data.wordle_basic_date || "";
+                    wordleVipDate = data.wordle_vip_date || "";
+
                     calculateTotalRate(); updateInterface();
                     document.getElementById('dbStatus').innerText = "DB: Sincronizado";
                 }
-            } catch (e) {}
+            } catch (e) { showError("Error al cargar: " + e.message); }
         }
 
         async function saveProgress() {
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('players').update({ 
-                        mineral: mineral, plata: plata, oro: oro, storage_level: storageLevel,
-                        miner1: inventory.miner1, miner2: inventory.miner2, miner3: inventory.miner3, miner4: inventory.miner4
+                        mineral: mineral, 
+                        plata: plata, 
+                        oro: oro, 
+                        storage_level: storageLevel,
+                        miner1: inventory.miner1, 
+                        miner2: inventory.miner2, 
+                        miner3: inventory.miner3, 
+                        miner4: inventory.miner4,
+                        wordle_basic_date: wordleBasicDate, // Guarda la fecha de victoria Básica
+                        wordle_vip_date: wordleVipDate      // Guarda la fecha de victoria VIP
+                        // Nota: has_deposited no se actualiza desde aquí por seguridad, 
+                        // asumiendo que el bot backend lo cambia cuando verifica el pago en TON.
                     }).eq('telegram_id', userTelegramId);
-                } catch(e) {}
+                } catch(e) { showError("Error guardando: " + e.message); }
             }
         }
     </script>
