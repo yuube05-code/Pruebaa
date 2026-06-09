@@ -23,29 +23,65 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--white); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 42px; height: 42px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
+
+        .icon-silver {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .icon-gold {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+
+        .resource-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        .res-item { display: flex; align-items: center; background: var(--panel-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
 
         .main-content { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 90px; }
         .screen { display: none; }
         .screen.active { display: block; }
 
-        .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 24px; padding: 30px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
-        .balance-title { color: var(--text-main); font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
-        .balance-amount { font-size: 42px; font-weight: 800; color: var(--neon-blue); text-shadow: 0 0 20px rgba(0, 243, 255, 0.6); margin-bottom: 6px; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .mining-rate { font-size: 14px; color: var(--text-main); margin-bottom: 25px; }
+        .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
+        
+        .mineral-display-container { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 18px 10px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
+        .balance-title { color: var(--text-main); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .balance-amount { font-size: 34px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.15); }
+        
+        .btn-neon { background: linear-gradient(90deg, #be7e0a, #844c00); color: white; border: none; padding: 15px; border-radius: 14px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 4px 15px rgba(132, 76, 0, 0.3); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-neon:active { transform: scale(0.97); background: linear-gradient(90deg, #ffb703, #fb8500); }
 
-        .btn-neon { position: relative; background: linear-gradient(90deg, var(--dark-blue), #00aaff); color: white; border: none; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: bold; width: 100%; overflow: hidden; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 85, 255, 0.4); }
-        .btn-neon:active { transform: scale(0.97); }
-        .btn-neon::after { content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%; background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.5), transparent); transform: skewX(-30deg); animation: sweep 4s infinite ease-in-out; }
-        @keyframes sweep { 0% { left: -100%; } 30% { left: 150%; } 100% { left: 150%; } }
+        .mining-info-specs { margin-top: 18px; font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; gap: 5px; }
+        .rate-spec { color: #a0aec0; }
+        .exchange-spec { color: #ffb703; font-weight: 500; font-size: 12px; background: rgba(255, 183, 3, 0.06); padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 0 auto; }
 
-        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); }
-
-        .btn-buy { background: var(--dark-blue); border: none; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-buy { background: var(--dark-blue); border: none; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 110px; font-size: 13px; text-align: center; }
         .btn-buy:active { background: var(--neon-blue); color: black; }
+
+        .progress-container { width: 100%; background: #181e30; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--dark-blue)); transition: width 0.2s; }
+
+        /* Estilos específicos para la vista previa del almacén */
+        .upgrade-preview-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .preview-col { text-align: center; width: 40%; }
+        .preview-label { font-size: 10px; color: var(--text-main); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 2px;}
+        .preview-val { font-size: 18px; font-weight: bold; }
+        .preview-arrow { color: var(--text-main); font-size: 18px; opacity: 0.5; }
 
         .puzzle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
         .puzzle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
@@ -54,14 +90,19 @@
         .puzzle-status { font-size: 14px; margin-bottom: 15px; min-height: 20px; color: var(--text-main); }
 
         .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
+        .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
         .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 20%; }
         .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
         .nav-icon { font-size: 22px; }
+
+        #debugStatus { display: none; background: #ff3333; color: white; font-size: 11px; padding: 10px; text-align: center; font-weight: bold; z-index: 999; word-break: break-all; }
     </style>
 </head>
 <body>
+
+    <div id="debugStatus"></div>
 
     <header class="header">
         <div class="user-info">
@@ -74,66 +115,109 @@
         <div style="color: var(--neon-blue); font-size: 18px;" onclick="syncManual()">🔄</div>
     </header>
 
+    <div class="resource-bar">
+        <div class="res-item">
+            <span class="icon-silver"></span>
+            <div>Plata: <strong id="globalPlata">0</strong></div>
+        </div>
+        <div class="res-item">
+            <span class="icon-gold"></span>
+            <div>Oro: <strong id="globalOro">0</strong></div>
+        </div>
+    </div>
+
     <div class="main-content">
         
         <div id="screen-home" class="screen active">
             <div class="mining-card">
-                <div class="balance-title">Balance de Minería</div>
-                <div class="balance-amount">
-                    <span style="color: var(--neon-blue)">⚡</span>
-                    <span id="balanceDisplay">0.000</span>
+                <div class="mineral-display-container">
+                    <div class="balance-title">Mineral en la Mina</div>
+                    <div class="balance-amount" id="balanceDisplay">0</div>
                 </div>
-                <div class="mining-rate" id="rateDisplay">Poder: +1.000 ⚡ / hora</div>
                 
-                <button class="btn-neon" id="btnMine" onclick="toggleMining()">
-                    INICIAR MINERÍA
+                <button class="btn-neon" id="btnSell" onclick="sellMinerals()">
+                    Vender
                 </button>
+
+                <div class="mining-info-specs">
+                    <div class="rate-spec" id="rateDisplay">Velocidad actual de minería: 5/hora</div>
+                    <div><span class="exchange-spec">100 de mineral = 1 oro + 1 plata</span></div>
+                </div>
             </div>
 
-            <div class="quick-actions">
-                <div class="action-card">
-                    <span style="font-size: 24px;">🚀</span>
-                    <div>
-                        <div style="font-size: 11px; color: var(--text-main);">Nivel de Minero</div>
-                        <div style="font-size: 13px; font-weight: bold;" id="levelDisplay">Nivel 1</div>
+            <div class="action-card" style="flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 15px;">
+                <h3 style="text-align: center; color: var(--neon-blue); font-size: 16px; margin-bottom: 5px;">Mejora del Almacén</h3>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 24px;">📦</span>
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-main);">Estado Actual: <span id="lblStorageLevel" style="font-weight: bold; color: var(--white);">Nivel 1</span></div>
+                            <div style="font-size: 14px; font-weight: bold; color: var(--white);" id="lblStorageRatio">0 / 500</div>
+                        </div>
                     </div>
                 </div>
-                <div class="action-card">
-                    <span style="font-size: 24px;">👥</span>
-                    <div>
-                        <div style="font-size: 11px; color: var(--text-main);">Comunidad</div>
-                        <div style="font-size: 13px; font-weight: bold;">0 Amigos</div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="storageBar"></div>
+                </div>
+
+                <div class="upgrade-preview-box" id="upgradePreview">
+                    <div class="preview-col">
+                        <div class="preview-label">Nivel <span id="previewCurrentLevel">1</span></div>
+                        <div class="preview-val" style="color: white;" id="previewCurrentCap">500</div>
+                    </div>
+                    <div class="preview-arrow">➔</div>
+                    <div class="preview-col">
+                        <div class="preview-label">Nivel <span id="previewNextLevel">2</span></div>
+                        <div class="preview-val" style="color: var(--neon-blue);" id="previewNextCap">6.000</div>
                     </div>
                 </div>
+
+                <button class="btn-buy" id="btnUpgradeStorage" onclick="upgradeStorage()" style="width: 100%; margin-top: 10px; background: linear-gradient(90deg, #1d4ed8, var(--dark-blue)); font-size: 14px; padding: 12px;">
+                    Mejorar por 10.000 <span class="icon-silver" style="margin-left: 4px;"></span>
+                </button>
             </div>
         </div>
 
         <div id="screen-shop" class="screen">
-            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Adquirir Mineros</h3>
-            <p style="font-size: 12px; color: var(--text-main); margin-bottom: 20px;">Compra mineros para aumentar tu Nivel y ganar más ⚡ por hora.</p>
+            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Mercado de Mineros</h3>
+            <p style="font-size: 12px; color: var(--text-main); margin-bottom: 15px;">Usa tu Plata para adquirir maquinaria de extracción.</p>
 
             <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold;">Placa de Video (GPU)</div>
-                    <div style="font-size: 12px; color: var(--text-main);">+1 Nivel Extra</div>
+                    <div style="font-weight: bold; font-size: 15px;">Minero Básico</div>
+                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+75 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner1" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('Placa de Video', 100, 1)">100 ⚡</button>
+                <button class="btn-buy" onclick="buyMiner('miner1', 1000)">1.000 Plata</button>
             </div>
 
             <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold;">Granja ASIC</div>
-                    <div style="font-size: 12px; color: var(--text-main);">+5 Niveles Extra</div>
+                    <div style="font-weight: bold; font-size: 15px;">Minero Avanzado</div>
+                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+1.650 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner2" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('Granja ASIC', 500, 5)">500 ⚡</button>
+                <button class="btn-buy" onclick="buyMiner('miner2', 20000)">20.000 Plata</button>
             </div>
 
             <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
                 <div>
-                    <div style="font-weight: bold;">Procesador Cuántico</div>
-                    <div style="font-size: 12px; color: var(--text-main);">+15 Niveles Extra</div>
+                    <div style="font-weight: bold; font-size: 15px;">Plataforma Industrial</div>
+                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+9.300 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner3" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
                 </div>
-                <button class="btn-buy" onclick="buyMiner('Procesador Cuántico', 2000, 15)">2000 ⚡</button>
+                <button class="btn-buy" onclick="buyMiner('miner3', 100000)">100.000 Plata</button>
+            </div>
+
+            <div class="action-card" style="margin-bottom: 10px; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: bold; font-size: 15px;">Granja Cuántica</div>
+                    <div style="font-size: 12px; color: var(--success); font-weight: 500;">+36.000 mineral/h</div>
+                    <div style="font-size: 11px; color: var(--text-main); margin-top: 4px;">Comprados: <span id="qtyMiner4" style="color: var(--neon-blue); font-weight: bold;">0</span></div>
+                </div>
+                <button class="btn-buy" onclick="buyMiner('miner4', 350000)">350.000 Plata</button>
             </div>
         </div>
 
@@ -141,24 +225,47 @@
             <div class="puzzle-container">
                 <h3 style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(157,78,221,0.3);">Rompecabezas Diario</h3>
                 <p style="font-size: 12px; color: var(--text-main); margin-top: 5px;">
-                    Selecciona exactamente 5 posiciones para reclamar <span style="color:var(--neon-blue)">+50.000 ⚡</span>.
+                    Selecciona exactamente 5 posiciones para reclamar un bono de Plata.
                 </p>
                 <div class="puzzle-grid" id="gridElement"></div>
                 <div class="puzzle-status" id="puzzleStatus">Selecciona 5 casillas.</div>
-                <button class="btn-neon" style="background: linear-gradient(90deg, var(--neon-purple), #b5179e);" onclick="verifyPuzzle()">
+                <button class="btn-neon" style="background: linear-gradient(90deg, var(--neon-purple), #b5179e); box-shadow: none;" onclick="verifyPuzzle()">
                     VERIFICAR COMBINACIÓN
                 </button>
             </div>
         </div>
 
         <div id="screen-wallet" class="screen">
-            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Operaciones Financieras</h3>
+            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Sistema Financiero (TON)</h3>
+            
             <div class="wallet-card">
-                <div style="font-size: 12px; color: var(--text-main);">Dirección de Depósito (TON)</div>
-                <div style="font-family: monospace; font-size: 13px; background:#000; padding:10px; border-radius:8px; margin: 10px 0; word-break: break-all;">
-                    EQB3nVoRFMzXKi...
+                <h4 style="margin-bottom: 12px; color: var(--white);">📥 Depósitos</h4>
+                <div class="wallet-info-row">
+                    <span>Tasa de cambio:</span>
+                    <span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span>
                 </div>
-                <button style="background:none; border: 1px solid var(--neon-blue); color:var(--neon-blue); padding:6px 12px; border-radius:8px; font-size:12px;">Copiar Dirección</button>
+                <div class="wallet-info-row">
+                    <span>Depósito Mínimo:</span>
+                    <span style="color: #fff;">1 TON</span>
+                </div>
+                <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">
+                    EQB3nVoRFMzXKi...U7Xp9wQ
+                </div>
+            </div>
+
+            <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
+                <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
+                <div class="wallet-info-row">
+                    <span>Tasa de cambio:</span>
+                    <span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span>
+                </div>
+                <div class="wallet-info-row">
+                    <span>Retiro Mínimo:</span>
+                    <span style="color: #fff;">0.05 TON</span>
+                </div>
+                <button class="btn-neon" style="margin-top: 10px; padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="alert('Módulo de retiro en desarrollo')">
+                    SOLICITAR RETIRO
+                </button>
             </div>
         </div>
 
@@ -166,106 +273,195 @@
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)">
-            <div class="nav-icon">🏠</div>
-            <span>Minería</span>
+            <div class="nav-icon">🏠</div><span>Minería</span>
         </div>
         <div class="nav-item" onclick="switchTab('shop', this)">
-            <div class="nav-icon">🛒</div>
-            <span>Tienda</span>
+            <div class="nav-icon">🛒</div><span>Tienda</span>
         </div>
         <div class="nav-item" onclick="switchTab('puzzle', this)">
-            <div class="nav-icon">🧩</div>
-            <span>Combo</span>
+            <div class="nav-icon">🧩</div><span>Combo</span>
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
-            <div class="nav-icon">💼</div>
-            <span>Billetera</span>
+            <div class="nav-icon">💼</div><span>Billetera</span>
         </div>
     </nav>
 
     <script>
-        // --- LLAVES DE SUPABASE ---
         const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
 
-        // Corrección de seguridad para crear el cliente de Supabase
-        if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-
         let userTelegramId = "999999"; 
-        let username = "Local_Miner";
-        let balance = 0.000;
-        let currentLevel = 1;
-        let baseRatePerHour = 1.000; 
-        let isMining = false;
-        let miningInterval = null;
+        let username = "Minero_Offline";
+        
+        let mineral = 0.00;
+        let plata = 1500; 
+        let oro = 0;
+        let baseRatePerHour = 5;
+
+        let storageLevel = 1;
+        const storageLevels = [
+            { level: 1, capacity: 500, cost: 0 },
+            { level: 2, capacity: 6000, cost: 10000 },
+            { level: 3, capacity: 40000, cost: 50000 },
+            { level: 4, capacity: 100000, cost: 80000 }
+        ];
+
+        let inventory = {
+            miner1: 0,
+            miner2: 0,
+            miner3: 0,
+            miner4: 0
+        };
 
         const dailyWinningCombo = [1, 4, 6, 7, 10]; 
         let selectedCells = [];
 
-        // Iniciar App de forma segura
+        function showError(msg) {
+            const errBox = document.getElementById('debugStatus');
+            errBox.style.display = "block";
+            errBox.innerText += "⚠️ " + msg + " | ";
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             try {
                 if (window.Telegram && window.Telegram.WebApp) {
                     const tg = window.Telegram.WebApp;
                     tg.ready();
                     tg.expand();
-                    
                     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         userTelegramId = tg.initDataUnsafe.user.id.toString();
                         username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
                     }
                 }
-            } catch (e) {
-                console.log("Ejecutando fuera de Telegram");
-            }
-            
-            document.getElementById('usernameDisplay').innerText = "@" + username;
-            buildPuzzleGrid();
-            updateInterface();
-            loadProgress();
+            } catch (e) {}
+
+            try {
+                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            } catch (e) {}
+
+            try {
+                document.getElementById('usernameDisplay').innerText = "@" + username;
+                buildPuzzleGrid();
+                calculateTotalRate(); 
+                startAutomaticMiningLoop();
+                loadProgress();
+            } catch (e) { showError("UI error: " + e.message); }
         });
 
-        function updateInterface() {
-            document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
-            document.getElementById('levelDisplay').innerText = "Nivel " + currentLevel;
-            const currentRate = baseRatePerHour * currentLevel;
-            document.getElementById('rateDisplay').innerText = `Poder: +${currentRate.toFixed(3)} ⚡ / hora`;
+        function calculateTotalRate() {
+            baseRatePerHour = 5 + 
+                (inventory.miner1 * 75) + 
+                (inventory.miner2 * 1650) + 
+                (inventory.miner3 * 9300) + 
+                (inventory.miner4 * 36000);
         }
 
-        // --- LÓGICA DE LA TIENDA ---
-        function buyMiner(itemName, cost, levelIncrease) {
-            if (balance >= cost) {
-                balance -= cost;
-                currentLevel += levelIncrease;
+        function updateInterface() {
+            let currentCap = storageLevels[storageLevel - 1].capacity;
+            if (mineral > currentCap) mineral = currentCap;
+
+            // Se muestra como entero truncado
+            document.getElementById('balanceDisplay').innerText = Math.floor(mineral).toLocaleString();
+            document.getElementById('rateDisplay').innerText = `Velocidad actual de minería: ${baseRatePerHour.toLocaleString()}/hora`;
+            
+            document.getElementById('globalPlata').innerText = plata.toLocaleString();
+            document.getElementById('globalOro').innerText = oro.toLocaleString();
+
+            document.getElementById('lblStorageLevel').innerText = `Nivel ${storageLevel}`;
+            document.getElementById('lblStorageRatio').innerText = `${Math.floor(mineral).toLocaleString()} / ${currentCap.toLocaleString()}`;
+            
+            let pct = (mineral / currentCap) * 100;
+            document.getElementById('storageBar').style.width = Math.min(pct, 100) + "%";
+
+            // ACTUALIZACIÓN DE LA VISTA PREVIA Y BOTÓN
+            document.getElementById('previewCurrentLevel').innerText = storageLevel;
+            document.getElementById('previewCurrentCap').innerText = currentCap.toLocaleString();
+
+            const previewBox = document.getElementById('upgradePreview');
+            const btnUpgrade = document.getElementById('btnUpgradeStorage');
+            
+            if (storageLevel >= storageLevels.length) {
+                btnUpgrade.innerText = "ALMACÉN AL NIVEL MÁXIMO";
+                btnUpgrade.style.background = "#2d3748";
+                btnUpgrade.style.color = "#718096";
+                previewBox.style.display = "none";
+            } else {
+                let nextLevel = storageLevels[storageLevel];
+                document.getElementById('previewNextLevel').innerText = nextLevel.level;
+                document.getElementById('previewNextCap').innerText = nextLevel.capacity.toLocaleString();
+                previewBox.style.display = "flex";
+                
+                btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver" style="margin-left: 2px;"></span>`;
+                btnUpgrade.style.background = "linear-gradient(90deg, #1d4ed8, var(--dark-blue))";
+                btnUpgrade.style.color = "white";
+            }
+
+            document.getElementById('qtyMiner1').innerText = inventory.miner1;
+            document.getElementById('qtyMiner2').innerText = inventory.miner2;
+            document.getElementById('qtyMiner3').innerText = inventory.miner3;
+            document.getElementById('qtyMiner4').innerText = inventory.miner4;
+        }
+
+        function startAutomaticMiningLoop() {
+            setInterval(() => {
+                let cap = storageLevels[storageLevel - 1].capacity;
+                if (mineral < cap) {
+                    mineral += (baseRatePerHour / 3600);
+                    if (mineral > cap) mineral = cap;
+                    updateInterface();
+                }
+            }, 1000);
+        }
+
+        function sellMinerals() {
+            if (mineral < 100) {
+                alert("El mínimo para vender minerales es de 100 minerales.");
+                return;
+            }
+
+            let bloques = Math.floor(mineral / 100);
+            
+            let recompensaOro = bloques * 1;
+            let recompensaPlata = bloques * 1;
+
+            oro += recompensaOro;
+            plata += recompensaPlata;
+            
+            mineral -= (bloques * 100);
+            
+            updateInterface();
+            saveProgress();
+            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${recompensaOro} Oro y +${recompensaPlata} Plata.`);
+        }
+
+        function upgradeStorage() {
+            if (storageLevel >= storageLevels.length) return;
+
+            let nextLevel = storageLevels[storageLevel];
+            if (plata >= nextLevel.cost) {
+                plata -= nextLevel.cost;
+                storageLevel++;
                 updateInterface();
                 saveProgress();
-                alert(`¡Éxito! Compraste ${itemName}. Tu Nivel subió a ${currentLevel}.`);
+                alert(`¡Almacén mejorado al Nivel ${storageLevel}!`);
             } else {
-                alert(`Fondos insuficientes. Necesitas ${cost} ⚡ para comprar ${itemName}.`);
+                alert(`Necesitas ${nextLevel.cost.toLocaleString()} de Plata.`);
             }
         }
 
-        function toggleMining() {
-            const btn = document.getElementById('btnMine');
-            if (!isMining) {
-                isMining = true;
-                btn.innerText = "MINANDO...";
-                btn.style.background = "linear-gradient(90deg, #092042, var(--dark-blue))";
-                
-                miningInterval = setInterval(() => {
-                    const ratePerSecond = (baseRatePerHour * currentLevel) / 3600;
-                    balance += ratePerSecond;
-                    document.getElementById('balanceDisplay').innerText = balance.toFixed(3);
-                }, 1000);
-            } else {
-                isMining = false;
-                clearInterval(miningInterval);
-                btn.innerText = "INICIAR MINERÍA";
-                btn.style.background = "linear-gradient(90deg, var(--dark-blue), #00aaff)";
+        function buyMiner(minerId, cost) {
+            if (plata >= cost) {
+                plata -= cost;
+                inventory[minerId]++;
+                calculateTotalRate();
+                updateInterface();
                 saveProgress();
+                alert(`¡Minero adquirido con éxito!`);
+            } else {
+                alert(`Fondos insuficientes. Requiere ${cost.toLocaleString()} de Plata.`);
             }
         }
 
@@ -286,84 +482,71 @@
                 selectedCells = selectedCells.filter(item => item !== index);
                 cellElement.classList.remove('selected');
             } else {
-                if (selectedCells.length >= 5) {
-                    document.getElementById('puzzleStatus').innerText = "Ya seleccionaste 5 casillas.";
-                    return;
-                }
+                if (selectedCells.length >= 5) return;
                 selectedCells.push(index);
                 cellElement.classList.add('selected');
             }
-            document.getElementById('puzzleStatus').style.color = "var(--text-main)";
             document.getElementById('puzzleStatus').innerText = `Seleccionadas: ${selectedCells.length} de 5`;
         }
 
         function verifyPuzzle() {
-            if (selectedCells.length !== 5) {
-                document.getElementById('puzzleStatus').innerText = "Elige exactamente 5 posiciones.";
-                return;
-            }
-            const sortedSelected = [...selectedCells].sort((a, b) => a - b);
-            const sortedWinning = [...dailyWinningCombo].sort((a, b) => a - b);
-            const isWinner = sortedSelected.every((val, index) => val === sortedWinning[index]);
-
+            if (selectedCells.length !== 5) return;
+            const isWinner = [...selectedCells].sort((a,b)=>a-b).every((val, i) => val === dailyWinningCombo[i]);
             if (isWinner) {
-                balance += 50000.000;
+                plata += 5000;
                 updateInterface();
-                document.getElementById('puzzleStatus').style.color = "var(--success)";
-                document.getElementById('puzzleStatus').innerText = "¡Ganaste +50.000 ⚡!";
+                document.getElementById('puzzleStatus').innerText = "¡Correcto! Ganaste +5.000 Plata.";
                 saveProgress();
             } else {
-                document.getElementById('puzzleStatus').style.color = "#ff4d4d";
                 document.getElementById('puzzleStatus').innerText = "Combinación incorrecta.";
             }
         }
-
-        async function loadProgress() {
-            if (!supabaseClient) {
-                document.getElementById('dbStatus').innerText = "Modo Local";
-                document.getElementById('dbStatus').style.color = "orange";
-                return;
-            }
-            document.getElementById('dbStatus').innerText = "Cargando DB...";
-            
-            let { data, error } = await supabaseClient
-                .from('players')
-                .select('balance, level')
-                .eq('telegram_id', userTelegramId)
-                .single();
-
-            if (error && error.code === 'PGRST116') {
-                let { error: insertError } = await supabaseClient
-                    .from('players')
-                    .insert([{ telegram_id: userTelegramId, username: username, balance: 0.0, level: 1 }]);
-                if (!insertError) {
-                    document.getElementById('dbStatus').innerText = "Online";
-                    document.getElementById('dbStatus').style.color = "var(--success)";
-                }
-            } else if (data) {
-                balance = parseFloat(data.balance);
-                currentLevel = data.level;
-                updateInterface();
-                document.getElementById('dbStatus').innerText = "Online";
-                document.getElementById('dbStatus').style.color = "var(--success)";
-            }
-        }
-
-        async function saveProgress() {
-            if (!supabaseClient) return;
-            await supabaseClient
-                .from('players')
-                .update({ balance: balance, level: currentLevel })
-                .eq('telegram_id', userTelegramId);
-        }
-
-        function syncManual() { loadProgress(); }
 
         function switchTab(tabId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             element.classList.add('active');
+        }
+
+        function syncManual() {
+            saveProgress();
+            alert("Progreso guardado.");
+        }
+
+        async function loadProgress() {
+            try {
+                if (!supabaseClient) {
+                    document.getElementById('dbStatus').innerText = "Modo Local";
+                    return;
+                }
+                let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).single();
+                if (data) {
+                    mineral = parseFloat(data.mineral || 0);
+                    plata = parseInt(data.plata || 0);
+                    oro = parseInt(data.oro || 0);
+                    storageLevel = parseInt(data.storage_level || 1);
+                    inventory.miner1 = parseInt(data.miner1 || 0);
+                    inventory.miner2 = parseInt(data.miner2 || 0);
+                    inventory.miner3 = parseInt(data.miner3 || 0);
+                    inventory.miner4 = parseInt(data.miner4 || 0);
+                    
+                    calculateTotalRate();
+                    updateInterface();
+                    document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                }
+            } catch (e) {}
+        }
+
+        async function saveProgress() {
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('players').update({ 
+                        mineral: mineral, plata: plata, oro: oro, storage_level: storageLevel,
+                        miner1: inventory.miner1, miner2: inventory.miner2, miner3: inventory.miner3, miner4: inventory.miner4
+                    }).eq('telegram_id', userTelegramId);
+                } catch(e) {}
+            }
         }
     </script>
 </body>
