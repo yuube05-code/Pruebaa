@@ -18,6 +18,8 @@
             --text-main: #a0aec0;
             --white: #ffffff;
             --success: #00ff88;
+            --warning: #ffb703;
+            --dark-gray: #2d3748;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -27,27 +29,8 @@
         .user-info { display: flex; align-items: center; gap: 12px; }
         .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); }
 
-        .icon-silver {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8;
-            vertical-align: middle;
-            margin-right: 4px;
-        }
-
-        .icon-gold {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%);
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500;
-            vertical-align: middle;
-            margin-right: 4px;
-        }
+        .icon-silver { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%); border-radius: 50%; box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8; vertical-align: middle; margin-right: 4px; }
+        .icon-gold { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%); border-radius: 50%; box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500; vertical-align: middle; margin-right: 4px; }
 
         .resource-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
         .res-item { display: flex; align-items: center; background: var(--panel-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
@@ -57,7 +40,6 @@
         .screen.active { display: block; }
 
         .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
-        
         .mineral-display-container { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 18px 10px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
         .balance-title { color: var(--text-main); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
         .balance-amount { font-size: 34px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.15); }
@@ -75,19 +57,29 @@
 
         .progress-container { width: 100%; background: #181e30; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid rgba(255,255,255,0.05); }
         .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--dark-blue)); transition: width 0.2s; }
-
-        /* Estilos específicos para la vista previa del almacén */
         .upgrade-preview-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .preview-col { text-align: center; width: 40%; }
         .preview-label { font-size: 10px; color: var(--text-main); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 2px;}
         .preview-val { font-size: 18px; font-weight: bold; }
         .preview-arrow { color: var(--text-main); font-size: 18px; opacity: 0.5; }
 
-        .puzzle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
-        .puzzle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-        .puzzle-cell { aspect-ratio: 1; background: #192239; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; }
-        .puzzle-cell.selected { background: rgba(157, 78, 221, 0.2); border: 2px solid var(--neon-purple); color: var(--white); }
-        .puzzle-status { font-size: 14px; margin-bottom: 15px; min-height: 20px; color: var(--text-main); }
+        /* ESTILOS WORDLE */
+        .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
+        .wordle-board { display: flex; flex-direction: column; gap: 6px; margin: 15px auto; width: max-content; }
+        .wordle-row { display: flex; gap: 6px; }
+        .wordle-cell { width: 48px; height: 48px; border: 2px solid var(--dark-gray); background: #0a0d1a; color: white; font-size: 24px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 8px; text-transform: uppercase; transition: all 0.3s; }
+        .wordle-cell.correct { background: var(--success); border-color: var(--success); color: black; }
+        .wordle-cell.present { background: var(--warning); border-color: var(--warning); color: black; }
+        .wordle-cell.absent { background: var(--dark-gray); border-color: var(--dark-gray); color: #718096; }
+
+        .keyboard { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; width: 100%; max-width: 350px; margin-left: auto; margin-right: auto; }
+        .key-row { display: flex; justify-content: center; gap: 4px; }
+        .key { flex: 1; min-width: 28px; max-width: 35px; height: 45px; background: var(--dark-gray); color: white; font-weight: bold; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; text-transform: uppercase; }
+        .key.wide { min-width: 50px; max-width: 65px; font-size: 12px; }
+        .key:active { transform: scale(0.95); }
+        .key.correct { background: var(--success); color: black; }
+        .key.present { background: var(--warning); color: black; }
+        .key.absent { background: #1a202c; color: #4a5568; }
 
         .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
         .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
@@ -222,16 +214,18 @@
         </div>
 
         <div id="screen-puzzle" class="screen">
-            <div class="puzzle-container">
-                <h3 style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(157,78,221,0.3);">Rompecabezas Diario</h3>
+            <div class="wordle-container">
+                <h3 style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(157,78,221,0.3);">Crypto Wordle</h3>
                 <p style="font-size: 12px; color: var(--text-main); margin-top: 5px;">
-                    Selecciona exactamente 5 posiciones para reclamar un bono de Plata.
+                    Adivina la palabra. Premio: <strong style="color: var(--white);">10.000 Plata</strong><br>
+                    <span style="font-size: 10px; color: #718096;">Nueva palabra todos los días a las 12 PM (Hora VE).</span>
                 </p>
-                <div class="puzzle-grid" id="gridElement"></div>
-                <div class="puzzle-status" id="puzzleStatus">Selecciona 5 casillas.</div>
-                <button class="btn-neon" style="background: linear-gradient(90deg, var(--neon-purple), #b5179e); box-shadow: none;" onclick="verifyPuzzle()">
-                    VERIFICAR COMBINACIÓN
-                </button>
+
+                <div class="wordle-board" id="wordleBoard"></div>
+                
+                <div id="wordleStatus" style="font-size: 14px; margin: 10px 0; min-height: 20px; color: var(--white); font-weight: bold;"></div>
+                
+                <div class="keyboard" id="keyboard"></div>
             </div>
         </div>
 
@@ -279,7 +273,7 @@
             <div class="nav-icon">🛒</div><span>Tienda</span>
         </div>
         <div class="nav-item" onclick="switchTab('puzzle', this)">
-            <div class="nav-icon">🧩</div><span>Combo</span>
+            <div class="nav-icon">🎮</div><span>Diario</span>
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
             <div class="nav-icon">💼</div><span>Billetera</span>
@@ -308,14 +302,194 @@
         ];
 
         let inventory = {
-            miner1: 0,
-            miner2: 0,
-            miner3: 0,
-            miner4: 0
+            miner1: 0, miner2: 0, miner3: 0, miner4: 0
         };
 
-        const dailyWinningCombo = [1, 4, 6, 7, 10]; 
-        let selectedCells = [];
+        // ====== LÓGICA DEL WORDLE ======
+        const WORDS = ["PLATA", "MINAS", "TOKEN", "BLOCK", "DATOS", "CLAVE", "ROCAS", "EXTRA", "FASES", "CICLO", "FONDO", "VALOR", "PAGOS", "REDES", "CABLE", "NEXOS", "RAMPA", "GANAR", "NIVEL", "CESTA", "SALDO", "COBRO", "REGLA", "PULSO", "JUEGO", "BOTON", "POZOS", "NEON", "FIBRA"];
+        
+        let wordleState = {
+            cycleId: "",
+            target: "",
+            guesses: [],
+            currentAttempt: 0,
+            currentLetters: "",
+            status: "playing" // playing, won, lost
+        };
+
+        function initWordle() {
+            const { cycleId, word } = getWordleCycleInfo();
+            
+            // Cargar estado de localStorage
+            const savedState = JSON.parse(localStorage.getItem(`wordle_${userTelegramId}`) || "{}");
+            
+            if (savedState.cycleId === cycleId) {
+                // Si ya empezó a jugar este ciclo, cargamos todo
+                wordleState = savedState;
+            } else {
+                // Nuevo ciclo (día nuevo)
+                wordleState = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" };
+                saveWordleState();
+            }
+
+            renderWordleBoard();
+            renderKeyboard();
+            updateKeyboardColors();
+            
+            if (wordleState.status === "won") document.getElementById('wordleStatus').innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM.";
+            if (wordleState.status === "lost") document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era ${wordleState.target}. Vuelve mañana.`;
+        }
+
+        function getWordleCycleInfo() {
+            const now = new Date();
+            const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const vetMs = utcMs - (4 * 3600000); // UTC-4 (Venezuela)
+            const vetDate = new Date(vetMs);
+
+            let cycleDate = new Date(vetMs);
+            if (vetDate.getHours() < 12) {
+                // Si es antes del mediodía, pertenece al ciclo del día anterior
+                cycleDate.setDate(cycleDate.getDate() - 1);
+            }
+            
+            const cycleId = `${cycleDate.getFullYear()}-${cycleDate.getMonth()+1}-${cycleDate.getDate()}`;
+            
+            // Usamos el cycleId para generar un índice consistente para todos
+            let hash = 0;
+            for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
+            const index = Math.abs(hash) % WORDS.length;
+            
+            return { cycleId, word: WORDS[index] };
+        }
+
+        function saveWordleState() {
+            localStorage.setItem(`wordle_${userTelegramId}`, JSON.stringify(wordleState));
+        }
+
+        function renderWordleBoard() {
+            const board = document.getElementById('wordleBoard');
+            board.innerHTML = "";
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.className = "wordle-row";
+                
+                let rowText = "";
+                if (i < wordleState.guesses.length) rowText = wordleState.guesses[i];
+                else if (i === wordleState.currentAttempt) rowText = wordleState.currentLetters;
+
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = "wordle-cell";
+                    cell.innerText = rowText[j] || "";
+                    
+                    // Colorear si ya es un intento pasado
+                    if (i < wordleState.guesses.length) {
+                        const targetArr = wordleState.target.split('');
+                        const guessArr = rowText.split('');
+                        
+                        if (guessArr[j] === targetArr[j]) {
+                            cell.classList.add('correct');
+                            targetArr[j] = null; // Marcar como usado
+                        } else if (targetArr.includes(guessArr[j])) {
+                            cell.classList.add('present');
+                            targetArr[targetArr.indexOf(guessArr[j])] = null;
+                        } else {
+                            cell.classList.add('absent');
+                        }
+                    }
+                    row.appendChild(cell);
+                }
+                board.appendChild(row);
+            }
+        }
+
+        function renderKeyboard() {
+            const kbd = document.getElementById('keyboard');
+            kbd.innerHTML = "";
+            const layout = [
+                ['Q','W','E','R','T','Y','U','I','O','P'],
+                ['A','S','D','F','G','H','J','K','L'],
+                ['ENTER','Z','X','C','V','B','N','M','DEL']
+            ];
+
+            layout.forEach(rowKeys => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "key-row";
+                rowKeys.forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = "key";
+                    btn.innerText = key === 'DEL' ? '⌫' : key;
+                    btn.id = `key-${key}`;
+                    if (key === 'ENTER' || key === 'DEL') btn.classList.add('wide');
+                    btn.onclick = () => handleKey(key);
+                    rowDiv.appendChild(btn);
+                });
+                kbd.appendChild(rowDiv);
+            });
+        }
+
+        function updateKeyboardColors() {
+            wordleState.guesses.forEach(guess => {
+                for (let i = 0; i < 5; i++) {
+                    const letter = guess[i];
+                    const btn = document.getElementById(`key-${letter}`);
+                    if (!btn) continue;
+                    
+                    if (wordleState.target[i] === letter) {
+                        btn.className = "key correct"; // Verde sobrescribe todo
+                    } else if (wordleState.target.includes(letter) && !btn.classList.contains('correct')) {
+                        btn.className = "key present";
+                    } else if (!wordleState.target.includes(letter)) {
+                        btn.classList.add('absent');
+                    }
+                }
+            });
+        }
+
+        function handleKey(key) {
+            if (wordleState.status !== "playing") return;
+
+            if (key === 'ENTER') {
+                if (wordleState.currentLetters.length !== 5) {
+                    document.getElementById('wordleStatus').innerText = "Faltan letras.";
+                    setTimeout(() => document.getElementById('wordleStatus').innerText = "", 1500);
+                    return;
+                }
+                
+                const guess = wordleState.currentLetters;
+                wordleState.guesses.push(guess);
+                
+                if (guess === wordleState.target) {
+                    wordleState.status = "won";
+                    plata += 10000;
+                    document.getElementById('wordleStatus').innerText = "¡Excelente! +10.000 Plata.";
+                    document.getElementById('wordleStatus').style.color = "var(--success)";
+                    updateInterface();
+                    saveProgress();
+                } else if (wordleState.guesses.length >= 6) {
+                    wordleState.status = "lost";
+                    document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${wordleState.target}`;
+                    document.getElementById('wordleStatus').style.color = "#ff3333";
+                }
+
+                wordleState.currentAttempt++;
+                wordleState.currentLetters = "";
+                saveWordleState();
+                renderWordleBoard();
+                updateKeyboardColors();
+
+            } else if (key === 'DEL') {
+                wordleState.currentLetters = wordleState.currentLetters.slice(0, -1);
+                renderWordleBoard();
+            } else {
+                if (wordleState.currentLetters.length < 5) {
+                    wordleState.currentLetters += key;
+                    renderWordleBoard();
+                }
+            }
+        }
+        // ====== FIN LÓGICA WORDLE ======
+
 
         function showError(msg) {
             const errBox = document.getElementById('debugStatus');
@@ -344,7 +518,7 @@
 
             try {
                 document.getElementById('usernameDisplay').innerText = "@" + username;
-                buildPuzzleGrid();
+                initWordle(); // Inicializa el Wordle al cargar
                 calculateTotalRate(); 
                 startAutomaticMiningLoop();
                 loadProgress();
@@ -352,18 +526,13 @@
         });
 
         function calculateTotalRate() {
-            baseRatePerHour = 5 + 
-                (inventory.miner1 * 75) + 
-                (inventory.miner2 * 1650) + 
-                (inventory.miner3 * 9300) + 
-                (inventory.miner4 * 36000);
+            baseRatePerHour = 5 + (inventory.miner1 * 75) + (inventory.miner2 * 1650) + (inventory.miner3 * 9300) + (inventory.miner4 * 36000);
         }
 
         function updateInterface() {
             let currentCap = storageLevels[storageLevel - 1].capacity;
             if (mineral > currentCap) mineral = currentCap;
 
-            // Se muestra como entero truncado
             document.getElementById('balanceDisplay').innerText = Math.floor(mineral).toLocaleString();
             document.getElementById('rateDisplay').innerText = `Velocidad actual de minería: ${baseRatePerHour.toLocaleString()}/hora`;
             
@@ -376,7 +545,6 @@
             let pct = (mineral / currentCap) * 100;
             document.getElementById('storageBar').style.width = Math.min(pct, 100) + "%";
 
-            // ACTUALIZACIÓN DE LA VISTA PREVIA Y BOTÓN
             document.getElementById('previewCurrentLevel').innerText = storageLevel;
             document.getElementById('previewCurrentCap').innerText = currentCap.toLocaleString();
 
@@ -417,35 +585,21 @@
         }
 
         function sellMinerals() {
-            if (mineral < 100) {
-                alert("El mínimo para vender minerales es de 100 minerales.");
-                return;
-            }
-
+            if (mineral < 100) { alert("El mínimo para vender minerales es de 100 minerales."); return; }
             let bloques = Math.floor(mineral / 100);
-            
-            let recompensaOro = bloques * 1;
-            let recompensaPlata = bloques * 1;
-
-            oro += recompensaOro;
-            plata += recompensaPlata;
-            
+            oro += bloques * 1;
+            plata += bloques * 1;
             mineral -= (bloques * 100);
-            
-            updateInterface();
-            saveProgress();
-            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${recompensaOro} Oro y +${recompensaPlata} Plata.`);
+            updateInterface(); saveProgress();
+            alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques * 1} Oro y +${bloques * 1} Plata.`);
         }
 
         function upgradeStorage() {
             if (storageLevel >= storageLevels.length) return;
-
             let nextLevel = storageLevels[storageLevel];
             if (plata >= nextLevel.cost) {
-                plata -= nextLevel.cost;
-                storageLevel++;
-                updateInterface();
-                saveProgress();
+                plata -= nextLevel.cost; storageLevel++;
+                updateInterface(); saveProgress();
                 alert(`¡Almacén mejorado al Nivel ${storageLevel}!`);
             } else {
                 alert(`Necesitas ${nextLevel.cost.toLocaleString()} de Plata.`);
@@ -454,51 +608,11 @@
 
         function buyMiner(minerId, cost) {
             if (plata >= cost) {
-                plata -= cost;
-                inventory[minerId]++;
-                calculateTotalRate();
-                updateInterface();
-                saveProgress();
+                plata -= cost; inventory[minerId]++;
+                calculateTotalRate(); updateInterface(); saveProgress();
                 alert(`¡Minero adquirido con éxito!`);
             } else {
                 alert(`Fondos insuficientes. Requiere ${cost.toLocaleString()} de Plata.`);
-            }
-        }
-
-        function buildPuzzleGrid() {
-            const grid = document.getElementById('gridElement');
-            grid.innerHTML = "";
-            for (let i = 0; i < 12; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('puzzle-cell');
-                cell.innerText = i + 1;
-                cell.onclick = () => selectPuzzleCell(i + 1, cell);
-                grid.appendChild(cell);
-            }
-        }
-
-        function selectPuzzleCell(index, cellElement) {
-            if (selectedCells.includes(index)) {
-                selectedCells = selectedCells.filter(item => item !== index);
-                cellElement.classList.remove('selected');
-            } else {
-                if (selectedCells.length >= 5) return;
-                selectedCells.push(index);
-                cellElement.classList.add('selected');
-            }
-            document.getElementById('puzzleStatus').innerText = `Seleccionadas: ${selectedCells.length} de 5`;
-        }
-
-        function verifyPuzzle() {
-            if (selectedCells.length !== 5) return;
-            const isWinner = [...selectedCells].sort((a,b)=>a-b).every((val, i) => val === dailyWinningCombo[i]);
-            if (isWinner) {
-                plata += 5000;
-                updateInterface();
-                document.getElementById('puzzleStatus').innerText = "¡Correcto! Ganaste +5.000 Plata.";
-                saveProgress();
-            } else {
-                document.getElementById('puzzleStatus').innerText = "Combinación incorrecta.";
             }
         }
 
@@ -509,30 +623,16 @@
             element.classList.add('active');
         }
 
-        function syncManual() {
-            saveProgress();
-            alert("Progreso guardado.");
-        }
+        function syncManual() { saveProgress(); alert("Progreso guardado."); }
 
         async function loadProgress() {
             try {
-                if (!supabaseClient) {
-                    document.getElementById('dbStatus').innerText = "Modo Local";
-                    return;
-                }
+                if (!supabaseClient) { document.getElementById('dbStatus').innerText = "Modo Local"; return; }
                 let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).single();
                 if (data) {
-                    mineral = parseFloat(data.mineral || 0);
-                    plata = parseInt(data.plata || 0);
-                    oro = parseInt(data.oro || 0);
-                    storageLevel = parseInt(data.storage_level || 1);
-                    inventory.miner1 = parseInt(data.miner1 || 0);
-                    inventory.miner2 = parseInt(data.miner2 || 0);
-                    inventory.miner3 = parseInt(data.miner3 || 0);
-                    inventory.miner4 = parseInt(data.miner4 || 0);
-                    
-                    calculateTotalRate();
-                    updateInterface();
+                    mineral = parseFloat(data.mineral || 0); plata = parseInt(data.plata || 0); oro = parseInt(data.oro || 0); storageLevel = parseInt(data.storage_level || 1);
+                    inventory.miner1 = parseInt(data.miner1 || 0); inventory.miner2 = parseInt(data.miner2 || 0); inventory.miner3 = parseInt(data.miner3 || 0); inventory.miner4 = parseInt(data.miner4 || 0);
+                    calculateTotalRate(); updateInterface();
                     document.getElementById('dbStatus').innerText = "DB: Sincronizado";
                 }
             } catch (e) {}
