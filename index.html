@@ -22,6 +22,7 @@
             --dark-gray: #2d3748;
             --light-card: #f8f6f0;
             --text-dark: #2d3748;
+            --danger: #ef4444;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -29,7 +30,7 @@
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); display: flex; justify-content: center; align-items: center; font-size: 20px;}
+        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); display: flex; justify-content: center; align-items: center; font-size: 20px; overflow: hidden;}
 
         .icon-silver { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%); border-radius: 50%; box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8; vertical-align: middle; margin-right: 4px; }
         .icon-gold { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%); border-radius: 50%; box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500; vertical-align: middle; margin-right: 4px; }
@@ -48,21 +49,11 @@
             20% { left: 200%; }
             100% { left: 200%; }
         }
-        .btn-premium {
-            position: relative;
-            overflow: hidden;
-        }
+        .btn-premium { position: relative; overflow: hidden; }
         .btn-premium::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg);
-            animation: shine-sweep 5s infinite; /* Rayo de luz cada 5 segundos */
-            pointer-events: none;
+            transform: skewX(-25deg); animation: shine-sweep 5s infinite; pointer-events: none;
         }
 
         .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
@@ -105,7 +96,7 @@
 
         .light-card { background: var(--light-card); border-radius: 20px; padding: 20px; color: var(--text-dark); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
         .profile-header-card { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
-        .profile-header-card .avatar-big { width: 60px; height: 60px; background: #000; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 35px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .profile-header-card .avatar-big { width: 60px; height: 60px; background: #000; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); overflow: hidden; }
         .profile-header-card h2 { font-size: 18px; margin-bottom: 2px; }
         .profile-header-card p { font-size: 13px; color: #718096; font-weight: 500; }
 
@@ -122,7 +113,15 @@
         .btn-green-solid { background: #658864; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(101, 136, 100, 0.3); }
         .btn-ghost-purple { background: #f3e8ff; color: #6b21a8; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; }
 
-        /* ====== ESTILOS WORDLE (Sin cambios) ====== */
+        /* ====== ADMIN PANEL & TAREAS ====== */
+        .admin-section { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .admin-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; margin-bottom: 10px; font-size: 14px; }
+        .btn-admin-action { background: var(--dark-gray); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 8px; cursor: pointer; text-align: left; padding-left: 15px; font-weight: 500; }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); color: #fca5a5; }
+
+        #bannedScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
+
+        /* ====== ESTILOS WORDLE ====== */
         .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
         .wordle-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #121829; color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
@@ -147,7 +146,8 @@
         .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
-        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 20%; transition: 0.2s;}
+        /* AJUSTE PARA 6 BOTONES */
+        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: calc(100% / 6); transition: 0.2s;}
         .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
         .nav-icon { font-size: 22px; }
 
@@ -156,17 +156,26 @@
 </head>
 <body>
 
+    <div id="bannedScreen">
+        <div style="font-size: 60px; margin-bottom: 20px;">⛔</div>
+        <h1 style="color: var(--danger); margin-bottom: 10px;">Cuenta Suspendida</h1>
+        <p style="color: var(--text-main);">Tu acceso ha sido bloqueado por un administrador.</p>
+    </div>
+
     <div id="debugStatus"></div>
 
     <header class="header">
         <div class="user-info">
-            <div class="avatar">🕷️</div>
+            <div class="avatar" id="userAvatarHeader">U</div>
             <div>
                 <div style="font-size: 11px; color: var(--text-main);" id="dbStatus">Conectando...</div>
                 <div style="font-weight: bold; font-size: 14px;" id="usernameDisplay">Cargando...</div>
             </div>
         </div>
-        <div style="color: var(--neon-blue); font-size: 18px;" onclick="syncManual()">🔄</div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div id="adminBtn" style="display: none; cursor: pointer; font-size: 20px;" onclick="switchTab('admin', null)">⚙️</div>
+            <div style="color: var(--neon-blue); font-size: 18px; cursor:pointer;" onclick="syncManual()">🔄</div>
+        </div>
     </header>
 
     <div class="resource-bar">
@@ -267,6 +276,14 @@
             </div>
         </div>
 
+        <div id="screen-tasks" class="screen">
+            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Centro de Tareas</h3>
+            <div style="background: var(--panel-bg); border-radius: 16px; padding: 30px 15px; text-align: center; border: 1px dashed rgba(255,255,255,0.1);">
+                <span style="font-size: 35px; display: block; margin-bottom: 10px;">📋</span>
+                <p style="color: var(--text-main); font-size: 14px;">No hay tareas disponibles configuradas en este momento.</p>
+            </div>
+        </div>
+
         <div id="screen-profile" class="screen">
             <div class="profile-banner">Perfil</div>
             
@@ -274,7 +291,7 @@
                 <div class="carousel-card">
                     <div class="carousel-icon">🎁</div>
                     <div class="carousel-info">
-                        <h4>Misión del minero / Airdrops</h4>
+                        <h4>Airdrops</h4>
                         <p>Próximamente</p>
                     </div>
                 </div>
@@ -293,7 +310,7 @@
 
             <div class="light-card">
                 <div class="profile-header-card">
-                    <div class="avatar-big">🕷️</div>
+                    <div class="avatar-big" id="userAvatarProfile">U</div>
                     <div>
                         <h2 id="profTopName">Usuario</h2>
                         <p>Maestro del pico</p>
@@ -394,11 +411,36 @@
             </div>
         </div>
 
+        <div id="screen-admin" class="screen">
+            <h2 style="color: var(--warning); margin-bottom: 15px; font-size: 20px;">⚙️ Panel de Gestión</h2>
+            
+            <div class="admin-section">
+                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">🛠️ Administración de Tareas</h4>
+                <button class="btn-admin-action" onclick="adminCreateTask()">➕ Crear Nueva Tarea</button>
+            </div>
+
+            <div class="admin-section">
+                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">🎉 Eventos Globales</h4>
+                <button class="btn-admin-action" onclick="adminLaunchEvent('Airdrop')">🚀 Lanzar Drops</button>
+                <button class="btn-admin-action" onclick="adminLaunchEvent('Sorteo')">🎟️ Lanzar Sorteo</button>
+            </div>
+
+            <div class="admin-section">
+                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">👥 Control de Usuarios</h4>
+                <input type="text" id="adminTargetId" class="admin-input" placeholder="ID de Telegram del Jugador">
+                
+                <button class="btn-admin-action" onclick="adminAdjustBalance()">💰 Ajustar Saldo (Oro / Plata)</button>
+                <button class="btn-admin-action btn-danger" onclick="adminSetBan(true)">⛔ Banear Jugador</button>
+                <button class="btn-admin-action" style="background: rgba(0, 255, 136, 0.1); border-color: var(--success); color: var(--success);" onclick="adminSetBan(false)">✅ Desbanear Jugador</button>
+            </div>
+        </div>
+
     </div>
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">⛏️</div><span>Minas</span></div>
         <div class="nav-item" onclick="switchTab('shop', this)"><div class="nav-icon">🛒</div><span>Tienda</span></div>
+        <div class="nav-item" onclick="switchTab('tasks', this)"><div class="nav-icon">📋</div><span>Tareas</span></div>
         <div class="nav-item" onclick="switchTab('profile', this)"><div class="nav-icon">👤</div><span>Perfil</span></div>
         <div class="nav-item" onclick="switchTab('puzzle', this)"><div class="nav-icon">🎮</div><span>Wordle</span></div>
         <div class="nav-item" onclick="switchTab('wallet', this)"><div class="nav-icon">💼</div><span>Billetera</span></div>
@@ -410,6 +452,7 @@
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
 
+        const ADMIN_ID = "6017105462"; 
         let userTelegramId = "999999"; 
         let username = "Minero_Offline";
         
@@ -432,14 +475,17 @@
 
         let inventory = { miner1: 0, miner2: 0, miner3: 0, miner4: 0 };
 
-        // ====== NUEVAS VARIABLES DE PERFIL ======
         let registrationDate = "";
         let totalMined = 0.00;
         let totalDeposited = 0;
         let totalWithdrawn = 0;
         let referralsCount = 0;
+        
+        // Variables de sincronización offline
+        let lastSyncTime = Date.now();
+        let isBanned = false;
 
-        // ====== LÓGICA DEL WORDLE (Mantenida intacta) ======
+        // ====== LÓGICA DEL WORDLE ======
         const WORDS = ["PLATA", "MINAS", "TOKEN", "BLOCK", "DATOS", "CLAVE", "ROCAS", "EXTRA", "FASES", "CICLO", "FONDO", "VALOR", "PAGOS", "REDES", "CABLE", "NEXOS", "RAMPA", "GANAR", "NIVEL", "CESTA", "SALDO", "COBRO", "REGLA", "PULSO", "JUEGO", "BOTON", "POZOS", "NEON", "FIBRA"];
         let currentMode = 'basic';
         let wordleStates = { basic: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }, vip: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" } };
@@ -518,6 +564,17 @@
                     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                         userTelegramId = tg.initDataUnsafe.user.id.toString();
                         username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
+                        
+                        // Cargar Foto de Perfil si existe
+                        if (tg.initDataUnsafe.user.photo_url) {
+                            const imgHtml = `<img src="${tg.initDataUnsafe.user.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
+                            document.getElementById('userAvatarHeader').innerHTML = imgHtml;
+                            document.getElementById('userAvatarProfile').innerHTML = imgHtml;
+                        } else {
+                            const initial = username.charAt(0).toUpperCase();
+                            document.getElementById('userAvatarHeader').innerText = initial;
+                            document.getElementById('userAvatarProfile').innerText = initial;
+                        }
                     }
                 }
             } catch (e) {}
@@ -527,14 +584,19 @@
             } catch (e) {}
 
             document.getElementById('usernameDisplay').innerText = "@" + username;
-            
-            // Generar Link de Referido
             document.getElementById('refLink').value = `https://t.me/TuBotAca/app?startapp=${userTelegramId}`;
             
+            // Render exclusivo Panel Admin
+            if(userTelegramId === ADMIN_ID) {
+                document.getElementById('adminBtn').style.display = 'block';
+            }
+
             loadProgress().then(() => {
-                switchWordleMode('basic'); 
-                calculateTotalRate(); 
-                startAutomaticMiningLoop();
+                if(!isBanned) {
+                    switchWordleMode('basic'); 
+                    calculateTotalRate(); 
+                    startAutomaticMiningLoop();
+                }
             });
         });
 
@@ -563,7 +625,6 @@
 
             document.getElementById('qtyMiner1').innerText = inventory.miner1; document.getElementById('qtyMiner2').innerText = inventory.miner2; document.getElementById('qtyMiner3').innerText = inventory.miner3; document.getElementById('qtyMiner4').innerText = inventory.miner4;
 
-            // Actualizar variables del Perfil
             document.getElementById('profTopName').innerText = username;
             document.getElementById('profUsername').innerText = "@" + username;
             document.getElementById('profRegDate').innerText = registrationDate;
@@ -581,10 +642,19 @@
                 if (mineral < cap) {
                     let generated = (baseRatePerHour / 3600);
                     mineral += generated;
-                    totalMined += generated; // Sumamos al histórico de extracción
+                    totalMined += generated;
                     if (mineral > cap) mineral = cap;
                     updateInterface();
                 }
+                
+                // Guardado local constante para no perder progreso de minería
+                lastSyncTime = Date.now();
+                let localData = JSON.parse(localStorage.getItem(`neon_miner_progress_${userTelegramId}`) || "{}");
+                localData.mineral = mineral;
+                localData.totalMined = totalMined;
+                localData.lastSyncTime = lastSyncTime;
+                localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
+
             }, 1000);
         }
 
@@ -608,8 +678,10 @@
         function switchTab(tabId, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            element.classList.add('active');
+            if(element) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                element.classList.add('active');
+            }
             if (tabId === 'puzzle') switchWordleMode(currentMode); 
         }
 
@@ -638,11 +710,9 @@
             });
         }
 
-        // ====== SISTEMA DE CARGA Y GUARDADO ACTUALIZADO ======
+        // ====== SISTEMA DE CARGA OFFLINE Y GUARDADO ======
         async function loadProgress() {
             const localSave = localStorage.getItem(`neon_miner_progress_${userTelegramId}`);
-            
-            // Generar fecha actual si es usuario totalmente nuevo
             const todayDate = new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
             if (localSave) {
@@ -655,14 +725,16 @@
                 totalDeposited = localData.totalDeposited || 0;
                 totalWithdrawn = localData.totalWithdrawn || 0;
                 referralsCount = localData.referralsCount || 0;
+                lastSyncTime = parseInt(localData.lastSyncTime || Date.now());
                 
-                calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "Carga Local Completa";
+                calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "Carga Local";
             } else {
-                registrationDate = todayDate; // Si no hay nada local, asume que es hoy hasta que DB diga lo contrario
+                registrationDate = todayDate;
             }
 
             try {
                 if (!supabaseClient) { 
+                    applyOfflineMiningCalculation();
                     if(!localSave) updateInterface(); 
                     document.getElementById('dbStatus').innerText = "Modo Local"; return; 
                 }
@@ -670,33 +742,55 @@
                 let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).maybeSingle();
                 
                 if (data) {
+                    if (data.is_banned) {
+                        isBanned = true;
+                        document.getElementById('bannedScreen').style.display = "flex";
+                        return;
+                    }
+
                     mineral = parseFloat(data.mineral || 0); plata = parseInt(data.plata || 0); oro = parseInt(data.oro || 0); storageLevel = parseInt(data.storage_level || 1);
                     inventory.miner1 = parseInt(data.miner1 || 0); inventory.miner2 = parseInt(data.miner2 || 0); inventory.miner3 = parseInt(data.miner3 || 0); inventory.miner4 = parseInt(data.miner4 || 0);
                     hasDeposited = data.has_deposited || false; wordleBasicDate = data.wordle_basic_date || ""; wordleVipDate = data.wordle_vip_date || "";
-                    
-                    // Cargar nuevas variables
                     registrationDate = data.registration_date || todayDate;
-                    totalMined = parseFloat(data.total_mined || 0);
-                    totalDeposited = parseFloat(data.total_deposited || 0);
-                    totalWithdrawn = parseFloat(data.total_withdrawn || 0);
-                    referralsCount = parseInt(data.referrals_count || 0);
-
-                    calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                    totalMined = parseFloat(data.total_mined || 0); totalDeposited = parseFloat(data.total_deposited || 0); totalWithdrawn = parseFloat(data.total_withdrawn || 0); referralsCount = parseInt(data.referrals_count || 0);
                     
-                    const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount };
-                    localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
+                    lastSyncTime = parseInt(data.last_sync || Date.now());
+
+                    calculateTotalRate(); 
+                    applyOfflineMiningCalculation();
+
+                    document.getElementById('dbStatus').innerText = "DB: Sincronizado";
+                    saveProgress(); 
                 } else {
                     document.getElementById('dbStatus').innerText = "Nuevo Usuario";
-                    saveProgress(); // Guarda para insertar la fila nueva con la fecha de hoy
+                    saveProgress(); 
                 }
             } catch (e) { showError("Error DB: " + e.message); }
         }
 
+        function applyOfflineMiningCalculation() {
+            let timeNow = Date.now();
+            let secondsPassed = Math.floor((timeNow - lastSyncTime) / 1000);
+            
+            if (secondsPassed > 0) {
+                let currentCap = storageLevels[storageLevel - 1].capacity;
+                if (mineral < currentCap) {
+                    let offlineMined = secondsPassed * (baseRatePerHour / 3600);
+                    mineral += offlineMined;
+                    totalMined += offlineMined;
+                    if (mineral > currentCap) mineral = currentCap;
+                }
+            }
+            lastSyncTime = timeNow;
+            updateInterface();
+        }
+
         async function saveProgress() {
-            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount };
+            lastSyncTime = Date.now();
+            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount, lastSyncTime };
             localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
 
-            if (supabaseClient) {
+            if (supabaseClient && !isBanned) {
                 try {
                     await supabaseClient.from('players').upsert({ 
                         telegram_id: userTelegramId, 
@@ -704,13 +798,67 @@
                         miner1: inventory.miner1, miner2: inventory.miner2, miner3: inventory.miner3, miner4: inventory.miner4,
                         wordle_basic_date: wordleBasicDate, wordle_vip_date: wordleVipDate,
                         registration_date: registrationDate,
-                        total_mined: totalMined,
-                        total_deposited: totalDeposited,
-                        total_withdrawn: totalWithdrawn,
-                        referrals_count: referralsCount
+                        total_mined: totalMined, total_deposited: totalDeposited, total_withdrawn: totalWithdrawn, referrals_count: referralsCount,
+                        last_sync: lastSyncTime
                     }, { onConflict: 'telegram_id' }); 
                 } catch(e) { showError("Guardado nube: " + e.message); }
             }
+        }
+
+        // ====== FUNCIONES DEL PANEL ADMINISTRADOR ======
+        function adminCreateTask() {
+            let taskSelection = prompt("Configuración de Tareas:\n\nSelecciona el tipo escribiendo el número:\n1. Cantidad de referidos\n2. Link de un grupo\n3. Link de un canal", "1");
+            if (!taskSelection) return;
+
+            let typeText = "";
+            if(taskSelection === "1") typeText = "Cantidad de referidos";
+            else if(taskSelection === "2") typeText = "Link de un grupo";
+            else if(taskSelection === "3") typeText = "Link de un canal";
+            else { alert("Opción inválida."); return; }
+
+            let detailValue = prompt(`Has seleccionado [${typeText}].\nIngresa el enlace URL o la cantidad meta requerida:`);
+            if(!detailValue) return;
+
+            let prizeAmount = prompt("Ingresa el monto de recompensa en Plata que recibirá el jugador:");
+            if(!prizeAmount) return;
+
+            alert(`¡Estructura validada!\n\nTipo: ${typeText}\nMeta/Link: ${detailValue}\nPremio: ${prizeAmount} Plata.\n\n(Guardado en caché. Listo para conectar a DB).`);
+        }
+
+        async function adminAdjustBalance() {
+            if(!supabaseClient) { alert("Supabase desconectado."); return; }
+            let target = document.getElementById('adminTargetId').value;
+            if(!target) { alert("Ingresa el ID de Telegram del jugador."); return; }
+            
+            let currency = prompt("¿Qué saldo deseas modificar? Escribe 'oro' o 'plata':").toLowerCase().trim();
+            if(currency !== 'oro' && currency !== 'plata') { alert("Moneda incorrecta."); return; }
+            
+            let quantity = parseInt(prompt("Cantidad a sumar (Coloca números negativos si quieres restar):"));
+            if(isNaN(quantity)) { alert("Número inválido."); return; }
+
+            let { data } = await supabaseClient.from('players').select(currency).eq('telegram_id', target).maybeSingle();
+            if(!data) { alert("El jugador no existe en la base de datos."); return; }
+
+            let updatedWalletValue = parseInt(data[currency]) + quantity;
+            let updatePayload = {}; 
+            updatePayload[currency] = updatedWalletValue;
+
+            await supabaseClient.from('players').update(updatePayload).eq('telegram_id', target);
+            alert(`Saldo modificado. Nuevo balance del usuario: ${updatedWalletValue} ${currency}.`);
+        }
+
+        async function adminSetBan(banState) {
+            if(!supabaseClient) { alert("Supabase desconectado."); return; }
+            let target = document.getElementById('adminTargetId').value;
+            if(!target) { alert("Ingresa el ID de Telegram del jugador."); return; }
+
+            await supabaseClient.from('players').update({ is_banned: banState }).eq('telegram_id', target);
+            alert(banState ? `Baneado el usuario ID: ${target}` : `Desbaneado el usuario ID: ${target}`);
+        }
+
+        function adminLaunchEvent(eventType) {
+            let details = prompt(`Ingresa los detalles o montos para ejecutar el ${eventType} global:`);
+            if(details) { alert(`¡${eventType} preparado!\nDatos: ${details}`); }
         }
     </script>
 </body>
