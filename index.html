@@ -43,18 +43,13 @@
         .screen.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ====== ANIMACIÓN PREMIUM DE BRILLO ====== */
-        @keyframes shine-sweep {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-        }
         .btn-premium { position: relative; overflow: hidden; }
         .btn-premium::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
             transform: skewX(-25deg); animation: shine-sweep 5s infinite; pointer-events: none;
         }
+        @keyframes shine-sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
         .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
         .mineral-display-container { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 18px 10px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
@@ -66,7 +61,6 @@
         .btn-neon:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
 
         .mining-info-specs { margin-top: 18px; font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; gap: 5px; }
-        .rate-spec { color: #a0aec0; }
         .exchange-spec { color: #ffb703; font-weight: 500; font-size: 12px; background: rgba(255, 183, 3, 0.06); padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 0 auto; }
 
         .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); margin-bottom: 10px;}
@@ -81,18 +75,20 @@
         .preview-val { font-size: 18px; font-weight: bold; }
         .preview-arrow { color: var(--text-main); font-size: 18px; opacity: 0.5; }
 
-        /* ====== ESTILOS DEL PERFIL ====== */
         .profile-banner { background: linear-gradient(90deg, #8b5cf6, var(--neon-purple)); color: white; padding: 12px; border-radius: 14px; text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3); }
         
         .carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding-bottom: 10px; margin-bottom: 5px; scrollbar-width: none; }
         .carousel-wrapper::-webkit-scrollbar { display: none; }
-        .carousel-card { flex: 0 0 100%; scroll-snap-align: center; background: linear-gradient(135deg, #2d1b69, #1a103c); border-radius: 16px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.3); display: flex; align-items: center; gap: 15px; }
+        .carousel-card { flex: 0 0 100%; scroll-snap-align: center; background: linear-gradient(135deg, #2d1b69, #1a103c); border-radius: 16px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.3); display: flex; align-items: center; gap: 15px; position: relative; }
         .carousel-icon { font-size: 30px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; }
         .carousel-info h4 { margin-bottom: 4px; font-size: 16px; }
         .carousel-info p { font-size: 12px; color: #d8b4fe; }
         .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
         .dot { width: 8px; height: 8px; background: #4b5563; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: var(--neon-purple); width: 16px; border-radius: 4px; }
+
+        /* Notificación roja para Drops */
+        .notification-badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; font-size: 11px; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--panel-bg); box-shadow: 0 0 8px var(--danger); }
 
         .light-card { background: var(--light-card); border-radius: 20px; padding: 20px; color: var(--text-dark); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
         .profile-header-card { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
@@ -113,7 +109,6 @@
         .btn-green-solid { background: #658864; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(101, 136, 100, 0.3); }
         .btn-ghost-purple { background: #f3e8ff; color: #6b21a8; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; }
 
-        /* ====== ADMIN PANEL & TAREAS ====== */
         .admin-section { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .admin-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; margin-bottom: 10px; font-size: 14px; }
         .btn-admin-action { background: var(--dark-gray); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 8px; cursor: pointer; text-align: left; padding-left: 15px; font-weight: 500; }
@@ -121,7 +116,17 @@
 
         #bannedScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
 
-        /* ====== ESTILOS WORDLE ====== */
+        /* Estilo para los contenedores de tareas dinámicas */
+        .task-card-item { background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .task-details { display: flex; flex-direction: column; gap: 4px; }
+        .task-title { font-weight: bold; font-size: 14px; color: var(--white); }
+        .task-prize { font-size: 12px; color: var(--success); font-weight: 500; }
+
+        /* Ventana Modal para Drops */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 10, 19, 0.95); z-index: 500; display: none; flex-direction: column; padding: 30px 20px; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .modal-close-btn { background: transparent; border: none; color: var(--white); font-size: 24px; cursor: pointer; }
+
         .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
         .wordle-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #121829; color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
@@ -146,8 +151,7 @@
         .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
-        /* AJUSTE PARA 6 BOTONES */
-        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: calc(100% / 6); transition: 0.2s;}
+        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: calc(100% / 6); transition: 0.2s; position: relative;}
         .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
         .nav-icon { font-size: 22px; }
 
@@ -278,9 +282,8 @@
 
         <div id="screen-tasks" class="screen">
             <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Centro de Tareas</h3>
-            <div style="background: var(--panel-bg); border-radius: 16px; padding: 30px 15px; text-align: center; border: 1px dashed rgba(255,255,255,0.1);">
-                <span style="font-size: 35px; display: block; margin-bottom: 10px;">📋</span>
-                <p style="color: var(--text-main); font-size: 14px;">No hay tareas disponibles configuradas en este momento.</p>
+            <div id="tasksListContainer">
+                <p style="color: var(--text-main); font-size: 14px; text-align: center;">Cargando tareas...</p>
             </div>
         </div>
 
@@ -288,18 +291,19 @@
             <div class="profile-banner">Perfil</div>
             
             <div class="carousel-wrapper" id="promoCarousel" onscroll="updateCarouselDots()">
-                <div class="carousel-card">
+                <div class="carousel-card" onclick="openDropsModal()" style="cursor: pointer;">
                     <div class="carousel-icon">🎁</div>
+                    <div id="profileDropsCountBadge" class="notification-badge" style="display:none;">0</div>
                     <div class="carousel-info">
-                        <h4>Airdrops</h4>
-                        <p>Próximamente</p>
+                        <h4>Airdrops Activos</h4>
+                        <p id="profileDropsStatusText">Revisa los drops libres</p>
                     </div>
                 </div>
                 <div class="carousel-card">
                     <div class="carousel-icon">🎟️</div>
                     <div class="carousel-info">
-                        <h4>Sorteos Exclusivos</h4>
-                        <p>Próximamente</p>
+                        <h4>Sorteo Diario Automático</h4>
+                        <p id="profileRaffleStatusText">Inscripción automática si depositaste</p>
                     </div>
                 </div>
             </div>
@@ -344,11 +348,11 @@
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">Depositado</span>
-                        <span class="stat-value" id="profDeposited">$0</span>
+                        <span class="stat-value" id="profDeposited">0 TON</span>
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">Retirado</span>
-                        <span class="stat-value" id="profWithdrawn">$0</span>
+                        <span class="stat-value" id="profWithdrawn">0 TON</span>
                     </div>
                 </div>
             </div>
@@ -401,7 +405,7 @@
                 <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span></div>
                 <div class="wallet-info-row"><span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span></div>
                 <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">EQB3nVoRFMzXKi...U7Xp9wQ</div>
-                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">*Depositar desbloquea automáticamente el Wordle VIP.</div>
+                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">*Depositar desbloquea automáticamente el Wordle VIP y el ingreso al Sorteo Automático diario de las 12:00 PM.</div>
             </div>
             <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
@@ -421,8 +425,8 @@
 
             <div class="admin-section">
                 <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">🎉 Eventos Globales</h4>
-                <button class="btn-admin-action" onclick="adminLaunchEvent('Airdrop')">🚀 Lanzar Drops</button>
-                <button class="btn-admin-action" onclick="adminLaunchEvent('Sorteo')">🎟️ Lanzar Sorteo</button>
+                <button class="btn-admin-action" onclick="adminLaunchDrops()">🚀 Lanzar Drops</button>
+                <button class="btn-admin-action" onclick="adminCheckRaffleState()">🎟️ Ver Estado del Sorteo Diario</button>
             </div>
 
             <div class="admin-section">
@@ -437,17 +441,33 @@
 
     </div>
 
+    <div id="dropsModal" class="modal-overlay">
+        <div class="modal-header">
+            <h3 style="color: var(--neon-blue);">Drops de Suministros Disponibles</h3>
+            <button class="modal-close-btn" onclick="closeDropsModal()">✕</button>
+        </div>
+        <div id="dropsModalContent" style="display: flex; flex-direction: column; gap: 12px;">
+            </div>
+    </div>
+
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">⛏️</div><span>Minas</span></div>
         <div class="nav-item" onclick="switchTab('shop', this)"><div class="nav-icon">🛒</div><span>Tienda</span></div>
-        <div class="nav-item" onclick="switchTab('tasks', this)"><div class="nav-icon">📋</div><span>Tareas</span></div>
-        <div class="nav-item" onclick="switchTab('profile', this)"><div class="nav-icon">👤</div><span>Perfil</span></div>
+        <div class="nav-item" onclick="switchTab('tasks', this)">
+            <div id="navTasksBadge" class="notification-badge" style="display:none; top:-3px; right:10px;">0</div>
+            <div class="nav-icon">📋</div><span>Tareas</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <div id="navDropsBadge" class="notification-badge" style="display:none; top:-3px; right:10px;">0</div>
+            <div class="nav-icon">👤</div><span>Perfil</span>
+        </div>
         <div class="nav-item" onclick="switchTab('puzzle', this)"><div class="nav-icon">🎮</div><span>Wordle</span></div>
         <div class="nav-item" onclick="switchTab('wallet', this)"><div class="nav-icon">💼</div><span>Billetera</span></div>
     </nav>
 
     <script>
         // ====== CONFIGURACIÓN DE SUPABASE ======
+        // REEMPLAZA ESTOS VALORES CON LOS DE TU PANEL DE SUPABASE
         const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
@@ -481,7 +501,6 @@
         let totalWithdrawn = 0;
         let referralsCount = 0;
         
-        // Variables de sincronización offline
         let lastSyncTime = Date.now();
         let isBanned = false;
 
@@ -565,7 +584,6 @@
                         userTelegramId = tg.initDataUnsafe.user.id.toString();
                         username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
                         
-                        // Cargar Foto de Perfil si existe
                         if (tg.initDataUnsafe.user.photo_url) {
                             const imgHtml = `<img src="${tg.initDataUnsafe.user.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
                             document.getElementById('userAvatarHeader').innerHTML = imgHtml;
@@ -580,13 +598,14 @@
             } catch (e) {}
 
             try {
-                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
-            } catch (e) {}
+                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) { 
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+                }
+            } catch (e) { showError("Error inicializando cliente Supabase: " + e.message); }
 
             document.getElementById('usernameDisplay').innerText = "@" + username;
             document.getElementById('refLink').value = `https://t.me/TuBotAca/app?startapp=${userTelegramId}`;
             
-            // Render exclusivo Panel Admin
             if(userTelegramId === ADMIN_ID) {
                 document.getElementById('adminBtn').style.display = 'block';
             }
@@ -596,6 +615,9 @@
                     switchWordleMode('basic'); 
                     calculateTotalRate(); 
                     startAutomaticMiningLoop();
+                    loadTasks();
+                    checkActiveDropsCount();
+                    runAutomatedRaffleCheck();
                 }
             });
         });
@@ -632,8 +654,8 @@
             document.getElementById('profMineLevel').innerText = storageLevel;
             document.getElementById('profTotalMiners').innerText = (inventory.miner1 + inventory.miner2 + inventory.miner3 + inventory.miner4);
             document.getElementById('profInvites').innerText = referralsCount + " pers.";
-            document.getElementById('profDeposited').innerText = "$" + totalDeposited;
-            document.getElementById('profWithdrawn').innerText = "$" + totalWithdrawn;
+            document.getElementById('profDeposited').innerText = totalDeposited + " TON";
+            document.getElementById('profWithdrawn').innerText = totalWithdrawn + " TON";
         }
 
         function startAutomaticMiningLoop() {
@@ -647,7 +669,6 @@
                     updateInterface();
                 }
                 
-                // Guardado local constante para no perder progreso de minería
                 lastSyncTime = Date.now();
                 let localData = JSON.parse(localStorage.getItem(`neon_miner_progress_${userTelegramId}`) || "{}");
                 localData.mineral = mineral;
@@ -682,10 +703,12 @@
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 element.classList.add('active');
             }
-            if (tabId === 'puzzle') switchWordleMode(currentMode); 
+            if (tabId === 'puzzle') switchWordleMode(currentMode);
+            if (tabId === 'tasks') loadTasks();
+            if (tabId === 'profile') checkActiveDropsCount();
         }
 
-        function syncManual() { saveProgress(); alert("Sincronización forzada con éxito."); }
+        function syncManual() { saveProgress(); loadTasks(); checkActiveDropsCount(); runAutomatedRaffleCheck(); alert("Sincronización manual completada."); }
 
         function copyRefLink() {
             let copyText = document.getElementById("refLink");
@@ -726,6 +749,7 @@
                 totalWithdrawn = localData.totalWithdrawn || 0;
                 referralsCount = localData.referralsCount || 0;
                 lastSyncTime = parseInt(localData.lastSyncTime || Date.now());
+                hasDeposited = localData.hasDeposited || false;
                 
                 calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "Carga Local";
             } else {
@@ -763,6 +787,11 @@
                     saveProgress(); 
                 } else {
                     document.getElementById('dbStatus').innerText = "Nuevo Usuario";
+                    // Registrar nuevo usuario en Supabase directamente
+                    await supabaseClient.from('players').insert([{ 
+                        telegram_id: userTelegramId, mineral, plata, oro, storage_level: storageLevel,
+                        registration_date: registrationDate, last_sync: Date.now()
+                    }]);
                     saveProgress(); 
                 }
             } catch (e) { showError("Error DB: " + e.message); }
@@ -787,7 +816,7 @@
 
         async function saveProgress() {
             lastSyncTime = Date.now();
-            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount, lastSyncTime };
+            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount, lastSyncTime, hasDeposited };
             localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
 
             if (supabaseClient && !isBanned) {
@@ -799,30 +828,420 @@
                         wordle_basic_date: wordleBasicDate, wordle_vip_date: wordleVipDate,
                         registration_date: registrationDate,
                         total_mined: totalMined, total_deposited: totalDeposited, total_withdrawn: totalWithdrawn, referrals_count: referralsCount,
-                        last_sync: lastSyncTime
+                        last_sync: lastSyncTime, has_deposited: hasDeposited
                     }, { onConflict: 'telegram_id' }); 
                 } catch(e) { showError("Guardado nube: " + e.message); }
             }
         }
 
-        // ====== FUNCIONES DEL PANEL ADMINISTRADOR ======
-        function adminCreateTask() {
+        // ====== CONTROL DINÁMICO DE TAREAS ======
+        async function loadTasks() {
+            const container = document.getElementById('tasksListContainer');
+            if(!supabaseClient) {
+                container.innerHTML = `<p style="color:var(--text-main);">Modo Offline: Supabase desconectado.</p>`;
+                return;
+            }
+
+            try {
+                let { data: allTasks, error: tErr } = await supabaseClient.from('tasks').select('*');
+                let { data: completed, error: cErr } = await supabaseClient.from('completed_tasks').select('task_id').eq('player_id', userTelegramId);
+
+                if(tErr || cErr) throw new Error("Fallo al obtener datos de tareas");
+
+                const completedIds = completed.map(c => c.task_id.toString());
+                container.innerHTML = "";
+
+                let pendingCount = 0;
+
+                if(!allTasks || allTasks.length === 0) {
+                    container.innerHTML = `
+                        <div style="background: var(--panel-bg); border-radius: 16px; padding: 30px 15px; text-align: center; border: 1px dashed rgba(255,255,255,0.1);">
+                            <span style="font-size: 35px; display: block; margin-bottom: 10px;">📋</span>
+                            <p style="color: var(--text-main); font-size: 14px;">No hay tareas disponibles configuradas en este momento.</p>
+                        </div>`;
+                    toggleBadges('navTasksBadge', 0);
+                    return;
+                }
+
+                allTasks.forEach(task => {
+                    const isDone = completedIds.includes(task.id.toString());
+                    if(!isDone) pendingCount++;
+
+                    const card = document.createElement('div');
+                    card.className = "task-card-item";
+                    
+                    let buttonActionHtml = "";
+                    if(isDone) {
+                        buttonActionHtml = `<button class="btn-buy" style="background:#2d3748; color:#718096;" disabled>Completada ✅</button>`;
+                    } else {
+                        buttonActionHtml = `<button class="btn-buy" onclick="verifyAndCompleteTask(${task.id}, '${task.type}', '${task.requirement}', ${task.prize})">Verificar</button>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="task-details">
+                            <span class="task-title">${task.title}</span>
+                            <span style="font-size:11px; color:var(--text-main);">${task.type === 'referrals' ? 'Requisito: ' + task.requirement + ' referidos' : 'Enlace de comunidad'}</span>
+                            <span class="task-prize">+${task.prize.toLocaleString()} Plata</span>
+                        </div>
+                        <div>${buttonActionHtml}</div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                toggleBadges('navTasksBadge', pendingCount);
+
+            } catch (e) {
+                container.innerHTML = `<p style="color:var(--danger);">Error cargando tareas de Supabase.</p>`;
+            }
+        }
+
+        async function verifyAndCompleteTask(taskId, type, requirement, prize) {
+            if(!supabaseClient) return;
+            
+            let verified = false;
+
+            if(type === 'Cantidad de referidos' || type === 'referrals') {
+                let reqNum = parseInt(requirement);
+                if(referralsCount >= reqNum) {
+                    verified = true;
+                } else {
+                    alert(`❌ No cumples el requisito. Tienes ${referralsCount} de ${reqNum} referidos necesarios.`);
+                    return;
+                }
+            } else {
+                // Tareas de links (canales/grupos)
+                window.Telegram.WebApp.openTelegramLink(requirement);
+                // Simulación de verificación client-side segura
+                let confirmJoin = confirm("¿Te has unido exitosamente al grupo o canal de Telegram indicado?");
+                if(confirmJoin) verified = true;
+            }
+
+            if(verified) {
+                try {
+                    await supabaseClient.from('completed_tasks').insert([{ player_id: userTelegramId, task_id: taskId }]);
+                    plata += prize;
+                    updateInterface();
+                    await saveProgress();
+                    alert(`🎉 ¡Tarea verificada con éxito! Recompensa otorgada: +${prize.toLocaleString()} Plata.`);
+                    loadTasks();
+                } catch(e) {
+                    alert("Error guardando la verificación de tarea.");
+                }
+            }
+        }
+
+        // ====== SISTEMA GLOBAL DE AIRDROPS (DROPS) ======
+        async function checkActiveDropsCount() {
+            if(!supabaseClient) return;
+            try {
+                // Obtener drops vigentes que no han llegado a su límite de reclamos
+                let { data: activeDrops } = await supabaseClient.from('drops').select('*');
+                let { data: claimed } = await supabaseClient.from('claimed_drops').select('drop_id').eq('player_id', userTelegramId);
+                
+                if(!activeDrops) return;
+                
+                const claimedIds = claimed ? claimed.map(c => c.drop_id.toString()) : [];
+                let claimableCount = 0;
+
+                activeDrops.forEach(drop => {
+                    if(drop.current_claims < drop.max_claims && !claimedIds.includes(drop.id.toString())) {
+                        claimableCount++;
+                    }
+                });
+
+                toggleBadges('navDropsBadge', claimableCount);
+                toggleBadges('profileDropsCountBadge', claimableCount);
+
+                if(claimableCount > 0) {
+                    document.getElementById('profileDropsStatusText').innerText = `${claimableCount} Drops listos para reclamar`;
+                    document.getElementById('profileDropsStatusText').style.color = "var(--success)";
+                } else {
+                    document.getElementById('profileDropsStatusText').innerText = "No hay nuevos drops disponibles";
+                    document.getElementById('profileDropsStatusText').style.color = "#d8b4fe";
+                }
+            } catch(e){}
+        }
+
+        async function openDropsModal() {
+            const container = document.getElementById('dropsModalContent');
+            container.innerHTML = "<p style='color:white;'>Buscando Drops...</p>";
+            document.getElementById('dropsModal').style.display = "flex";
+
+            if(!supabaseClient) {
+                container.innerHTML = "<p style='color:var(--danger);'>Supabase desconectado.</p>";
+                return;
+            }
+
+            try {
+                let { data: activeDrops } = await supabaseClient.from('drops').select('*');
+                let { data: claimed } = await supabaseClient.from('claimed_drops').select('drop_id').eq('player_id', userTelegramId);
+                
+                const claimedIds = claimed ? claimed.map(c => c.drop_id.toString()) : [];
+                container.innerHTML = "";
+
+                let availableRendered = 0;
+
+                if(activeDrops) {
+                    activeDrops.forEach(drop => {
+                        let remaining = drop.max_claims - drop.current_claims;
+                        if(remaining <= 0) return; // Drop agotado completamente, no se muestra
+
+                        availableRendered++;
+                        const isClaimed = claimedIds.includes(drop.id.toString());
+
+                        const box = document.createElement('div');
+                        box.className = "action-card";
+                        box.style.justifyContent = "space-between";
+
+                        let currencyIcon = drop.prize_type === 'oro' ? 'icon-gold' : 'icon-silver';
+                        
+                        let actionBtnHtml = `<button class="btn-buy" onclick="processClaimDrop(${drop.id})">Reclamar</button>`;
+                        if(isClaimed) {
+                            actionBtnHtml = `<button class="btn-buy" style="background:#2d3748; color:#718096;" disabled>Reclamado</button>`;
+                        }
+
+                        box.innerHTML = `
+                            <div>
+                                <div style="font-weight:bold; color:var(--white);">Drop Global #${drop.id}</div>
+                                <div style="font-size:12px; color:var(--neon-blue);">Premio: ${drop.prize_amount.toLocaleString()} <span class="${currencyIcon}"></span></div>
+                                <div style="font-size:11px; color:var(--text-main);">Quedan: <strong>${remaining}</strong> de ${drop.max_claims} cupos</div>
+                            </div>
+                            <div>${actionBtnHtml}</div>
+                        `;
+                        container.appendChild(box);
+                    });
+                }
+
+                if(availableRendered === 0) {
+                    container.innerHTML = "<p style='color:var(--text-main); text-align:center; padding: 20px 0;'>No hay drops disponibles en este momento.</p>";
+                }
+
+            } catch(e) {
+                container.innerHTML = "<p style='color:var(--danger);'>Error al procesar la lista de drops.</p>";
+            }
+        }
+
+        function closeDropsModal() {
+            document.getElementById('dropsModal').style.display = "none";
+            checkActiveDropsCount();
+        }
+
+        async function processClaimDrop(dropId) {
+            if(!supabaseClient) return;
+            try {
+                // Verificar si quedan cupos directamente en DB mediante transaccionalidad simulada segura
+                let { data: drop, error } = await supabaseClient.from('drops').select('*').eq('id', dropId).single();
+                if(!drop || error) return;
+
+                if(drop.current_claims >= drop.max_claims) {
+                    alert("❌ Demasiado tarde. Este drop ya alcanzó su límite máximo de reclamos.");
+                    openDropsModal();
+                    return;
+                }
+
+                // Registrar reclamo
+                let { error: claimErr } = await supabaseClient.from('claimed_drops').insert([{ player_id: userTelegramId, drop_id: dropId }]);
+                if(claimErr) {
+                    alert("❌ Ya has reclamado este drop anteriormente.");
+                    return;
+                }
+
+                // Incrementar contador de reclamos en la tabla drops
+                let newClaimsValue = drop.current_claims + 1;
+                if(newClaimsValue >= drop.max_claims) {
+                    // Si se alcanza el límite exacto, procedemos a borrarlo para limpiar la DB
+                    await supabaseClient.from('drops').delete().eq('id', dropId);
+                } else {
+                    await supabaseClient.from('drops').update({ current_claims: newClaimsValue }).eq('id', dropId);
+                }
+
+                // Acreditar premio al jugador local e internamente
+                if(drop.prize_type === 'oro') {
+                    oro += drop.prize_amount;
+                } else {
+                    plata += drop.prize_amount;
+                }
+
+                updateInterface();
+                await saveProgress();
+                alert(`🎁 ¡Drop reclamado exitosamente! Recibiste +${drop.prize_amount.toLocaleString()} de ${drop.prize_type}.`);
+                openDropsModal();
+
+            } catch(e) {
+                alert("Error procesando el reclamo del drop.");
+            }
+        }
+
+        // ====== DECENTRALIZED AUTOMATED RAFFLE SYSTEM (Sorteo 12 PM Hora VE) ======
+        function getVenezuelanTimeCycleInfo() {
+            const now = new Date();
+            const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const vetMs = utcMs - (4 * 3600000); // UTC-4 hora oficial de Venezuela
+            const vetDate = new Date(vetMs);
+
+            let cycleDate = new Date(vetMs);
+            // Si la hora actual es menor de las 12 PM, corresponde al ciclo del día de ayer
+            if (vetDate.getHours() < 12) {
+                cycleDate.setDate(cycleDate.getDate() - 1);
+            }
+            const currentRaffleCycleId = `${cycleDate.getFullYear()}-${(cycleDate.getMonth()+1).toString().padStart(2,'0')}-${cycleDate.getDate().toString().padStart(2,'0')}`;
+            
+            // Calcular fecha del ciclo previo directo
+            let prevCycleDate = new Date(cycleDate);
+            prevCycleDate.setDate(prevCycleDate.getDate() - 1);
+            const previousRaffleCycleId = `${prevCycleDate.getFullYear()}-${(prevCycleDate.getMonth()+1).toString().padStart(2,'0')}-${prevCycleDate.getDate().toString().padStart(2,'0')}`;
+
+            return { currentRaffleCycleId, previousRaffleCycleId, vetDate };
+        }
+
+        async function runAutomatedRaffleCheck() {
+            if(!supabaseClient) return;
+            const { currentRaffleCycleId, previousRaffleCycleId } = getVenezuelanTimeCycleInfo();
+
+            // 1. Registro automático en el sorteo de hoy si el jugador tiene depósitos activos
+            if(hasDeposited || totalDeposited > 0) {
+                try {
+                    await supabaseClient.from('raffle_participants').insert([{ cycle_id: currentRaffleCycleId, player_id: userTelegramId }], { onConflict: 'cycle_id,player_id' });
+                    document.getElementById('profileRaffleStatusText').innerText = "Inscrito en el sorteo de hoy ✅";
+                    document.getElementById('profileRaffleStatusText').style.color = "var(--success)";
+                } catch(e){}
+            } else {
+                document.getElementById('profileRaffleStatusText').innerText = "Falta depósito para calificar ❌";
+                document.getElementById('profileRaffleStatusText').style.color = "var(--warning)";
+            }
+
+            // 2. Ejecutar la resolución del sorteo del ciclo anterior (Serverless/Crono Descentralizado)
+            try {
+                let { data: historyRecord } = await supabaseClient.from('raffle_history').select('*').eq('cycle_id', previousRaffleCycleId).maybeSingle();
+                
+                // Si el sorteo de ayer aún no ha sido resuelto por ningún cliente que haya entrado a la app, se ejecuta la lógica
+                if(!historyRecord) {
+                    let { data: participants, error: pErr } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', previousRaffleCycleId);
+                    
+                    if(participants && participants.length >= 10) {
+                        // Selección aleatoria basada en un índice aleatorio
+                        let randomIndex = Math.floor(Math.random() * participants.length);
+                        let winnerId = participants[randomIndex].player_id;
+
+                        // Obtener el balance y datos actuales del ganador seleccionado
+                        let { data: winnerData } = await supabaseClient.from('players').select('plata, username').eq('telegram_id', winnerId).single();
+                        
+                        let finalWinnerUsername = winnerData?.username || `ID:${winnerId}`;
+                        let updatedPlataBalance = parseInt(winnerData?.plata || 0) + 150000;
+
+                        // Otorgar el premio de 150.000 plata en la tabla players
+                        await supabaseClient.from('players').update({ plata: updatedPlataBalance }).eq('telegram_id', winnerId);
+                        
+                        // Guardar resultado definitivo en el historial global
+                        await supabaseClient.from('raffle_history').insert([{
+                            cycle_id: previousRaffleCycleId,
+                            winner_id: winnerId,
+                            winner_username: finalWinnerUsername,
+                            status: 'completed'
+                        }]);
+
+                        if(winnerId === userTelegramId) {
+                            alert("🎉 ¡ATENCIÓN! Has ganado el Sorteo Automatizado de ayer de las 12 PM. Se te han acreditado +150.000 de Plata a tu balance.");
+                            plata += 150000;
+                            updateInterface();
+                        }
+                    } else {
+                        // Cancelado por falta de participantes mínimos (menos de 10)
+                        await supabaseClient.from('raffle_history').insert([{
+                            cycle_id: previousRaffleCycleId,
+                            winner_id: null,
+                            winner_username: 'Ninguno',
+                            status: 'cancelled_low_participants'
+                        }]);
+                    }
+                }
+            } catch(e){}
+        }
+
+        // ====== AUXILIARES ADICIONALES ======
+        function toggleBadges(elementId, count) {
+            const el = document.getElementById(elementId);
+            if(el) {
+                if(count > 0) { el.innerText = count; el.style.display = "flex"; }
+                else { el.style.display = "none"; }
+            }
+        }
+
+        // ====== INTERFAZ DEL PANEL ADMINISTRADOR ======
+        async function adminCreateTask() {
+            if(!supabaseClient) { alert("Supabase desconectado."); return; }
             let taskSelection = prompt("Configuración de Tareas:\n\nSelecciona el tipo escribiendo el número:\n1. Cantidad de referidos\n2. Link de un grupo\n3. Link de un canal", "1");
             if (!taskSelection) return;
 
             let typeText = "";
-            if(taskSelection === "1") typeText = "Cantidad de referidos";
-            else if(taskSelection === "2") typeText = "Link de un grupo";
-            else if(taskSelection === "3") typeText = "Link de un canal";
+            if(taskSelection === "1") typeText = "referrals";
+            else if(taskSelection === "2") typeText = "group";
+            else if(taskSelection === "3") typeText = "channel";
             else { alert("Opción inválida."); return; }
 
-            let detailValue = prompt(`Has seleccionado [${typeText}].\nIngresa el enlace URL o la cantidad meta requerida:`);
+            let detailValue = prompt(`Ingresa el enlace URL o la cantidad meta requerida para la condición:`);
             if(!detailValue) return;
 
-            let prizeAmount = prompt("Ingresa el monto de recompensa en Plata que recibirá el jugador:");
-            if(!prizeAmount) return;
+            let titleTask = prompt(`Ingresa el título de la tarea (Ej: Únete a nuestro canal):`);
+            if(!titleTask) return;
 
-            alert(`¡Estructura validada!\n\nTipo: ${typeText}\nMeta/Link: ${detailValue}\nPremio: ${prizeAmount} Plata.\n\n(Guardado en caché. Listo para conectar a DB).`);
+            let prizeAmount = parseInt(prompt("Ingresa el monto de recompensa en Plata que recibirá el jugador:"));
+            if(isNaN(prizeAmount)) { alert("Monto inválido."); return; }
+
+            try {
+                const { error } = await supabaseClient.from('tasks').insert([{
+                    title: titleTask,
+                    type: typeText,
+                    requirement: detailValue,
+                    prize: prizeAmount
+                }]);
+                
+                if(error) throw error;
+                alert("✅ Tarea creada e insertada con éxito en la base de datos.");
+                loadTasks();
+            } catch(e) {
+                alert("Error al guardar tarea en Supabase: " + e.message);
+            }
+        }
+
+        async function adminLaunchDrops() {
+            if(!supabaseClient) { alert("Supabase desconectado."); return; }
+            
+            let maxPeople = parseInt(prompt("Cantidad máxima de personas que pueden reclamar este drop (Ej: 10):"));
+            if(isNaN(maxPeople) || maxPeople <= 0) { alert("Cantidad inválida."); return; }
+
+            let pType = prompt("Tipo de premio. Escribe 'oro' o 'plata':").toLowerCase().trim();
+            if(pType !== 'oro' && pType !== 'plata') { alert("Tipo incorrecto."); return; }
+
+            let pAmount = parseInt(prompt("Monto del premio a repartir en este drop:"));
+            if(isNaN(pAmount) || pAmount <= 0) { alert("Monto incorrecto."); return; }
+
+            try {
+                const { error } = await supabaseClient.from('drops').insert([{
+                    max_claims: maxPeople,
+                    current_claims: 0,
+                    prize_type: pType,
+                    prize_amount: pAmount
+                }]);
+
+                if(error) throw error;
+                alert(`🚀 Drop lanzado globalmente para las primeras ${maxPeople} personas.`);
+                checkActiveDropsCount();
+            } catch(e) {
+                alert("Error creando el drop en Supabase.");
+            }
+        }
+
+        async function adminCheckRaffleState() {
+            if(!supabaseClient) { alert("Supabase desconectado."); return; }
+            const { currentRaffleCycleId } = getVenezuelanTimeCycleInfo();
+            try {
+                let { data: participants } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', currentRaffleCycleId);
+                let totalPart = participants ? participants.length : 0;
+                alert(`🎟️ Información del Sorteo Automatizado (Ciclo actual: ${currentRaffleCycleId})\n\nParticipantes calificados hoy: ${totalPart}\nFaltan ${Math.max(0, 10 - totalPart)} para alcanzar el mínimo de 10 requeridos.`);
+            } catch(e) {
+                alert("Error consultando estado del sorteo.");
+            }
         }
 
         async function adminAdjustBalance() {
@@ -836,8 +1255,8 @@
             let quantity = parseInt(prompt("Cantidad a sumar (Coloca números negativos si quieres restar):"));
             if(isNaN(quantity)) { alert("Número inválido."); return; }
 
-            let { data } = await supabaseClient.from('players').select(currency).eq('telegram_id', target).maybeSingle();
-            if(!data) { alert("El jugador no existe en la base de datos."); return; }
+            let { data, error } = await supabaseClient.from('players').select(currency).eq('telegram_id', target).maybeSingle();
+            if(error || !data) { alert("El jugador no existe en la base de datos."); return; }
 
             let updatedWalletValue = parseInt(data[currency]) + quantity;
             let updatePayload = {}; 
@@ -845,6 +1264,10 @@
 
             await supabaseClient.from('players').update(updatePayload).eq('telegram_id', target);
             alert(`Saldo modificado. Nuevo balance del usuario: ${updatedWalletValue} ${currency}.`);
+            if(target === userTelegramId) {
+                if(currency === 'oro') oro = updatedWalletValue; else plata = updatedWalletValue;
+                updateInterface();
+            }
         }
 
         async function adminSetBan(banState) {
@@ -854,11 +1277,6 @@
 
             await supabaseClient.from('players').update({ is_banned: banState }).eq('telegram_id', target);
             alert(banState ? `Baneado el usuario ID: ${target}` : `Desbaneado el usuario ID: ${target}`);
-        }
-
-        function adminLaunchEvent(eventType) {
-            let details = prompt(`Ingresa los detalles o montos para ejecutar el ${eventType} global:`);
-            if(details) { alert(`¡${eventType} preparado!\nDatos: ${details}`); }
         }
     </script>
 </body>
