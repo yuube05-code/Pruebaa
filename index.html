@@ -87,7 +87,6 @@
         .dot { width: 8px; height: 8px; background: #4b5563; border-radius: 50%; transition: 0.3s; }
         .dot.active { background: var(--neon-purple); width: 16px; border-radius: 4px; }
 
-        /* Notificación roja para Drops */
         .notification-badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; font-size: 11px; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--panel-bg); box-shadow: 0 0 8px var(--danger); }
 
         .light-card { background: var(--light-card); border-radius: 20px; padding: 20px; color: var(--text-dark); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
@@ -116,13 +115,11 @@
 
         #bannedScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
 
-        /* Estilo para los contenedores de tareas dinámicas */
         .task-card-item { background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .task-details { display: flex; flex-direction: column; gap: 4px; }
         .task-title { font-weight: bold; font-size: 14px; color: var(--white); }
         .task-prize { font-size: 12px; color: var(--success); font-weight: 500; }
 
-        /* Ventana Modal para Drops */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 10, 19, 0.95); z-index: 500; display: none; flex-direction: column; padding: 30px 20px; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
         .modal-close-btn { background: transparent; border: none; color: var(--white); font-size: 24px; cursor: pointer; }
@@ -405,13 +402,20 @@
                 <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span></div>
                 <div class="wallet-info-row"><span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span></div>
                 <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">EQB3nVoRFMzXKi...U7Xp9wQ</div>
+                
+                <input type="number" id="depositAmount" class="admin-input" placeholder="Cantidad de TON a depositar" style="margin-top: 15px; margin-bottom: 5px;">
+                <button class="btn-neon" style="padding: 12px; font-size: 14px; background: linear-gradient(90deg, #0055ff, var(--neon-blue));" onclick="processDeposit()">CONFIRMAR DEPÓSITO</button>
+                
                 <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">*Depositar desbloquea automáticamente el Wordle VIP y el ingreso al Sorteo Automático diario de las 12:00 PM.</div>
             </div>
+            
             <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
                 <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
                 <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span></div>
-                <div class="wallet-info-row"><span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON</span></div>
-                <button class="btn-neon" style="margin-top: 10px; padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="alert('Módulo de retiro en desarrollo')">SOLICITAR RETIRO</button>
+                <div class="wallet-info-row"><span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON (500 Oro)</span></div>
+                
+                <input type="number" id="withdrawAmount" class="admin-input" placeholder="Cantidad de ORO a retirar" style="margin-top: 10px; margin-bottom: 5px;">
+                <button class="btn-neon" style="padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="processWithdrawal()">SOLICITAR RETIRO</button>
             </div>
         </div>
 
@@ -467,7 +471,6 @@
 
     <script>
         // ====== CONFIGURACIÓN DE SUPABASE ======
-        // REEMPLAZA ESTOS VALORES CON LOS DE TU PANEL DE SUPABASE
         const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
         const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
         let supabaseClient = null;
@@ -654,8 +657,8 @@
             document.getElementById('profMineLevel').innerText = storageLevel;
             document.getElementById('profTotalMiners').innerText = (inventory.miner1 + inventory.miner2 + inventory.miner3 + inventory.miner4);
             document.getElementById('profInvites').innerText = referralsCount + " pers.";
-            document.getElementById('profDeposited').innerText = totalDeposited + " TON";
-            document.getElementById('profWithdrawn').innerText = totalWithdrawn + " TON";
+            document.getElementById('profDeposited').innerText = parseFloat(totalDeposited).toFixed(2) + " TON";
+            document.getElementById('profWithdrawn').innerText = parseFloat(totalWithdrawn).toFixed(2) + " TON";
         }
 
         function startAutomaticMiningLoop() {
@@ -745,8 +748,8 @@
                 wordleBasicDate = localData.wordleBasicDate || ""; wordleVipDate = localData.wordleVipDate || "";
                 registrationDate = localData.registrationDate || todayDate;
                 totalMined = parseFloat(localData.totalMined || 0);
-                totalDeposited = localData.totalDeposited || 0;
-                totalWithdrawn = localData.totalWithdrawn || 0;
+                totalDeposited = parseFloat(localData.totalDeposited || 0);
+                totalWithdrawn = parseFloat(localData.totalWithdrawn || 0);
                 referralsCount = localData.referralsCount || 0;
                 lastSyncTime = parseInt(localData.lastSyncTime || Date.now());
                 hasDeposited = localData.hasDeposited || false;
@@ -787,7 +790,6 @@
                     saveProgress(); 
                 } else {
                     document.getElementById('dbStatus').innerText = "Nuevo Usuario";
-                    // Registrar nuevo usuario en Supabase directamente
                     await supabaseClient.from('players').insert([{ 
                         telegram_id: userTelegramId, mineral, plata, oro, storage_level: storageLevel,
                         registration_date: registrationDate, last_sync: Date.now()
@@ -909,9 +911,7 @@
                     return;
                 }
             } else {
-                // Tareas de links (canales/grupos)
                 window.Telegram.WebApp.openTelegramLink(requirement);
-                // Simulación de verificación client-side segura
                 let confirmJoin = confirm("¿Te has unido exitosamente al grupo o canal de Telegram indicado?");
                 if(confirmJoin) verified = true;
             }
@@ -934,7 +934,6 @@
         async function checkActiveDropsCount() {
             if(!supabaseClient) return;
             try {
-                // Obtener drops vigentes que no han llegado a su límite de reclamos
                 let { data: activeDrops } = await supabaseClient.from('drops').select('*');
                 let { data: claimed } = await supabaseClient.from('claimed_drops').select('drop_id').eq('player_id', userTelegramId);
                 
@@ -984,7 +983,7 @@
                 if(activeDrops) {
                     activeDrops.forEach(drop => {
                         let remaining = drop.max_claims - drop.current_claims;
-                        if(remaining <= 0) return; // Drop agotado completamente, no se muestra
+                        if(remaining <= 0) return; 
 
                         availableRendered++;
                         const isClaimed = claimedIds.includes(drop.id.toString());
@@ -1029,7 +1028,6 @@
         async function processClaimDrop(dropId) {
             if(!supabaseClient) return;
             try {
-                // Verificar si quedan cupos directamente en DB mediante transaccionalidad simulada segura
                 let { data: drop, error } = await supabaseClient.from('drops').select('*').eq('id', dropId).single();
                 if(!drop || error) return;
 
@@ -1039,28 +1037,20 @@
                     return;
                 }
 
-                // Registrar reclamo
                 let { error: claimErr } = await supabaseClient.from('claimed_drops').insert([{ player_id: userTelegramId, drop_id: dropId }]);
                 if(claimErr) {
                     alert("❌ Ya has reclamado este drop anteriormente.");
                     return;
                 }
 
-                // Incrementar contador de reclamos en la tabla drops
                 let newClaimsValue = drop.current_claims + 1;
                 if(newClaimsValue >= drop.max_claims) {
-                    // Si se alcanza el límite exacto, procedemos a borrarlo para limpiar la DB
                     await supabaseClient.from('drops').delete().eq('id', dropId);
                 } else {
                     await supabaseClient.from('drops').update({ current_claims: newClaimsValue }).eq('id', dropId);
                 }
 
-                // Acreditar premio al jugador local e internamente
-                if(drop.prize_type === 'oro') {
-                    oro += drop.prize_amount;
-                } else {
-                    plata += drop.prize_amount;
-                }
+                if(drop.prize_type === 'oro') { oro += drop.prize_amount; } else { plata += drop.prize_amount; }
 
                 updateInterface();
                 await saveProgress();
@@ -1072,21 +1062,17 @@
             }
         }
 
-        // ====== DECENTRALIZED AUTOMATED RAFFLE SYSTEM (Sorteo 12 PM Hora VE) ======
+        // ====== DECENTRALIZED AUTOMATED RAFFLE SYSTEM ======
         function getVenezuelanTimeCycleInfo() {
             const now = new Date();
             const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const vetMs = utcMs - (4 * 3600000); // UTC-4 hora oficial de Venezuela
+            const vetMs = utcMs - (4 * 3600000); 
             const vetDate = new Date(vetMs);
 
             let cycleDate = new Date(vetMs);
-            // Si la hora actual es menor de las 12 PM, corresponde al ciclo del día de ayer
-            if (vetDate.getHours() < 12) {
-                cycleDate.setDate(cycleDate.getDate() - 1);
-            }
+            if (vetDate.getHours() < 12) { cycleDate.setDate(cycleDate.getDate() - 1); }
             const currentRaffleCycleId = `${cycleDate.getFullYear()}-${(cycleDate.getMonth()+1).toString().padStart(2,'0')}-${cycleDate.getDate().toString().padStart(2,'0')}`;
             
-            // Calcular fecha del ciclo previo directo
             let prevCycleDate = new Date(cycleDate);
             prevCycleDate.setDate(prevCycleDate.getDate() - 1);
             const previousRaffleCycleId = `${prevCycleDate.getFullYear()}-${(prevCycleDate.getMonth()+1).toString().padStart(2,'0')}-${prevCycleDate.getDate().toString().padStart(2,'0')}`;
@@ -1098,7 +1084,6 @@
             if(!supabaseClient) return;
             const { currentRaffleCycleId, previousRaffleCycleId } = getVenezuelanTimeCycleInfo();
 
-            // 1. Registro automático en el sorteo de hoy si el jugador tiene depósitos activos
             if(hasDeposited || totalDeposited > 0) {
                 try {
                     await supabaseClient.from('raffle_participants').insert([{ cycle_id: currentRaffleCycleId, player_id: userTelegramId }], { onConflict: 'cycle_id,player_id' });
@@ -1110,29 +1095,23 @@
                 document.getElementById('profileRaffleStatusText').style.color = "var(--warning)";
             }
 
-            // 2. Ejecutar la resolución del sorteo del ciclo anterior (Serverless/Crono Descentralizado)
             try {
                 let { data: historyRecord } = await supabaseClient.from('raffle_history').select('*').eq('cycle_id', previousRaffleCycleId).maybeSingle();
                 
-                // Si el sorteo de ayer aún no ha sido resuelto por ningún cliente que haya entrado a la app, se ejecuta la lógica
                 if(!historyRecord) {
                     let { data: participants, error: pErr } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', previousRaffleCycleId);
                     
                     if(participants && participants.length >= 10) {
-                        // Selección aleatoria basada en un índice aleatorio
                         let randomIndex = Math.floor(Math.random() * participants.length);
                         let winnerId = participants[randomIndex].player_id;
 
-                        // Obtener el balance y datos actuales del ganador seleccionado
                         let { data: winnerData } = await supabaseClient.from('players').select('plata, username').eq('telegram_id', winnerId).single();
                         
                         let finalWinnerUsername = winnerData?.username || `ID:${winnerId}`;
                         let updatedPlataBalance = parseInt(winnerData?.plata || 0) + 150000;
 
-                        // Otorgar el premio de 150.000 plata en la tabla players
                         await supabaseClient.from('players').update({ plata: updatedPlataBalance }).eq('telegram_id', winnerId);
                         
-                        // Guardar resultado definitivo en el historial global
                         await supabaseClient.from('raffle_history').insert([{
                             cycle_id: previousRaffleCycleId,
                             winner_id: winnerId,
@@ -1146,7 +1125,6 @@
                             updateInterface();
                         }
                     } else {
-                        // Cancelado por falta de participantes mínimos (menos de 10)
                         await supabaseClient.from('raffle_history').insert([{
                             cycle_id: previousRaffleCycleId,
                             winner_id: null,
@@ -1158,13 +1136,57 @@
             } catch(e){}
         }
 
+        // ====== MÓDULOS DE FINANZAS (DEPÓSITO Y RETIRO) ======
+        function processDeposit() {
+            let tonInput = document.getElementById('depositAmount').value;
+            let tonAmount = parseFloat(tonInput);
+            
+            if (isNaN(tonAmount) || tonAmount < 1) {
+                alert("❌ El depósito mínimo es de 1 TON.");
+                return;
+            }
+
+            let plataGained = tonAmount * 10000;
+            plata += plataGained;
+            totalDeposited += tonAmount;
+            hasDeposited = true;
+
+            document.getElementById('depositAmount').value = '';
+            updateInterface();
+            saveProgress();
+            
+            alert(`✅ ¡Depósito exitoso! Has recibido +${plataGained.toLocaleString()} Plata.`);
+        }
+
+        function processWithdrawal() {
+            let oroInput = document.getElementById('withdrawAmount').value;
+            let oroAmount = parseFloat(oroInput);
+
+            if (isNaN(oroAmount) || oroAmount < 500) {
+                alert("❌ El retiro mínimo equivale a 500 Oro (0.05 TON).");
+                return;
+            }
+
+            if (oro < oroAmount) {
+                alert(`❌ No tienes suficiente Oro. Tu saldo actual es de ${oro.toLocaleString()} Oro.`);
+                return;
+            }
+
+            let tonRetrieved = oroAmount / 10000;
+            oro -= oroAmount;
+            totalWithdrawn += tonRetrieved;
+
+            document.getElementById('withdrawAmount').value = '';
+            updateInterface();
+            saveProgress();
+
+            alert(`✅ ¡Retiro procesado con éxito! Has solicitado el equivalente a ${tonRetrieved.toFixed(2)} TON.`);
+        }
+
         // ====== AUXILIARES ADICIONALES ======
         function toggleBadges(elementId, count) {
             const el = document.getElementById(elementId);
-            if(el) {
-                if(count > 0) { el.innerText = count; el.style.display = "flex"; }
-                else { el.style.display = "none"; }
-            }
+            if(el) { if(count > 0) { el.innerText = count; el.style.display = "flex"; } else { el.style.display = "none"; } }
         }
 
         // ====== INTERFAZ DEL PANEL ADMINISTRADOR ======
@@ -1189,24 +1211,13 @@
             if(isNaN(prizeAmount)) { alert("Monto inválido."); return; }
 
             try {
-                const { error } = await supabaseClient.from('tasks').insert([{
-                    title: titleTask,
-                    type: typeText,
-                    requirement: detailValue,
-                    prize: prizeAmount
-                }]);
-                
-                if(error) throw error;
-                alert("✅ Tarea creada e insertada con éxito en la base de datos.");
-                loadTasks();
-            } catch(e) {
-                alert("Error al guardar tarea en Supabase: " + e.message);
-            }
+                const { error } = await supabaseClient.from('tasks').insert([{ title: titleTask, type: typeText, requirement: detailValue, prize: prizeAmount }]);
+                if(error) throw error; alert("✅ Tarea creada e insertada con éxito en la base de datos."); loadTasks();
+            } catch(e) { alert("Error al guardar tarea en Supabase: " + e.message); }
         }
 
         async function adminLaunchDrops() {
             if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            
             let maxPeople = parseInt(prompt("Cantidad máxima de personas que pueden reclamar este drop (Ej: 10):"));
             if(isNaN(maxPeople) || maxPeople <= 0) { alert("Cantidad inválida."); return; }
 
@@ -1217,19 +1228,9 @@
             if(isNaN(pAmount) || pAmount <= 0) { alert("Monto incorrecto."); return; }
 
             try {
-                const { error } = await supabaseClient.from('drops').insert([{
-                    max_claims: maxPeople,
-                    current_claims: 0,
-                    prize_type: pType,
-                    prize_amount: pAmount
-                }]);
-
-                if(error) throw error;
-                alert(`🚀 Drop lanzado globalmente para las primeras ${maxPeople} personas.`);
-                checkActiveDropsCount();
-            } catch(e) {
-                alert("Error creando el drop en Supabase.");
-            }
+                const { error } = await supabaseClient.from('drops').insert([{ max_claims: maxPeople, current_claims: 0, prize_type: pType, prize_amount: pAmount }]);
+                if(error) throw error; alert(`🚀 Drop lanzado globalmente para las primeras ${maxPeople} personas.`); checkActiveDropsCount();
+            } catch(e) { alert("Error creando el drop en Supabase."); }
         }
 
         async function adminCheckRaffleState() {
@@ -1239,9 +1240,7 @@
                 let { data: participants } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', currentRaffleCycleId);
                 let totalPart = participants ? participants.length : 0;
                 alert(`🎟️ Información del Sorteo Automatizado (Ciclo actual: ${currentRaffleCycleId})\n\nParticipantes calificados hoy: ${totalPart}\nFaltan ${Math.max(0, 10 - totalPart)} para alcanzar el mínimo de 10 requeridos.`);
-            } catch(e) {
-                alert("Error consultando estado del sorteo.");
-            }
+            } catch(e) { alert("Error consultando estado del sorteo."); }
         }
 
         async function adminAdjustBalance() {
@@ -1259,15 +1258,11 @@
             if(error || !data) { alert("El jugador no existe en la base de datos."); return; }
 
             let updatedWalletValue = parseInt(data[currency]) + quantity;
-            let updatePayload = {}; 
-            updatePayload[currency] = updatedWalletValue;
+            let updatePayload = {}; updatePayload[currency] = updatedWalletValue;
 
             await supabaseClient.from('players').update(updatePayload).eq('telegram_id', target);
             alert(`Saldo modificado. Nuevo balance del usuario: ${updatedWalletValue} ${currency}.`);
-            if(target === userTelegramId) {
-                if(currency === 'oro') oro = updatedWalletValue; else plata = updatedWalletValue;
-                updateInterface();
-            }
+            if(target === userTelegramId) { if(currency === 'oro') oro = updatedWalletValue; else plata = updatedWalletValue; updateInterface(); }
         }
 
         async function adminSetBan(banState) {
@@ -1280,5 +1275,4 @@
         }
     </script>
 </body>
-</html>  
-
+</html>
