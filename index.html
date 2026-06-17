@@ -3,1309 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="monetag" content="77ccdeeee1a099e7aa5d13d0329fea33">
-    <title>Neon Miner - Telegram Mini App</title>
-    
+    <title>VoltTON Miner App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src='//libtl.com/sdk.js' data-zone='11153734' data-sdk='show_11153734'></script>
     <style>
+        /* ========================================== */
+        /* ESTILOS BASE Y NEÓN                        */
+        /* ========================================== */
         :root {
-            --bg-color: #070a13;
-            --panel-bg: #111625;
-            --neon-blue: #00f3ff;
-            --dark-blue: #0055ff;
-            --neon-purple: #9d4edd;
-            --text-main: #a0aec0;
-            --white: #ffffff;
-            --success: #00ff88;
-            --warning: #ffb703;
-            --dark-gray: #2d3748;
-            --light-card: #f8f6f0;
-            --text-dark: #2d3748;
-            --danger: #ef4444;
+            --bg-main: #0a0d18;
+            --neon-blue: #00f0ff;
+            --neon-purple: #b026ff;
+        }
+        body {
+            background-color: var(--bg-main);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden; 
+        }
+        
+        .neon-glow-main {
+            box-shadow: 0 0 25px var(--neon-blue), inset 0 0 20px var(--neon-purple);
+        }
+        .neon-glow-btn {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-color); color: var(--white); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: linear-gradient(to bottom, rgba(0, 243, 255, 0.1), transparent); border-bottom: 1px solid rgba(0, 243, 255, 0.05); }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 40px; height: 40px; background: linear-gradient(45deg, var(--dark-blue), var(--neon-blue)); border-radius: 50%; border: 2px solid var(--neon-blue); box-shadow: 0 0 12px rgba(0, 243, 255, 0.4); display: flex; justify-content: center; align-items: center; font-size: 20px; overflow: hidden;}
-
-        .icon-silver { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #ffffff 0%, #cbd5e1 50%, #64748b 100%); border-radius: 50%; box-shadow: 0 0 10px #ffffff, 0 0 4px #94a3b8; vertical-align: middle; margin-right: 4px; }
-        .icon-gold { display: inline-block; width: 14px; height: 14px; background: radial-gradient(circle, #fff3b0 0%, #ffb703 60%, #fb8500 100%); border-radius: 50%; box-shadow: 0 0 10px #ffb703, 0 0 4px #fb8500; vertical-align: middle; margin-right: 4px; }
-
-        .resource-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 20px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
-        .res-item { display: flex; align-items: center; background: var(--panel-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
-
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; padding-bottom: 90px; }
-        .screen { display: none; animation: fadeIn 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .btn-premium { position: relative; overflow: hidden; }
-        .btn-premium::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); animation: shine-sweep 5s infinite; pointer-events: none;
+        /* Animación del Rayo Central (Solo visual, ya no es botón) */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.5); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 240, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
         }
-        @keyframes shine-sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        .miner-circle {
+            animation: pulse-ring 3s infinite;
+        }
 
-        .mining-card { background: linear-gradient(145deg, #121829, #0a0d1a); border: 1px solid rgba(0, 243, 255, 0.12); border-radius: 24px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 20px; }
-        .mineral-display-container { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 18px 10px; margin-bottom: 18px; border: 1px solid rgba(255, 255, 255, 0.03); }
-        .balance-title { color: var(--text-main); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
-        .balance-amount { font-size: 34px; font-weight: 800; color: #fff; text-shadow: 0 0 15px rgba(255, 255, 255, 0.15); }
+        /* ========================================== */
+        /* EFECTO PREMIUM: ARO DE LUZ CORREGIDO       */
+        /* ========================================== */
+        @keyframes sweep {
+            0% { transform: translateX(-200%) skewX(-15deg); opacity: 0; }
+            5% { opacity: 1; }
+            25% { transform: translateX(400%) skewX(-15deg); opacity: 1; }
+            26% { opacity: 0; transform: translateX(400%) skewX(-15deg); }
+            100% { opacity: 0; transform: translateX(-200%) skewX(-15deg); } /* Pausa invisible limpia */
+        }
+        .premium-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .premium-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 30%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+            animation: sweep 5s infinite linear;
+            pointer-events: none; /* No bloquea clics */
+        }
+
+        /* Contenedores de Pestañas */
+        .tab-content {
+            display: none;
+            height: calc(100vh - 80px); 
+            overflow-y: auto;
+            padding: 1.5rem;
+            padding-bottom: 2rem;
+        }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
         
-        .btn-neon { background: linear-gradient(90deg, #be7e0a, #844c00); color: white; border: none; padding: 15px; border-radius: 14px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; box-shadow: 0 4px 15px rgba(132, 76, 0, 0.3); text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; }
-        .btn-neon:active { transform: scale(0.97); }
-        .btn-neon:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
-
-        .mining-info-specs { margin-top: 18px; font-size: 13px; color: var(--text-main); display: flex; flex-direction: column; gap: 5px; }
-        .exchange-spec { color: #ffb703; font-weight: 500; font-size: 12px; background: rgba(255, 183, 3, 0.06); padding: 4px 10px; border-radius: 20px; display: inline-block; margin: 0 auto; }
-
-        .action-card { background: var(--panel-bg); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.03); margin-bottom: 10px;}
-        .btn-buy { background: var(--dark-blue); border: none; color: white; padding: 10px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; min-width: 110px; font-size: 13px; text-align: center; }
-        .btn-buy:active { background: var(--neon-blue); color: black; }
-
-        .progress-container { width: 100%; background: #181e30; height: 8px; border-radius: 4px; overflow: hidden; margin: 8px 0; border: 1px solid rgba(255,255,255,0.05); }
-        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--dark-blue)); transition: width 0.2s; }
-        .upgrade-preview-box { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .preview-col { text-align: center; width: 40%; }
-        .preview-label { font-size: 10px; color: var(--text-main); text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 2px;}
-        .preview-val { font-size: 18px; font-weight: bold; }
-        .preview-arrow { color: var(--text-main); font-size: 18px; opacity: 0.5; }
-
-        .profile-banner { background: linear-gradient(90deg, #8b5cf6, var(--neon-purple)); color: white; padding: 12px; border-radius: 14px; text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3); }
-        
-        .carousel-wrapper { overflow-x: auto; scroll-snap-type: x mandatory; display: flex; gap: 10px; padding-bottom: 10px; margin-bottom: 5px; scrollbar-width: none; }
-        .carousel-wrapper::-webkit-scrollbar { display: none; }
-        .carousel-card { flex: 0 0 100%; scroll-snap-align: center; background: linear-gradient(135deg, #2d1b69, #1a103c); border-radius: 16px; padding: 20px; border: 1px solid rgba(157, 78, 221, 0.3); display: flex; align-items: center; gap: 15px; position: relative; }
-        .carousel-icon { font-size: 30px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 12px; }
-        .carousel-info h4 { margin-bottom: 4px; font-size: 16px; }
-        .carousel-info p { font-size: 12px; color: #d8b4fe; }
-        .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
-        .dot { width: 8px; height: 8px; background: #4b5563; border-radius: 50%; transition: 0.3s; }
-        .dot.active { background: var(--neon-purple); width: 16px; border-radius: 4px; }
-
-        .notification-badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; font-size: 11px; font-weight: bold; border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; border: 2px solid var(--panel-bg); box-shadow: 0 0 8px var(--danger); }
-
-        .light-card { background: var(--light-card); border-radius: 20px; padding: 20px; color: var(--text-dark); margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
-        .profile-header-card { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
-        .profile-header-card .avatar-big { width: 60px; height: 60px; background: #000; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); overflow: hidden; }
-        .profile-header-card h2 { font-size: 18px; margin-bottom: 2px; }
-        .profile-header-card p { font-size: 13px; color: #718096; font-weight: 500; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .stat-box { background: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 4px; }
-        .stat-label { font-size: 11px; color: #718096; font-weight: 600; }
-        .stat-value { font-size: 15px; font-weight: 800; color: var(--text-dark); }
-
-        .ref-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; padding: 4px; margin-top: 10px; margin-bottom: 15px; }
-        .ref-box input { flex: 1; border: none; background: transparent; padding: 10px; font-size: 12px; color: #4a5568; outline: none; }
-        .ref-box button { background: #edf2f7; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: #4a5568; font-size: 16px; transition: 0.2s;}
-        .ref-box button:active { background: #cbd5e1; }
-        
-        .btn-green-solid { background: #658864; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(101, 136, 100, 0.3); }
-        .btn-ghost-purple { background: #f3e8ff; color: #6b21a8; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; }
-
-        .admin-section { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .admin-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; margin-bottom: 10px; font-size: 14px; }
-        .btn-admin-action { background: var(--dark-gray); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 8px; cursor: pointer; text-align: left; padding-left: 15px; font-weight: 500; }
-        .btn-danger { background: rgba(239, 68, 68, 0.2); border-color: var(--danger); color: #fca5a5; }
-
-        #bannedScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 20px; }
-
-        .task-card-item { background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .task-details { display: flex; flex-direction: column; gap: 4px; }
-        .task-title { font-weight: bold; font-size: 14px; color: var(--white); }
-        .task-prize { font-size: 12px; color: var(--success); font-weight: 500; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 10, 19, 0.95); z-index: 500; display: none; flex-direction: column; padding: 30px 20px; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
-        .modal-close-btn { background: transparent; border: none; color: var(--white); font-size: 24px; cursor: pointer; }
-
-        .wordle-container { background: var(--panel-bg); border-radius: 20px; padding: 20px 10px; border: 1px solid rgba(157, 78, 221, 0.2); text-align: center; }
-        .wordle-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: #121829; color: var(--text-main); font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
-        .tab-btn.active { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
-        .tab-btn.vip.active { background: var(--neon-purple); border-color: var(--neon-purple); color: white; box-shadow: 0 0 10px rgba(157,78,221,0.3); }
-        .wordle-board { display: flex; flex-direction: column; gap: 6px; margin: 15px auto; width: max-content; }
-        .wordle-row { display: flex; gap: 6px; }
-        .wordle-cell { width: 48px; height: 48px; border: 2px solid var(--dark-gray); background: #0a0d1a; color: white; font-size: 24px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 8px; text-transform: uppercase; transition: all 0.3s; }
-        .wordle-cell.correct { background: var(--success); border-color: var(--success); color: black; }
-        .wordle-cell.present { background: var(--warning); border-color: var(--warning); color: black; }
-        .wordle-cell.absent { background: var(--dark-gray); border-color: var(--dark-gray); color: #718096; }
-        .keyboard { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; width: 100%; max-width: 350px; margin-left: auto; margin-right: auto; }
-        .key-row { display: flex; justify-content: center; gap: 4px; }
-        .key { flex: 1; min-width: 28px; max-width: 35px; height: 45px; background: var(--dark-gray); color: white; font-weight: bold; font-size: 14px; border-radius: 6px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; text-transform: uppercase; }
-        .key.wide { min-width: 50px; max-width: 65px; font-size: 12px; }
-        .key.correct { background: var(--success); color: black; }
-        .key.present { background: var(--warning); color: black; }
-        .key.absent { background: #1a202c; color: #4a5568; }
-        #lockScreen { padding: 40px 20px; background: rgba(0,0,0,0.4); border-radius: 16px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.05); }
-
-        .wallet-card { background: linear-gradient(135deg, #111625, #0a0d1a); border-radius: 20px; padding: 20px; border: 1px solid rgba(0, 243, 255, 0.1); margin-bottom: 15px; }
-        .wallet-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-main); }
-
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--panel-bg); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px 24px 0 0; z-index: 100; }
-        .nav-item { color: var(--text-main); text-align: center; font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: calc(100% / 6); transition: 0.2s; position: relative;}
-        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); transform: translateY(-2px); }
-        .nav-icon { font-size: 22px; }
-
-        #debugStatus { display: none; background: #ff3333; color: white; font-size: 11px; padding: 10px; text-align: center; font-weight: bold; z-index: 999; word-break: break-all; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen select-none">
 
-    <div id="bannedScreen">
-        <div style="font-size: 60px; margin-bottom: 20px;">⛔</div>
-        <h1 style="color: var(--danger); margin-bottom: 10px;">Cuenta Suspendida</h1>
-        <p style="color: var(--text-main);">Tu acceso ha sido bloqueado por un administrador.</p>
-    </div>
-
-    <div id="debugStatus"></div>
-
-    <header class="header">
-        <div class="user-info">
-            <div class="avatar" id="userAvatarHeader">U</div>
-            <div>
-                <div style="font-size: 11px; color: var(--text-main);" id="dbStatus">Conectando...</div>
-                <div style="font-weight: bold; font-size: 14px;" id="usernameDisplay">Cargando...</div>
-            </div>
-        </div>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <div id="adminBtn" style="display: none; cursor: pointer; font-size: 20px;" onclick="switchTab('admin', null)">⚙️</div>
-            <div style="color: var(--neon-blue); font-size: 18px; cursor:pointer;" onclick="syncManual()">🔄</div>
-        </div>
-    </header>
-
-    <div class="resource-bar">
-        <div class="res-item">
-            <span class="icon-silver"></span>
-            <div>Plata: <strong id="globalPlata">0</strong></div>
-        </div>
-        <div class="res-item">
-            <span class="icon-gold"></span>
-            <div>Oro: <strong id="globalOro">0</strong></div>
-        </div>
-    </div>
-
-    <div class="main-content">
+    <div id="tab-miner" class="tab-content active text-center flex flex-col items-center pt-8">
         
-        <div id="screen-home" class="screen active">
-            <div class="mining-card">
-                <div class="mineral-display-container">
-                    <div class="balance-title">Mineral en la Mina</div>
-                    <div class="balance-amount" id="balanceDisplay">0</div>
-                </div>
-                
-                <button class="btn-neon btn-premium" id="btnSell" onclick="sellMinerals()">Vender</button>
-
-                <div class="mining-info-specs">
-                    <div class="rate-spec" id="rateDisplay">Velocidad actual: 5/hora</div>
-                    <div><span class="exchange-spec">100 mineral = 1 oro + 1 plata</span></div>
-                </div>
-            </div>
-
-            <div class="action-card" style="flex-direction: column; align-items: stretch; gap: 8px;">
-                <h3 style="text-align: center; color: var(--neon-blue); font-size: 16px;">Mejora del Almacén</h3>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 24px;">📦</span>
-                        <div>
-                            <div style="font-size: 11px; color: var(--text-main);">Estado: <span id="lblStorageLevel" style="font-weight: bold; color: var(--white);">Nivel 1</span></div>
-                            <div style="font-size: 14px; font-weight: bold; color: var(--white);" id="lblStorageRatio">0 / 500</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="progress-container"><div class="progress-bar" id="storageBar"></div></div>
-
-                <div class="upgrade-preview-box" id="upgradePreview">
-                    <div class="preview-col">
-                        <div class="preview-label">Nivel <span id="previewCurrentLevel">1</span></div>
-                        <div class="preview-val" style="color: white;" id="previewCurrentCap">500</div>
-                    </div>
-                    <div class="preview-arrow">➔</div>
-                    <div class="preview-col">
-                        <div class="preview-label">Nivel <span id="previewNextLevel">2</span></div>
-                        <div class="preview-val" style="color: var(--neon-blue);" id="previewNextCap">6.000</div>
-                    </div>
-                </div>
-
-                <button class="btn-buy" id="btnUpgradeStorage" onclick="upgradeStorage()" style="width: 100%; margin-top: 10px; background: linear-gradient(90deg, #1d4ed8, var(--dark-blue)); padding: 12px;">Mejorar</button>
+        <div class="relative w-56 h-56 rounded-full border-4 border-[#1a1f35] flex items-center justify-center mx-auto mb-8 miner-circle neon-glow-main bg-gradient-to-br from-[#1a1f35] to-[#0a0d18]">
+            <div class="absolute inset-2 rounded-full bg-gradient-to-br from-purple-600 via-blue-500 to-cyan-400 opacity-90 flex items-center justify-center">
+                <svg class="w-24 h-24 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                </svg>
             </div>
         </div>
 
-        <div id="screen-shop" class="screen">
-            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Mercado de Mineros</h3>
-            
-            <div class="action-card" style="justify-content: space-between;">
-                <div>
-                    <div style="font-weight: bold;">Minero Básico</div>
-                    <div style="font-size: 12px; color: var(--success);">+75 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner1">0</span></div>
-                </div>
-                <button class="btn-buy btn-premium" onclick="buyMiner('miner1', 1000)">1.000 Plata</button>
-            </div>
+        <h1 id="balance-ghs" class="text-5xl font-extrabold tracking-tight text-white mb-1 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">0.000000</h1>
+        <p class="text-xs font-semibold text-gray-400 tracking-widest uppercase mb-1">GHS Minados</p>
+        <p id="balance-ton" class="text-xs text-[#00f0ff] font-medium mb-6">≈ 0.00000000 TON a la tasa actual</p>
 
-            <div class="action-card" style="justify-content: space-between;">
-                <div>
-                    <div style="font-weight: bold;">Minero Avanzado</div>
-                    <div style="font-size: 12px; color: var(--success);">+1.650 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner2">0</span></div>
-                </div>
-                <button class="btn-buy btn-premium" onclick="buyMiner('miner2', 20000)">20.000 Plata</button>
+        <div class="w-full bg-slate-900/80 rounded-2xl p-4 border border-slate-700 grid grid-cols-3 gap-2 text-center mb-6 shadow-lg">
+            <div class="flex flex-col items-center">
+                <span id="stat-rate" class="text-xl font-bold text-white">44</span>
+                <span class="text-[10px] text-gray-500 uppercase">H/Día</span>
             </div>
-
-            <div class="action-card" style="justify-content: space-between;">
-                <div>
-                    <div style="font-weight: bold;">Plataforma Ind.</div>
-                    <div style="font-size: 12px; color: var(--success);">+9.300 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner3">0</span></div>
-                </div>
-                <button class="btn-buy btn-premium" onclick="buyMiner('miner3', 100000)">100k Plata</button>
+            <div class="flex flex-col items-center border-l border-r border-slate-700">
+                <span id="stat-energy" class="text-xl font-bold text-white">500</span>
+                <span class="text-[10px] text-gray-500 uppercase">Energy</span>
             </div>
-
-            <div class="action-card" style="justify-content: space-between;">
-                <div>
-                    <div style="font-weight: bold;">Granja Cuántica</div>
-                    <div style="font-size: 12px; color: var(--success);">+36.000 mineral/h</div>
-                    <div style="font-size: 11px; color: var(--text-main);">Comprados: <span id="qtyMiner4">0</span></div>
-                </div>
-                <button class="btn-buy btn-premium" onclick="buyMiner('miner4', 350000)">350k Plata</button>
+            <div class="flex flex-col items-center">
+                <span class="text-xl font-bold text-white">6d 8h</span>
+                <span class="text-[10px] text-gray-500 uppercase">Próx. expiración</span>
             </div>
         </div>
 
-        <div id="screen-tasks" class="screen">
-            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Centro de Tareas</h3>
-            
-            <div class="task-card-item" style="border-color: var(--warning); background: rgba(255, 183, 3, 0.05);">
-                <div class="task-details">
-                    <span class="task-title" style="color: var(--warning);">📺 Ver Publicidad</span>
-                    <span style="font-size:11px; color:var(--text-main);">Apoya a la app y gana recompensas</span>
-                    <span class="task-prize">+1,000 Plata</span>
+        <div class="w-full text-left mb-2">
+            <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">Tus Contratos</span>
+        </div>
+        
+        <div class="w-full bg-[#0f1423] border border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-lg mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-600 flex items-center justify-center text-[#00f0ff] shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
                 </div>
-                <div>
-                    <button class="btn-buy" style="background: var(--warning); color: #000;" onclick="watchAdMonetag()">Ver</button>
+                <div class="text-left">
+                    <h3 class="font-bold text-white text-sm">500 ENERGY</h3>
+                    <div class="flex items-center gap-1 text-[10px] text-gray-400 mt-1">
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Expira en 6d 8h
+                    </div>
+                    <div class="w-16 h-1.5 bg-slate-700 rounded-full mt-1.5 overflow-hidden">
+                        <div class="h-full bg-[#00ff66] w-[9%] shadow-[0_0_5px_#00ff66]"></div>
+                    </div>
                 </div>
             </div>
-            <div id="tasksListContainer">
-                <p style="color: var(--text-main); font-size: 14px; text-align: center;">Cargando tareas...</p>
+            <div class="text-right">
+                <span class="text-sm font-bold text-white">44 <span class="text-[10px] text-gray-500 font-normal">H/day</span></span>
+                <p class="text-[10px] text-gray-500 mt-1 font-bold">9%</p>
             </div>
         </div>
 
-        <div id="screen-profile" class="screen">
-            <div class="profile-banner">Perfil</div>
-            
-            <div class="carousel-wrapper" id="promoCarousel" onscroll="updateCarouselDots()">
-                <div class="carousel-card" onclick="openDropsModal()" style="cursor: pointer;">
-                    <div class="carousel-icon">🎁</div>
-                    <div id="profileDropsCountBadge" class="notification-badge" style="display:none;">0</div>
-                    <div class="carousel-info">
-                        <h4>Airdrops Activos</h4>
-                        <p id="profileDropsStatusText">Revisa los drops libres</p>
-                    </div>
+        <button onclick="exchangeTON()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl flex items-center justify-between px-6 shadow-[0_0_20px_rgba(176,38,255,0.5)] border border-[#b026ff]/50 transition-all mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <svg class="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </div>
-                <div class="carousel-card">
-                    <div class="carousel-icon">🎟️</div>
-                    <div class="carousel-info">
-                        <h4>Sorteo Diario Automático</h4>
-                        <p id="profileRaffleStatusText">Inscripción automática si depositaste</p>
-                    </div>
+                <div class="text-left">
+                    <p class="text-sm font-bold drop-shadow-md">CAMBIAR GHS → TON</p>
+                    <p class="text-[10px] text-white/80 font-normal">Convierte GHS minados a TON</p>
                 </div>
             </div>
-            <div class="carousel-dots">
-                <span class="dot active" id="dot1"></span>
-                <span class="dot" id="dot2"></span>
-            </div>
+            <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+    </div>
 
-            <div class="light-card">
-                <div class="profile-header-card">
-                    <div class="avatar-big" id="userAvatarProfile">U</div>
+    <div id="tab-tasks" class="tab-content">
+        <h2 class="text-3xl font-bold mb-1 text-white">Tareas</h2>
+        <p class="text-sm text-gray-400 mb-6">Completa tareas y gana recursos.</p>
+        
+        <div class="space-y-4">
+            <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(176,38,255,0.3)]">🎲</div>
                     <div>
-                        <h2 id="profTopName">Usuario</h2>
-                        <p>Maestro del pico</p>
+                        <h3 class="font-bold text-sm text-white">Giro Diario</h3>
+                        <p class="text-xs text-[#b026ff]">⚡ +25 ENERGY</p>
                     </div>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <span class="stat-label">Nombre de usuario</span>
-                        <span class="stat-value" id="profUsername">@Cargando...</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Fecha de registro</span>
-                        <span class="stat-value" id="profRegDate">--/--/----</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Mineral extraído</span>
-                        <span class="stat-value"><span id="profTotalMined">0</span> 🪨</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Nivel de la mina</span>
-                        <span class="stat-value" id="profMineLevel">1</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Gnomos comprados</span>
-                        <span class="stat-value" id="profTotalMiners">0</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Invitados</span>
-                        <span class="stat-value" id="profInvites">0 pers.</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Depositado</span>
-                        <span class="stat-value" id="profDeposited">0 TON</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Retirado</span>
-                        <span class="stat-value" id="profWithdrawn">0 TON</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="light-card" style="padding-top: 25px;">
-                <h3 style="font-size: 18px; margin-bottom: 8px;">Sistema de referidos</h3>
-                <p style="font-size: 13px; color: #718096; margin-bottom: 15px; line-height: 1.4;">Comparte el enlace, invita a tus amigos al juego y desbloquea toda la sección de socios.</p>
-                
-                <div class="ref-box">
-                    <input type="text" id="refLink" readonly value="Cargando link...">
-                    <button onclick="copyRefLink()">📄</button>
-                </div>
-
-                <button class="btn-green-solid" onclick="shareRef()">Invitar a amigos</button>
-                <button class="btn-ghost-purple" onclick="alert('Programa de socios próximamente')">Abrir programa de socios</button>
-
-                <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #718096;">
-                    Tu referente: <strong style="color: var(--text-dark);">Ninguno</strong>
-                </div>
+                <button onclick="doTask(this, 'energy', 25)" class="premium-btn bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-2.5 text-xs font-bold rounded-xl text-white shadow-[0_0_15px_rgba(176,38,255,0.4)]">¡Girar!</button>
             </div>
         </div>
-
-        <div id="screen-puzzle" class="screen">
-            <div class="wordle-container">
-                <div class="wordle-tabs">
-                    <button class="tab-btn active" id="tabBasic" onclick="switchWordleMode('basic')">Básico</button>
-                    <button class="tab-btn vip" id="tabVip" onclick="switchWordleMode('vip')">VIP 👑</button>
-                </div>
-                <p style="font-size: 12px; color: var(--text-main); margin-bottom: 10px;">
-                    Premio de hoy: <strong style="color: var(--white);" id="wordlePrizeText">250 Plata</strong><br>
-                    <span style="font-size: 10px; color: #718096;">Nueva palabra todos los días a las 12 PM (Hora VE).</span>
-                </p>
-                <div id="lockScreen" style="display: none;">
-                    <div style="font-size: 40px; margin-bottom: 15px;">🔒</div>
-                    <h3 style="color: var(--warning);">Modo VIP Bloqueado</h3>
-                    <p style="font-size: 13px; color: var(--text-main); margin-top: 10px;">Realiza un depósito en la billetera para desbloquear el modo VIP permanentemente y ganar 2.000 Plata diarios.</p>
-                </div>
-                <div id="gameArea">
-                    <div class="wordle-board" id="wordleBoard"></div>
-                    <div id="wordleStatus" style="font-size: 14px; margin: 10px 0; min-height: 20px; color: var(--white); font-weight: bold;"></div>
-                    <div class="keyboard" id="keyboard"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="screen-wallet" class="screen">
-            <h3 style="color: var(--neon-blue); margin-bottom: 15px;">Sistema Financiero (TON)</h3>
-            <div class="wallet-card">
-                <h4 style="margin-bottom: 12px; color: var(--white);">📥 Depósitos</h4>
-                <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: var(--success); font-weight: bold;">1 TON = 10.000 Plata</span></div>
-                <div class="wallet-info-row"><span>Depósito Mínimo:</span><span style="color: #fff;">1 TON</span></div>
-                <div style="font-family: monospace; font-size: 12px; background:#000; padding:12px; border-radius:8px; margin-top: 10px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05);">EQB3nVoRFMzXKi...U7Xp9wQ</div>
-                
-                <input type="number" id="depositAmount" class="admin-input" placeholder="Cantidad de TON a depositar" style="margin-top: 15px; margin-bottom: 5px;">
-                <button class="btn-neon" style="padding: 12px; font-size: 14px; background: linear-gradient(90deg, #0055ff, var(--neon-blue));" onclick="processDeposit()">CONFIRMAR DEPÓSITO</button>
-                
-                <div style="font-size: 11px; color: var(--text-main); margin-top: 10px; text-align: center;">*Depositar desbloquea automáticamente el Wordle VIP y el ingreso al Sorteo Automático diario de las 12:00 PM.</div>
-            </div>
-            
-            <div class="wallet-card" style="border-color: rgba(157, 78, 221, 0.2);">
-                <h4 style="margin-bottom: 12px; color: var(--white);">📤 Retiros</h4>
-                <div class="wallet-info-row"><span>Tasa de cambio:</span><span style="color: #ffb703; font-weight: bold;">10.000 Oro = 1 TON</span></div>
-                <div class="wallet-info-row"><span>Retiro Mínimo:</span><span style="color: #fff;">0.05 TON (500 Oro)</span></div>
-                
-                <input type="number" id="withdrawAmount" class="admin-input" placeholder="Cantidad de ORO a retirar" style="margin-top: 10px; margin-bottom: 5px;">
-                <button class="btn-neon" style="padding: 12px; font-size: 14px; background: linear-gradient(90deg, #3a0ca3, var(--neon-purple)); box-shadow: none;" onclick="processWithdrawal()">SOLICITAR RETIRO</button>
-            </div>
-        </div>
-
-        <div id="screen-admin" class="screen">
-            <h2 style="color: var(--warning); margin-bottom: 15px; font-size: 20px;">⚙️ Panel de Gestión</h2>
-            
-            <div class="admin-section">
-                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">🛠️ Administración de Tareas</h4>
-                <button class="btn-admin-action" onclick="adminCreateTask()">➕ Crear Nueva Tarea</button>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">🎉 Eventos Globales</h4>
-                <button class="btn-admin-action" onclick="adminLaunchDrops()">🚀 Lanzar Drops</button>
-                <button class="btn-admin-action" onclick="adminCheckRaffleState()">🎟️ Ver Estado del Sorteo Diario</button>
-            </div>
-
-            <div class="admin-section">
-                <h4 style="margin-bottom: 10px; color: var(--neon-blue); font-size: 14px;">👥 Control de Usuarios</h4>
-                <input type="text" id="adminTargetId" class="admin-input" placeholder="ID de Telegram del Jugador">
-                
-                <button class="btn-admin-action" onclick="adminAdjustBalance()">💰 Ajustar Saldo (Oro / Plata)</button>
-                <button class="btn-admin-action btn-danger" onclick="adminSetBan(true)">⛔ Banear Jugador</button>
-                <button class="btn-admin-action" style="background: rgba(0, 255, 136, 0.1); border-color: var(--success); color: var(--success);" onclick="adminSetBan(false)">✅ Desbanear Jugador</button>
-            </div>
-        </div>
-
     </div>
 
-    <div id="dropsModal" class="modal-overlay">
-        <div class="modal-header">
-            <h3 style="color: var(--neon-blue);">Drops de Suministros Disponibles</h3>
-            <button class="modal-close-btn" onclick="closeDropsModal()">✕</button>
-        </div>
-        <div id="dropsModalContent" style="display: flex; flex-direction: column; gap: 12px;">
+    <div id="tab-team" class="tab-content">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 class="text-3xl font-bold mb-1 text-white">Equipo</h2>
+                <p class="text-sm text-gray-400">Haz crecer tu red y gana más.</p>
             </div>
+            <div class="text-4xl">👥</div>
+        </div>
+        <button onclick="copyRefLink()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.5)] border border-[#00f0ff]/50 flex items-center justify-center gap-2 transition-all">
+            <span class="drop-shadow-md">🔗 Copiar Enlace de Invitación</span>
+        </button>
     </div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)"><div class="nav-icon">⛏️</div><span>Minas</span></div>
-        <div class="nav-item" onclick="switchTab('shop', this)"><div class="nav-icon">🛒</div><span>Tienda</span></div>
-        <div class="nav-item" onclick="switchTab('tasks', this)">
-            <div id="navTasksBadge" class="notification-badge" style="display:none; top:-3px; right:10px;">0</div>
-            <div class="nav-icon">📋</div><span>Tareas</span>
+    <div id="tab-rank" class="tab-content">
+        <h2 class="text-3xl font-bold mb-1 text-white">Rank</h2>
+        <p class="text-sm text-gray-400 mb-6">Los mineros más potentes.</p>
+        <div class="text-center text-gray-500 text-sm animate-pulse mt-12">Cargando base de datos...</div>
+    </div>
+
+    <div id="tab-shop" class="tab-content">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-3xl font-bold mb-1 text-white">Tienda</h2>
+                <p class="text-sm text-gray-400">Compra ENERGY y crece más rápido.</p>
+            </div>
+            <div class="text-4xl drop-shadow-[0_0_10px_rgba(176,38,255,0.5)] text-blue-500">🛒</div>
         </div>
-        <div class="nav-item" onclick="switchTab('profile', this)">
-            <div id="navDropsBadge" class="notification-badge" style="display:none; top:-3px; right:10px;">0</div>
-            <div class="nav-icon">👤</div><span>Perfil</span>
+        
+        <div class="space-y-3 pb-8">
+            
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div>
+                    <h3 class="font-bold text-lg text-white">11.8K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 0.105 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(0.1)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                    <span class="drop-shadow-md">0.1</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div>
+                    <h3 class="font-bold text-lg text-white">118K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 1.050 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(1)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                    <span class="drop-shadow-md">1</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg relative overflow-hidden">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-lg text-white">600K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                        <span class="text-[8px] font-bold bg-blue-900/50 text-[#00f0ff] border border-blue-800 px-1.5 py-0.5 rounded">+11.8K ENERGY</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 5.355 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(5)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                    <span class="drop-shadow-md">5</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-lg text-white">1.2M <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                        <span class="text-[8px] font-bold bg-blue-900/50 text-[#00f0ff] border border-blue-800 px-1.5 py-0.5 rounded">+58.8K ENERGY</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 11.025 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(10)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                    <span class="drop-shadow-md">10</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-lg text-white">3.7M <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                        <span class="text-[8px] font-bold bg-purple-900/50 text-[#b026ff] border border-purple-800 px-1.5 py-0.5 rounded">+735K ENERGY</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 32.813 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(25)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
+                    <span class="drop-shadow-md">25</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
+            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-lg text-white">17.6M <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
+                        <span class="text-[8px] font-bold bg-purple-900/50 text-[#b026ff] border border-purple-800 px-1.5 py-0.5 rounded">+5.9M ENERGY</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Retorno final: 157.500 TON
+                    </p>
+                </div>
+                <button onclick="buyItem(100)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
+                    <span class="drop-shadow-md">100</span> <span class="drop-shadow-md">💎</span>
+                </button>
+            </div>
+
         </div>
-        <div class="nav-item" onclick="switchTab('puzzle', this)"><div class="nav-icon">🎮</div><span>Wordle</span></div>
-        <div class="nav-item" onclick="switchTab('wallet', this)"><div class="nav-icon">💼</div><span>Billetera</span></div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-[#0a0d18] border-t border-slate-800 flex justify-around items-center px-2 pb-2 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+        <button onclick="changeTab('miner')" id="nav-miner" class="nav-btn flex flex-col items-center justify-center w-16 text-[#00f0ff] transition-colors drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span class="text-[10px] font-medium">Minador</span>
+        </button>
+        <button onclick="changeTab('tasks')" id="nav-tasks" class="nav-btn flex flex-col items-center justify-center w-16 text-gray-500 hover:text-gray-300 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            <span class="text-[10px] font-medium">Tareas</span>
+        </button>
+        <button onclick="changeTab('team')" id="nav-team" class="nav-btn flex flex-col items-center justify-center w-16 text-gray-500 hover:text-gray-300 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[10px] font-medium">Equipo</span>
+        </button>
+        <button onclick="changeTab('rank')" id="nav-rank" class="nav-btn flex flex-col items-center justify-center w-16 text-gray-500 hover:text-gray-300 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+            <span class="text-[10px] font-medium">Rank</span>
+        </button>
+        <button onclick="changeTab('shop')" id="nav-shop" class="nav-btn flex flex-col items-center justify-center w-16 text-gray-500 hover:text-gray-300 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[10px] font-medium">Tienda</span>
+        </button>
     </nav>
 
     <script>
-        // ====== MONETIZACIÓN CON MONETAG ======
-        // REEMPLAZA ESTE ENLACE POR TU DIRECT LINK DE MONETAG
-        const MONETAG_DIRECT_LINK = "https://PEGA_AQUI_TU_ENLACE_DE_MONETAG";
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+        const userId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
 
-        function watchAdMonetag() {
-            // 1. Abrir el anuncio usando la API de Telegram para móviles
-            window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK);
-            
-            // 2. Simular tiempo de espera para recompensa (5 segundos)
+        // Variables de Usuario (Reset)
+        let balanceGHS = 0.000000;
+        let userEnergy = 500;
+        const uiGHS = document.getElementById('balance-ghs');
+        const uiTON = document.getElementById('balance-ton');
+        let ratePerSecond = 44 / 86400; // 44 H/día por defecto
+
+        // Minado 100% Automático
+        setInterval(() => {
+            balanceGHS += ratePerSecond / 10;
+            uiGHS.innerText = balanceGHS.toFixed(6);
+            uiTON.innerText = `≈ ${(balanceGHS * 0.0000144).toFixed(8)} TON a la tasa actual`;
+        }, 100);
+
+        // Lógica de Pestañas
+        function changeTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-[#00f0ff]', 'drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]');
+                btn.classList.add('text-gray-500');
+            });
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeNav = document.getElementById('nav-' + tabId);
+            activeNav.classList.remove('text-gray-500');
+            activeNav.classList.add('text-[#00f0ff]', 'drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]');
+        }
+
+        // Funciones UI
+        function exchangeTON() {
+            if (balanceGHS < 100) {
+                tg.showAlert("⚠️ Necesitas al menos 100 GHS para intercambiar.");
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+            balanceGHS -= 100;
+            tg.showAlert("✅ ¡Intercambio exitoso!");
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        function buyItem(cost) {
+            tg.showAlert(`❌ Saldo insuficiente. Necesitas ${cost} TON para adquirir este contrato de minería.`);
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        }
+
+        function doTask(btn, type, amount) {
+            if(btn.disabled) return;
+            btn.disabled = true;
+            btn.innerHTML = "⏳...";
+            btn.classList.remove('from-purple-600', 'to-indigo-600');
+            btn.classList.add('bg-slate-600');
+
             setTimeout(() => {
-                let confirmacion = confirm("¿Viste el anuncio completo para recibir tu recompensa?");
-                if(confirmacion) {
-                    plata += 1000;
-                    updateInterface();
-                    saveProgress();
-                    alert("🎉 ¡Gracias por tu apoyo! Recibiste +1,000 Plata.");
-                }
-            }, 5000);
+                btn.innerHTML = "✅ Listo";
+                btn.classList.replace('bg-slate-600', 'bg-green-600');
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            }, 1500);
         }
-
-        // ====== CONFIGURACIÓN DE SUPABASE ======
-        const SUPABASE_URL = "https://TU_PROYECTO.supabase.co"; 
-        const SUPABASE_ANON_KEY = "TU_LLAVE_ANON";
-        let supabaseClient = null;
-
-        const ADMIN_ID = "6017105462"; 
-        let userTelegramId = "999999"; 
-        let username = "Minero_Offline";
-        
-        let mineral = 0.00;
-        let plata = 1500; 
-        let oro = 0;
-        let baseRatePerHour = 5;
-
-        let hasDeposited = false;
-        let wordleBasicDate = "";
-        let wordleVipDate = "";
-
-        let storageLevel = 1;
-        const storageLevels = [
-            { level: 1, capacity: 500, cost: 0 },
-            { level: 2, capacity: 6000, cost: 10000 },
-            { level: 3, capacity: 40000, cost: 50000 },
-            { level: 4, capacity: 100000, cost: 80000 }
-        ];
-
-        let inventory = { miner1: 0, miner2: 0, miner3: 0, miner4: 0 };
-
-        let registrationDate = "";
-        let totalMined = 0.00;
-        let totalDeposited = 0;
-        let totalWithdrawn = 0;
-        let referralsCount = 0;
-        
-        let lastSyncTime = Date.now();
-        let isBanned = false;
-
-        // ====== LÓGICA DEL WORDLE ======
-        const WORDS = ["PLATA", "MINAS", "TOKEN", "BLOCK", "DATOS", "CLAVE", "ROCAS", "EXTRA", "FASES", "CICLO", "FONDO", "VALOR", "PAGOS", "REDES", "CABLE", "NEXOS", "RAMPA", "GANAR", "NIVEL", "CESTA", "SALDO", "COBRO", "REGLA", "PULSO", "JUEGO", "BOTON", "POZOS", "NEON", "FIBRA"];
-        let currentMode = 'basic';
-        let wordleStates = { basic: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }, vip: { cycleId: "", target: "", guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" } };
-
-        function switchWordleMode(mode) {
-            currentMode = mode;
-            document.getElementById('tabBasic').classList.remove('active'); document.getElementById('tabVip').classList.remove('active');
-            if (mode === 'basic') { document.getElementById('tabBasic').classList.add('active'); document.getElementById('wordlePrizeText').innerText = "250 Plata"; document.getElementById('lockScreen').style.display = 'none'; document.getElementById('gameArea').style.display = 'block'; }
-            else { document.getElementById('tabVip').classList.add('active'); document.getElementById('wordlePrizeText').innerText = "2.000 Plata"; if (!hasDeposited) { document.getElementById('lockScreen').style.display = 'block'; document.getElementById('gameArea').style.display = 'none'; } else { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('gameArea').style.display = 'block'; } }
-            initWordleMode(mode);
-        }
-
-        function getWordleCycleInfo(mode) {
-            const now = new Date(); const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000); const vetMs = utcMs - (4 * 3600000); const vetDate = new Date(vetMs);
-            let cycleDate = new Date(vetMs); if (vetDate.getHours() < 12) cycleDate.setDate(cycleDate.getDate() - 1);
-            const cycleId = `${cycleDate.getFullYear()}-${cycleDate.getMonth()+1}-${cycleDate.getDate()}`;
-            let hash = 0; for (let i = 0; i < cycleId.length; i++) hash = cycleId.charCodeAt(i) + ((hash << 5) - hash);
-            let offset = mode === 'vip' ? 7 : 0; const index = (Math.abs(hash) + offset) % WORDS.length;
-            return { cycleId, word: WORDS[index] };
-        }
-
-        function initWordleMode(mode) {
-            const { cycleId, word } = getWordleCycleInfo(mode); const savedState = JSON.parse(localStorage.getItem(`wordle_${mode}_${userTelegramId}`) || "{}");
-            let dbDate = mode === 'basic' ? wordleBasicDate : wordleVipDate; let isAlreadyWonInDb = (dbDate === cycleId);
-            if (savedState.cycleId === cycleId) { wordleStates[mode] = savedState; } else { wordleStates[mode] = { cycleId: cycleId, target: word, guesses: [], currentAttempt: 0, currentLetters: "", status: "playing" }; }
-            if (isAlreadyWonInDb) wordleStates[mode].status = "won";
-            saveWordleLocal(mode); renderWordleBoard(); renderKeyboard(); updateKeyboardColors();
-            const statusEl = document.getElementById('wordleStatus'); statusEl.innerText = "";
-            if (wordleStates[mode].status === "won") { statusEl.innerText = "¡Ya ganaste hoy! Vuelve mañana a las 12 PM."; statusEl.style.color = "var(--success)"; } else if (wordleStates[mode].status === "lost") { statusEl.innerText = `Perdiste. La palabra era ${wordleStates[mode].target}.`; statusEl.style.color = "#ff3333"; }
-        }
-
-        function saveWordleLocal(mode) { localStorage.setItem(`wordle_${mode}_${userTelegramId}`, JSON.stringify(wordleStates[mode])); }
-        function renderWordleBoard() {
-            const state = wordleStates[currentMode]; const board = document.getElementById('wordleBoard'); board.innerHTML = "";
-            for (let i = 0; i < 6; i++) {
-                const row = document.createElement('div'); row.className = "wordle-row";
-                let rowText = ""; if (i < state.guesses.length) rowText = state.guesses[i]; else if (i === state.currentAttempt) rowText = state.currentLetters;
-                for (let j = 0; j < 5; j++) {
-                    const cell = document.createElement('div'); cell.className = "wordle-cell"; cell.innerText = rowText[j] || "";
-                    if (i < state.guesses.length) { const targetArr = state.target.split(''); const guessArr = rowText.split('');
-                        if (guessArr[j] === targetArr[j]) { cell.classList.add('correct'); targetArr[j] = null; } else if (targetArr.includes(guessArr[j])) { cell.classList.add('present'); targetArr[targetArr.indexOf(guessArr[j])] = null; } else { cell.classList.add('absent'); }
-                    } row.appendChild(cell);
-                } board.appendChild(row);
-            }
-        }
-        function renderKeyboard() {
-            const kbd = document.getElementById('keyboard'); kbd.innerHTML = "";
-            const layout = [ ['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['ENTER','Z','X','C','V','B','N','M','DEL'] ];
-            layout.forEach(rowKeys => { const rowDiv = document.createElement('div'); rowDiv.className = "key-row";
-                rowKeys.forEach(key => { const btn = document.createElement('button'); btn.className = "key"; btn.innerText = key === 'DEL' ? '⌫' : key; btn.id = `key-${key}`; if (key === 'ENTER' || key === 'DEL') btn.classList.add('wide'); btn.onclick = () => handleKey(key); rowDiv.appendChild(btn); }); kbd.appendChild(rowDiv);
-            });
-        }
-        function updateKeyboardColors() {
-            const state = wordleStates[currentMode]; state.guesses.forEach(guess => { for (let i = 0; i < 5; i++) {
-                    const letter = guess[i]; const btn = document.getElementById(`key-${letter}`); if (!btn) continue;
-                    if (state.target[i] === letter) { btn.className = "key correct"; } else if (state.target.includes(letter) && !btn.classList.contains('correct')) { btn.className = "key present"; } else if (!state.target.includes(letter)) { btn.classList.add('absent'); }
-            }});
-        }
-        function handleKey(key) {
-            const state = wordleStates[currentMode]; if (state.status !== "playing") return;
-            if (key === 'ENTER') {
-                if (state.currentLetters.length !== 5) { document.getElementById('wordleStatus').innerText = "Faltan letras."; setTimeout(() => document.getElementById('wordleStatus').innerText = "", 1500); return; }
-                const guess = state.currentLetters; state.guesses.push(guess);
-                if (guess === state.target) { state.status = "won"; let premio = currentMode === 'basic' ? 250 : 2000; plata += premio; if (currentMode === 'basic') wordleBasicDate = state.cycleId; else wordleVipDate = state.cycleId; document.getElementById('wordleStatus').innerText = `¡Excelente! +${premio.toLocaleString()} Plata.`; document.getElementById('wordleStatus').style.color = "var(--success)"; updateInterface(); saveProgress(); } else if (state.guesses.length >= 6) { state.status = "lost"; document.getElementById('wordleStatus').innerText = `Perdiste. La palabra era: ${state.target}`; document.getElementById('wordleStatus').style.color = "#ff3333"; saveProgress(); }
-                state.currentAttempt++; state.currentLetters = ""; saveWordleLocal(currentMode); renderWordleBoard(); updateKeyboardColors();
-            } else if (key === 'DEL') { state.currentLetters = state.currentLetters.slice(0, -1); renderWordleBoard(); } else { if (state.currentLetters.length < 5) { state.currentLetters += key; renderWordleBoard(); } }
-        }
-
-        // ====== INICIALIZACIÓN ======
-        function showError(msg) { const errBox = document.getElementById('debugStatus'); errBox.style.display = "block"; errBox.innerText += "⚠️ " + msg + " | "; }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tg = window.Telegram.WebApp; tg.ready(); tg.expand();
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                        userTelegramId = tg.initDataUnsafe.user.id.toString();
-                        username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name;
-                        
-                        if (tg.initDataUnsafe.user.photo_url) {
-                            const imgHtml = `<img src="${tg.initDataUnsafe.user.photo_url}" style="width:100%; height:100%; object-fit:cover;">`;
-                            document.getElementById('userAvatarHeader').innerHTML = imgHtml;
-                            document.getElementById('userAvatarProfile').innerHTML = imgHtml;
-                        } else {
-                            const initial = username.charAt(0).toUpperCase();
-                            document.getElementById('userAvatarHeader').innerText = initial;
-                            document.getElementById('userAvatarProfile').innerText = initial;
-                        }
-                    }
-                }
-            } catch (e) {}
-
-            try {
-                if (SUPABASE_URL !== "https://TU_PROYECTO.supabase.co" && window.supabase) { 
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
-                }
-            } catch (e) { showError("Error inicializando cliente Supabase: " + e.message); }
-
-            document.getElementById('usernameDisplay').innerText = "@" + username;
-            document.getElementById('refLink').value = `https://t.me/TuBotAca/app?startapp=${userTelegramId}`;
-            
-            if(userTelegramId === ADMIN_ID) {
-                document.getElementById('adminBtn').style.display = 'block';
-            }
-
-            loadProgress().then(() => {
-                if(!isBanned) {
-                    switchWordleMode('basic'); 
-                    calculateTotalRate(); 
-                    startAutomaticMiningLoop();
-                    loadTasks();
-                    checkActiveDropsCount();
-                    runAutomatedRaffleCheck();
-                }
-            });
-        });
-
-        // ====== LÓGICA DE JUEGO Y PERFIL ======
-        function calculateTotalRate() { baseRatePerHour = 5 + (inventory.miner1 * 75) + (inventory.miner2 * 1650) + (inventory.miner3 * 9300) + (inventory.miner4 * 36000); }
-
-        function updateInterface() {
-            let currentCap = storageLevels[storageLevel - 1].capacity;
-            if (mineral > currentCap) mineral = currentCap;
-
-            document.getElementById('balanceDisplay').innerText = Math.floor(mineral).toLocaleString();
-            document.getElementById('rateDisplay').innerText = `Velocidad actual: ${baseRatePerHour.toLocaleString()}/h`;
-            
-            document.getElementById('globalPlata').innerText = plata.toLocaleString();
-            document.getElementById('globalOro').innerText = oro.toLocaleString();
-
-            document.getElementById('lblStorageLevel').innerText = `Nivel ${storageLevel}`;
-            document.getElementById('lblStorageRatio').innerText = `${Math.floor(mineral).toLocaleString()} / ${currentCap.toLocaleString()}`;
-            
-            let pct = (mineral / currentCap) * 100;
-            document.getElementById('storageBar').style.width = Math.min(pct, 100) + "%";
-
-            document.getElementById('previewCurrentLevel').innerText = storageLevel; document.getElementById('previewCurrentCap').innerText = currentCap.toLocaleString();
-            const previewBox = document.getElementById('upgradePreview'); const btnUpgrade = document.getElementById('btnUpgradeStorage');
-            if (storageLevel >= storageLevels.length) { btnUpgrade.innerText = "NIVEL MÁXIMO"; btnUpgrade.style.background = "#2d3748"; btnUpgrade.style.color = "#718096"; previewBox.style.display = "none"; btnUpgrade.disabled = true; } else { let nextLevel = storageLevels[storageLevel]; document.getElementById('previewNextLevel').innerText = nextLevel.level; document.getElementById('previewNextCap').innerText = nextLevel.capacity.toLocaleString(); previewBox.style.display = "flex"; btnUpgrade.disabled = false; btnUpgrade.innerHTML = `Mejorar por ${nextLevel.cost.toLocaleString()} <span class="icon-silver"></span>`; }
-
-            document.getElementById('qtyMiner1').innerText = inventory.miner1; document.getElementById('qtyMiner2').innerText = inventory.miner2; document.getElementById('qtyMiner3').innerText = inventory.miner3; document.getElementById('qtyMiner4').innerText = inventory.miner4;
-
-            document.getElementById('profTopName').innerText = username;
-            document.getElementById('profUsername').innerText = "@" + username;
-            document.getElementById('profRegDate').innerText = registrationDate;
-            document.getElementById('profTotalMined').innerText = Math.floor(totalMined).toLocaleString();
-            document.getElementById('profMineLevel').innerText = storageLevel;
-            document.getElementById('profTotalMiners').innerText = (inventory.miner1 + inventory.miner2 + inventory.miner3 + inventory.miner4);
-            document.getElementById('profInvites').innerText = referralsCount + " pers.";
-            document.getElementById('profDeposited').innerText = parseFloat(totalDeposited).toFixed(2) + " TON";
-            document.getElementById('profWithdrawn').innerText = parseFloat(totalWithdrawn).toFixed(2) + " TON";
-        }
-
-        function startAutomaticMiningLoop() {
-            setInterval(() => {
-                let cap = storageLevels[storageLevel - 1].capacity;
-                if (mineral < cap) {
-                    let generated = (baseRatePerHour / 3600);
-                    mineral += generated;
-                    totalMined += generated;
-                    if (mineral > cap) mineral = cap;
-                    updateInterface();
-                }
-                
-                lastSyncTime = Date.now();
-                let localData = JSON.parse(localStorage.getItem(`neon_miner_progress_${userTelegramId}`) || "{}");
-                localData.mineral = mineral;
-                localData.totalMined = totalMined;
-                localData.lastSyncTime = lastSyncTime;
-                localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
-
-            }, 1000);
-        }
-
-        function sellMinerals() {
-            if (mineral < 100) { alert("Mínimo 100 minerales para vender."); return; }
-            let bloques = Math.floor(mineral / 100); oro += bloques * 1; plata += bloques * 1; mineral -= (bloques * 100);
-            updateInterface(); saveProgress(); alert(`💰 ¡Venta procesada! Cambiaste ${bloques * 100} minerales por +${bloques} Oro y +${bloques} Plata.`);
-        }
-
-        function upgradeStorage() {
-            if (storageLevel >= storageLevels.length) return;
-            let nextLevel = storageLevels[storageLevel];
-            if (plata >= nextLevel.cost) { plata -= nextLevel.cost; storageLevel++; updateInterface(); saveProgress(); alert(`¡Almacén mejorado al Nivel ${storageLevel}!`); } else { alert(`Necesitas ${nextLevel.cost.toLocaleString()} Plata.`); }
-        }
-
-        function buyMiner(minerId, cost) {
-            if (plata >= cost) { plata -= cost; inventory[minerId]++; calculateTotalRate(); updateInterface(); saveProgress(); alert(`¡Minero adquirido con éxito!`); } else { alert(`Requiere ${cost.toLocaleString()} Plata.`); }
-        }
-
-        // ====== UTILIDADES DE UI ======
-        function switchTab(tabId, element) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + tabId).classList.add('active');
-            if(element) {
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                element.classList.add('active');
-            }
-            if (tabId === 'puzzle') switchWordleMode(currentMode);
-            if (tabId === 'tasks') loadTasks();
-            if (tabId === 'profile') checkActiveDropsCount();
-        }
-
-        function syncManual() { saveProgress(); loadTasks(); checkActiveDropsCount(); runAutomatedRaffleCheck(); alert("Sincronización manual completada."); }
 
         function copyRefLink() {
-            let copyText = document.getElementById("refLink");
-            copyText.select(); copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-            alert("Enlace de referido copiado al portapapeles.");
-        }
-
-        function shareRef() {
-            let link = document.getElementById("refLink").value;
-            let shareText = `¡Únete a mi equipo en Neon Miner y extraigamos oro juntos! ⛏️💰\n\n${link}`;
-            window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`);
-        }
-
-        function updateCarouselDots() {
-            const wrapper = document.getElementById('promoCarousel');
-            const scrollLeft = wrapper.scrollLeft;
-            const cardWidth = wrapper.offsetWidth;
-            const activeIndex = Math.round(scrollLeft / cardWidth);
-            document.querySelectorAll('.dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index === activeIndex);
-            });
-        }
-
-        // ====== SISTEMA DE CARGA OFFLINE Y GUARDADO ======
-        async function loadProgress() {
-            const localSave = localStorage.getItem(`neon_miner_progress_${userTelegramId}`);
-            const todayDate = new Date().toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-            if (localSave) {
-                const localData = JSON.parse(localSave);
-                mineral = parseFloat(localData.mineral || 0); plata = parseInt(localData.plata || 0); oro = parseInt(localData.oro || 0); storageLevel = parseInt(localData.storageLevel || 1);
-                if (localData.inventory) inventory = localData.inventory;
-                wordleBasicDate = localData.wordleBasicDate || ""; wordleVipDate = localData.wordleVipDate || "";
-                registrationDate = localData.registrationDate || todayDate;
-                totalMined = parseFloat(localData.totalMined || 0);
-                totalDeposited = parseFloat(localData.totalDeposited || 0);
-                totalWithdrawn = parseFloat(localData.totalWithdrawn || 0);
-                referralsCount = localData.referralsCount || 0;
-                lastSyncTime = parseInt(localData.lastSyncTime || Date.now());
-                hasDeposited = localData.hasDeposited || false;
-                
-                calculateTotalRate(); updateInterface(); document.getElementById('dbStatus').innerText = "Carga Local";
-            } else {
-                registrationDate = todayDate;
-            }
-
-            try {
-                if (!supabaseClient) { 
-                    applyOfflineMiningCalculation();
-                    if(!localSave) updateInterface(); 
-                    document.getElementById('dbStatus').innerText = "Modo Local"; return; 
-                }
-                
-                let { data, error } = await supabaseClient.from('players').select('*').eq('telegram_id', userTelegramId).maybeSingle();
-                
-                if (data) {
-                    if (data.is_banned) {
-                        isBanned = true;
-                        document.getElementById('bannedScreen').style.display = "flex";
-                        return;
-                    }
-
-                    mineral = parseFloat(data.mineral || 0); plata = parseInt(data.plata || 0); oro = parseInt(data.oro || 0); storageLevel = parseInt(data.storage_level || 1);
-                    inventory.miner1 = parseInt(data.miner1 || 0); inventory.miner2 = parseInt(data.miner2 || 0); inventory.miner3 = parseInt(data.miner3 || 0); inventory.miner4 = parseInt(data.miner4 || 0);
-                    hasDeposited = data.has_deposited || false; wordleBasicDate = data.wordle_basic_date || ""; wordleVipDate = data.wordle_vip_date || "";
-                    registrationDate = data.registration_date || todayDate;
-                    totalMined = parseFloat(data.total_mined || 0); totalDeposited = parseFloat(data.total_deposited || 0); totalWithdrawn = parseFloat(data.total_withdrawn || 0); referralsCount = parseInt(data.referrals_count || 0);
-                    
-                    lastSyncTime = parseInt(data.last_sync || Date.now());
-
-                    calculateTotalRate(); 
-                    applyOfflineMiningCalculation();
-
-                    document.getElementById('dbStatus').innerText = "DB: Sincronizado";
-                    saveProgress(); 
-                } else {
-                    document.getElementById('dbStatus').innerText = "Nuevo Usuario";
-                    await supabaseClient.from('players').insert([{ 
-                        telegram_id: userTelegramId, mineral, plata, oro, storage_level: storageLevel,
-                        registration_date: registrationDate, last_sync: Date.now()
-                    }]);
-                    saveProgress(); 
-                }
-            } catch (e) { showError("Error DB: " + e.message); }
-        }
-
-        function applyOfflineMiningCalculation() {
-            let timeNow = Date.now();
-            let secondsPassed = Math.floor((timeNow - lastSyncTime) / 1000);
-            
-            if (secondsPassed > 0) {
-                let currentCap = storageLevels[storageLevel - 1].capacity;
-                if (mineral < currentCap) {
-                    let offlineMined = secondsPassed * (baseRatePerHour / 3600);
-                    mineral += offlineMined;
-                    totalMined += offlineMined;
-                    if (mineral > currentCap) mineral = currentCap;
-                }
-            }
-            lastSyncTime = timeNow;
-            updateInterface();
-        }
-
-        async function saveProgress() {
-            lastSyncTime = Date.now();
-            const localData = { mineral, plata, oro, storageLevel, inventory, wordleBasicDate, wordleVipDate, registrationDate, totalMined, totalDeposited, totalWithdrawn, referralsCount, lastSyncTime, hasDeposited };
-            localStorage.setItem(`neon_miner_progress_${userTelegramId}`, JSON.stringify(localData));
-
-            if (supabaseClient && !isBanned) {
-                try {
-                    await supabaseClient.from('players').upsert({ 
-                        telegram_id: userTelegramId, 
-                        mineral: mineral, plata: plata, oro: oro, storage_level: storageLevel,
-                        miner1: inventory.miner1, miner2: inventory.miner2, miner3: inventory.miner3, miner4: inventory.miner4,
-                        wordle_basic_date: wordleBasicDate, wordle_vip_date: wordleVipDate,
-                        registration_date: registrationDate,
-                        total_mined: totalMined, total_deposited: totalDeposited, total_withdrawn: totalWithdrawn, referrals_count: referralsCount,
-                        last_sync: lastSyncTime, has_deposited: hasDeposited
-                    }, { onConflict: 'telegram_id' }); 
-                } catch(e) { showError("Guardado nube: " + e.message); }
-            }
-        }
-
-        // ====== CONTROL DINÁMICO DE TAREAS ======
-        async function loadTasks() {
-            const container = document.getElementById('tasksListContainer');
-            if(!supabaseClient) {
-                container.innerHTML = `<p style="color:var(--text-main);">Modo Offline: Supabase desconectado.</p>`;
-                return;
-            }
-
-            try {
-                let { data: allTasks, error: tErr } = await supabaseClient.from('tasks').select('*');
-                let { data: completed, error: cErr } = await supabaseClient.from('completed_tasks').select('task_id').eq('player_id', userTelegramId);
-
-                if(tErr || cErr) throw new Error("Fallo al obtener datos de tareas");
-
-                const completedIds = completed.map(c => c.task_id.toString());
-                container.innerHTML = "";
-
-                let pendingCount = 0;
-
-                if(!allTasks || allTasks.length === 0) {
-                    container.innerHTML = `
-                        <div style="background: var(--panel-bg); border-radius: 16px; padding: 30px 15px; text-align: center; border: 1px dashed rgba(255,255,255,0.1);">
-                            <span style="font-size: 35px; display: block; margin-bottom: 10px;">📋</span>
-                            <p style="color: var(--text-main); font-size: 14px;">No hay tareas disponibles configuradas en este momento.</p>
-                        </div>`;
-                    toggleBadges('navTasksBadge', 0);
-                    return;
-                }
-
-                allTasks.forEach(task => {
-                    const isDone = completedIds.includes(task.id.toString());
-                    if(!isDone) pendingCount++;
-
-                    const card = document.createElement('div');
-                    card.className = "task-card-item";
-                    
-                    let buttonActionHtml = "";
-                    if(isDone) {
-                        buttonActionHtml = `<button class="btn-buy" style="background:#2d3748; color:#718096;" disabled>Completada ✅</button>`;
-                    } else {
-                        buttonActionHtml = `<button class="btn-buy" onclick="verifyAndCompleteTask(${task.id}, '${task.type}', '${task.requirement}', ${task.prize})">Verificar</button>`;
-                    }
-
-                    card.innerHTML = `
-                        <div class="task-details">
-                            <span class="task-title">${task.title}</span>
-                            <span style="font-size:11px; color:var(--text-main);">${task.type === 'referrals' ? 'Requisito: ' + task.requirement + ' referidos' : 'Enlace de comunidad'}</span>
-                            <span class="task-prize">+${task.prize.toLocaleString()} Plata</span>
-                        </div>
-                        <div>${buttonActionHtml}</div>
-                    `;
-                    container.appendChild(card);
-                });
-
-                toggleBadges('navTasksBadge', pendingCount);
-
-            } catch (e) {
-                container.innerHTML = `<p style="color:var(--danger);">Error cargando tareas de Supabase.</p>`;
-            }
-        }
-
-        async function verifyAndCompleteTask(taskId, type, requirement, prize) {
-            if(!supabaseClient) return;
-            
-            let verified = false;
-
-            if(type === 'Cantidad de referidos' || type === 'referrals') {
-                let reqNum = parseInt(requirement);
-                if(referralsCount >= reqNum) {
-                    verified = true;
-                } else {
-                    alert(`❌ No cumples el requisito. Tienes ${referralsCount} de ${reqNum} referidos necesarios.`);
-                    return;
-                }
-            } else {
-                window.Telegram.WebApp.openTelegramLink(requirement);
-                let confirmJoin = confirm("¿Te has unido exitosamente al grupo o canal de Telegram indicado?");
-                if(confirmJoin) verified = true;
-            }
-
-            if(verified) {
-                try {
-                    await supabaseClient.from('completed_tasks').insert([{ player_id: userTelegramId, task_id: taskId }]);
-                    plata += prize;
-                    updateInterface();
-                    await saveProgress();
-                    alert(`🎉 ¡Tarea verificada con éxito! Recompensa otorgada: +${prize.toLocaleString()} Plata.`);
-                    loadTasks();
-                } catch(e) {
-                    alert("Error guardando la verificación de tarea.");
-                }
-            }
-        }
-
-        // ====== SISTEMA GLOBAL DE AIRDROPS (DROPS) ======
-        async function checkActiveDropsCount() {
-            if(!supabaseClient) return;
-            try {
-                let { data: activeDrops } = await supabaseClient.from('drops').select('*');
-                let { data: claimed } = await supabaseClient.from('claimed_drops').select('drop_id').eq('player_id', userTelegramId);
-                
-                if(!activeDrops) return;
-                
-                const claimedIds = claimed ? claimed.map(c => c.drop_id.toString()) : [];
-                let claimableCount = 0;
-
-                activeDrops.forEach(drop => {
-                    if(drop.current_claims < drop.max_claims && !claimedIds.includes(drop.id.toString())) {
-                        claimableCount++;
-                    }
-                });
-
-                toggleBadges('navDropsBadge', claimableCount);
-                toggleBadges('profileDropsCountBadge', claimableCount);
-
-                if(claimableCount > 0) {
-                    document.getElementById('profileDropsStatusText').innerText = `${claimableCount} Drops listos para reclamar`;
-                    document.getElementById('profileDropsStatusText').style.color = "var(--success)";
-                } else {
-                    document.getElementById('profileDropsStatusText').innerText = "No hay nuevos drops disponibles";
-                    document.getElementById('profileDropsStatusText').style.color = "#d8b4fe";
-                }
-            } catch(e){}
-        }
-
-        async function openDropsModal() {
-            const container = document.getElementById('dropsModalContent');
-            container.innerHTML = "<p style='color:white;'>Buscando Drops...</p>";
-            document.getElementById('dropsModal').style.display = "flex";
-
-            if(!supabaseClient) {
-                container.innerHTML = "<p style='color:var(--danger);'>Supabase desconectado.</p>";
-                return;
-            }
-
-            try {
-                let { data: activeDrops } = await supabaseClient.from('drops').select('*');
-                let { data: claimed } = await supabaseClient.from('claimed_drops').select('drop_id').eq('player_id', userTelegramId);
-                
-                const claimedIds = claimed ? claimed.map(c => c.drop_id.toString()) : [];
-                container.innerHTML = "";
-
-                let availableRendered = 0;
-
-                if(activeDrops) {
-                    activeDrops.forEach(drop => {
-                        let remaining = drop.max_claims - drop.current_claims;
-                        if(remaining <= 0) return; 
-
-                        availableRendered++;
-                        const isClaimed = claimedIds.includes(drop.id.toString());
-
-                        const box = document.createElement('div');
-                        box.className = "action-card";
-                        box.style.justifyContent = "space-between";
-
-                        let currencyIcon = drop.prize_type === 'oro' ? 'icon-gold' : 'icon-silver';
-                        
-                        let actionBtnHtml = `<button class="btn-buy" onclick="processClaimDrop(${drop.id})">Reclamar</button>`;
-                        if(isClaimed) {
-                            actionBtnHtml = `<button class="btn-buy" style="background:#2d3748; color:#718096;" disabled>Reclamado</button>`;
-                        }
-
-                        box.innerHTML = `
-                            <div>
-                                <div style="font-weight:bold; color:var(--white);">Drop Global #${drop.id}</div>
-                                <div style="font-size:12px; color:var(--neon-blue);">Premio: ${drop.prize_amount.toLocaleString()} <span class="${currencyIcon}"></span></div>
-                                <div style="font-size:11px; color:var(--text-main);">Quedan: <strong>${remaining}</strong> de ${drop.max_claims} cupos</div>
-                            </div>
-                            <div>${actionBtnHtml}</div>
-                        `;
-                        container.appendChild(box);
-                    });
-                }
-
-                if(availableRendered === 0) {
-                    container.innerHTML = "<p style='color:var(--text-main); text-align:center; padding: 20px 0;'>No hay drops disponibles en este momento.</p>";
-                }
-
-            } catch(e) {
-                container.innerHTML = "<p style='color:var(--danger);'>Error al procesar la lista de drops.</p>";
-            }
-        }
-
-        function closeDropsModal() {
-            document.getElementById('dropsModal').style.display = "none";
-            checkActiveDropsCount();
-        }
-
-        async function processClaimDrop(dropId) {
-            if(!supabaseClient) return;
-            try {
-                let { data: drop, error } = await supabaseClient.from('drops').select('*').eq('id', dropId).single();
-                if(!drop || error) return;
-
-                if(drop.current_claims >= drop.max_claims) {
-                    alert("❌ Demasiado tarde. Este drop ya alcanzó su límite máximo de reclamos.");
-                    openDropsModal();
-                    return;
-                }
-
-                let { error: claimErr } = await supabaseClient.from('claimed_drops').insert([{ player_id: userTelegramId, drop_id: dropId }]);
-                if(claimErr) {
-                    alert("❌ Ya has reclamado este drop anteriormente.");
-                    return;
-                }
-
-                let newClaimsValue = drop.current_claims + 1;
-                if(newClaimsValue >= drop.max_claims) {
-                    await supabaseClient.from('drops').delete().eq('id', dropId);
-                } else {
-                    await supabaseClient.from('drops').update({ current_claims: newClaimsValue }).eq('id', dropId);
-                }
-
-                if(drop.prize_type === 'oro') { oro += drop.prize_amount; } else { plata += drop.prize_amount; }
-
-                updateInterface();
-                await saveProgress();
-                alert(`🎁 ¡Drop reclamado exitosamente! Recibiste +${drop.prize_amount.toLocaleString()} de ${drop.prize_type}.`);
-                openDropsModal();
-
-            } catch(e) {
-                alert("Error procesando el reclamo del drop.");
-            }
-        }
-
-        // ====== DECENTRALIZED AUTOMATED RAFFLE SYSTEM ======
-        function getVenezuelanTimeCycleInfo() {
-            const now = new Date();
-            const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const vetMs = utcMs - (4 * 3600000); 
-            const vetDate = new Date(vetMs);
-
-            let cycleDate = new Date(vetMs);
-            if (vetDate.getHours() < 12) { cycleDate.setDate(cycleDate.getDate() - 1); }
-            const currentRaffleCycleId = `${cycleDate.getFullYear()}-${(cycleDate.getMonth()+1).toString().padStart(2,'0')}-${cycleDate.getDate().toString().padStart(2,'0')}`;
-            
-            let prevCycleDate = new Date(cycleDate);
-            prevCycleDate.setDate(prevCycleDate.getDate() - 1);
-            const previousRaffleCycleId = `${prevCycleDate.getFullYear()}-${(prevCycleDate.getMonth()+1).toString().padStart(2,'0')}-${prevCycleDate.getDate().toString().padStart(2,'0')}`;
-
-            return { currentRaffleCycleId, previousRaffleCycleId, vetDate };
-        }
-
-        async function runAutomatedRaffleCheck() {
-            if(!supabaseClient) return;
-            const { currentRaffleCycleId, previousRaffleCycleId } = getVenezuelanTimeCycleInfo();
-
-            if(hasDeposited || totalDeposited > 0) {
-                try {
-                    await supabaseClient.from('raffle_participants').insert([{ cycle_id: currentRaffleCycleId, player_id: userTelegramId }], { onConflict: 'cycle_id,player_id' });
-                    document.getElementById('profileRaffleStatusText').innerText = "Inscrito en el sorteo de hoy ✅";
-                    document.getElementById('profileRaffleStatusText').style.color = "var(--success)";
-                } catch(e){}
-            } else {
-                document.getElementById('profileRaffleStatusText').innerText = "Falta depósito para calificar ❌";
-                document.getElementById('profileRaffleStatusText').style.color = "var(--warning)";
-            }
-
-            try {
-                let { data: historyRecord } = await supabaseClient.from('raffle_history').select('*').eq('cycle_id', previousRaffleCycleId).maybeSingle();
-                
-                if(!historyRecord) {
-                    let { data: participants, error: pErr } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', previousRaffleCycleId);
-                    
-                    if(participants && participants.length >= 10) {
-                        let randomIndex = Math.floor(Math.random() * participants.length);
-                        let winnerId = participants[randomIndex].player_id;
-
-                        let { data: winnerData } = await supabaseClient.from('players').select('plata, username').eq('telegram_id', winnerId).single();
-                        
-                        let finalWinnerUsername = winnerData?.username || `ID:${winnerId}`;
-                        let updatedPlataBalance = parseInt(winnerData?.plata || 0) + 150000;
-
-                        await supabaseClient.from('players').update({ plata: updatedPlataBalance }).eq('telegram_id', winnerId);
-                        
-                        await supabaseClient.from('raffle_history').insert([{
-                            cycle_id: previousRaffleCycleId,
-                            winner_id: winnerId,
-                            winner_username: finalWinnerUsername,
-                            status: 'completed'
-                        }]);
-
-                        if(winnerId === userTelegramId) {
-                            alert("🎉 ¡ATENCIÓN! Has ganado el Sorteo Automatizado de ayer de las 12 PM. Se te han acreditado +150.000 de Plata a tu balance.");
-                            plata += 150000;
-                            updateInterface();
-                        }
-                    } else {
-                        await supabaseClient.from('raffle_history').insert([{
-                            cycle_id: previousRaffleCycleId,
-                            winner_id: null,
-                            winner_username: 'Ninguno',
-                            status: 'cancelled_low_participants'
-                        }]);
-                    }
-                }
-            } catch(e){}
-        }
-
-        // ====== MÓDULOS DE FINANZAS (DEPÓSITO Y RETIRO) ======
-        function processDeposit() {
-            let tonInput = document.getElementById('depositAmount').value;
-            let tonAmount = parseFloat(tonInput);
-            
-            if (isNaN(tonAmount) || tonAmount < 1) {
-                alert("❌ El depósito mínimo es de 1 TON.");
-                return;
-            }
-
-            let plataGained = tonAmount * 10000;
-            plata += plataGained;
-            totalDeposited += tonAmount;
-            hasDeposited = true;
-
-            document.getElementById('depositAmount').value = '';
-            updateInterface();
-            saveProgress();
-            
-            alert(`✅ ¡Depósito exitoso! Has recibido +${plataGained.toLocaleString()} Plata.`);
-        }
-
-        function processWithdrawal() {
-            let oroInput = document.getElementById('withdrawAmount').value;
-            let oroAmount = parseFloat(oroInput);
-
-            if (isNaN(oroAmount) || oroAmount < 500) {
-                alert("❌ El retiro mínimo equivale a 500 Oro (0.05 TON).");
-                return;
-            }
-
-            if (oro < oroAmount) {
-                alert(`❌ No tienes suficiente Oro. Tu saldo actual es de ${oro.toLocaleString()} Oro.`);
-                return;
-            }
-
-            let tonRetrieved = oroAmount / 10000;
-            oro -= oroAmount;
-            totalWithdrawn += tonRetrieved;
-
-            document.getElementById('withdrawAmount').value = '';
-            updateInterface();
-            saveProgress();
-
-            alert(`✅ ¡Retiro procesado con éxito! Has solicitado el equivalente a ${tonRetrieved.toFixed(2)} TON.`);
-        }
-
-        // ====== AUXILIARES ADICIONALES ======
-        function toggleBadges(elementId, count) {
-            const el = document.getElementById(elementId);
-            if(el) { if(count > 0) { el.innerText = count; el.style.display = "flex"; } else { el.style.display = "none"; } }
-        }
-
-        // ====== INTERFAZ DEL PANEL ADMINISTRADOR ======
-        async function adminCreateTask() {
-            if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            let taskSelection = prompt("Configuración de Tareas:\n\nSelecciona el tipo escribiendo el número:\n1. Cantidad de referidos\n2. Link de un grupo\n3. Link de un canal", "1");
-            if (!taskSelection) return;
-
-            let typeText = "";
-            if(taskSelection === "1") typeText = "referrals";
-            else if(taskSelection === "2") typeText = "group";
-            else if(taskSelection === "3") typeText = "channel";
-            else { alert("Opción inválida."); return; }
-
-            let detailValue = prompt(`Ingresa el enlace URL o la cantidad meta requerida para la condición:`);
-            if(!detailValue) return;
-
-            let titleTask = prompt(`Ingresa el título de la tarea (Ej: Únete a nuestro canal):`);
-            if(!titleTask) return;
-
-            let prizeAmount = parseInt(prompt("Ingresa el monto de recompensa en Plata que recibirá el jugador:"));
-            if(isNaN(prizeAmount)) { alert("Monto inválido."); return; }
-
-            try {
-                const { error } = await supabaseClient.from('tasks').insert([{ title: titleTask, type: typeText, requirement: detailValue, prize: prizeAmount }]);
-                if(error) throw error; alert("✅ Tarea creada e insertada con éxito en la base de datos."); loadTasks();
-            } catch(e) { alert("Error al guardar tarea en Supabase: " + e.message); }
-        }
-
-        async function adminLaunchDrops() {
-            if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            let maxPeople = parseInt(prompt("Cantidad máxima de personas que pueden reclamar este drop (Ej: 10):"));
-            if(isNaN(maxPeople) || maxPeople <= 0) { alert("Cantidad inválida."); return; }
-
-            let pType = prompt("Tipo de premio. Escribe 'oro' o 'plata':").toLowerCase().trim();
-            if(pType !== 'oro' && pType !== 'plata') { alert("Tipo incorrecto."); return; }
-
-            let pAmount = parseInt(prompt("Monto del premio a repartir en este drop:"));
-            if(isNaN(pAmount) || pAmount <= 0) { alert("Monto incorrecto."); return; }
-
-            try {
-                const { error } = await supabaseClient.from('drops').insert([{ max_claims: maxPeople, current_claims: 0, prize_type: pType, prize_amount: pAmount }]);
-                if(error) throw error; alert(`🚀 Drop lanzado globalmente para las primeras ${maxPeople} personas.`); checkActiveDropsCount();
-            } catch(e) { alert("Error creando el drop en Supabase."); }
-        }
-
-        async function adminCheckRaffleState() {
-            if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            const { currentRaffleCycleId } = getVenezuelanTimeCycleInfo();
-            try {
-                let { data: participants } = await supabaseClient.from('raffle_participants').select('player_id').eq('cycle_id', currentRaffleCycleId);
-                let totalPart = participants ? participants.length : 0;
-                alert(`🎟️ Información del Sorteo Automatizado (Ciclo actual: ${currentRaffleCycleId})\n\nParticipantes calificados hoy: ${totalPart}\nFaltan ${Math.max(0, 10 - totalPart)} para alcanzar el mínimo de 10 requeridos.`);
-            } catch(e) { alert("Error consultando estado del sorteo."); }
-        }
-
-        async function adminAdjustBalance() {
-            if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            let target = document.getElementById('adminTargetId').value;
-            if(!target) { alert("Ingresa el ID de Telegram del jugador."); return; }
-            
-            let currency = prompt("¿Qué saldo deseas modificar? Escribe 'oro' o 'plata':").toLowerCase().trim();
-            if(currency !== 'oro' && currency !== 'plata') { alert("Moneda incorrecta."); return; }
-            
-            let quantity = parseInt(prompt("Cantidad a sumar (Coloca números negativos si quieres restar):"));
-            if(isNaN(quantity)) { alert("Número inválido."); return; }
-
-            let { data, error } = await supabaseClient.from('players').select(currency).eq('telegram_id', target).maybeSingle();
-            if(error || !data) { alert("El jugador no existe en la base de datos."); return; }
-
-            let updatedWalletValue = parseInt(data[currency]) + quantity;
-            let updatePayload = {}; updatePayload[currency] = updatedWalletValue;
-
-            await supabaseClient.from('players').update(updatePayload).eq('telegram_id', target);
-            alert(`Saldo modificado. Nuevo balance del usuario: ${updatedWalletValue} ${currency}.`);
-            if(target === userTelegramId) { if(currency === 'oro') oro = updatedWalletValue; else plata = updatedWalletValue; updateInterface(); }
-        }
-
-        async function adminSetBan(banState) {
-            if(!supabaseClient) { alert("Supabase desconectado."); return; }
-            let target = document.getElementById('adminTargetId').value;
-            if(!target) { alert("Ingresa el ID de Telegram del jugador."); return; }
-
-            await supabaseClient.from('players').update({ is_banned: banState }).eq('telegram_id', target);
-            alert(banState ? `Baneado el usuario ID: ${target}` : `Desbaneado el usuario ID: ${target}`);
+            const link = `https://t.me/TuBotDePruebaBot?start=ref_${userId}`;
+            navigator.clipboard.writeText(link);
+            tg.showAlert("✅ ¡Enlace de equipo copiado!");
         }
     </script>
-    
-    </body>
+</body>
 </html>
