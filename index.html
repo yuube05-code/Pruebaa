@@ -30,7 +30,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Animación del Rayo Central (Solo visual, ya no es botón) */
         @keyframes pulse-ring {
             0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.5); }
             70% { box-shadow: 0 0 0 20px rgba(0, 240, 255, 0); }
@@ -48,7 +47,7 @@
             5% { opacity: 1; }
             25% { transform: translateX(400%) skewX(-15deg); opacity: 1; }
             26% { opacity: 0; transform: translateX(400%) skewX(-15deg); }
-            100% { opacity: 0; transform: translateX(-200%) skewX(-15deg); } /* Pausa invisible limpia */
+            100% { opacity: 0; transform: translateX(-200%) skewX(-15deg); } 
         }
         .premium-btn {
             position: relative;
@@ -60,7 +59,7 @@
             top: 0; left: 0; width: 30%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
             animation: sweep 5s infinite linear;
-            pointer-events: none; /* No bloquea clics */
+            pointer-events: none; 
         }
 
         /* Contenedores de Pestañas */
@@ -194,8 +193,7 @@
             <div class="text-4xl drop-shadow-[0_0_10px_rgba(176,38,255,0.5)] text-blue-500">🛒</div>
         </div>
         
-        <div class="space-y-3 pb-8">
-            
+        <div id="shop-items" class="space-y-3 pb-8">
             <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
                 <div>
                     <h3 class="font-bold text-lg text-white">11.8K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
@@ -204,7 +202,7 @@
                         Retorno final: 0.105 TON
                     </p>
                 </div>
-                <button onclick="buyItem(0.1)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                <button onclick="mostrarPago(0.1, 11800)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
                     <span class="drop-shadow-md">0.1</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
@@ -217,7 +215,7 @@
                         Retorno final: 1.050 TON
                     </p>
                 </div>
-                <button onclick="buyItem(1)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                <button onclick="mostrarPago(1, 118000)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
                     <span class="drop-shadow-md">1</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
@@ -233,7 +231,7 @@
                         Retorno final: 5.355 TON
                     </p>
                 </div>
-                <button onclick="buyItem(5)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                <button onclick="mostrarPago(5, 600000)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
                     <span class="drop-shadow-md">5</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
@@ -249,7 +247,7 @@
                         Retorno final: 11.025 TON
                     </p>
                 </div>
-                <button onclick="buyItem(10)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
+                <button onclick="mostrarPago(10, 1200000)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
                     <span class="drop-shadow-md">10</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
@@ -265,7 +263,7 @@
                         Retorno final: 32.813 TON
                     </p>
                 </div>
-                <button onclick="buyItem(25)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
+                <button onclick="mostrarPago(25, 3700000)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
                     <span class="drop-shadow-md">25</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
@@ -281,11 +279,40 @@
                         Retorno final: 157.500 TON
                     </p>
                 </div>
-                <button onclick="buyItem(100)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
+                <button onclick="mostrarPago(100, 17600000)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
                     <span class="drop-shadow-md">100</span> <span class="drop-shadow-md">💎</span>
                 </button>
             </div>
+        </div>
 
+        <div id="payment-view" class="hidden flex-col items-center justify-center space-y-4 pb-8">
+            <div class="bg-[#1a1f35] border border-slate-700 w-full rounded-2xl p-6 shadow-lg">
+                <h3 class="text-2xl font-bold text-white mb-4 text-center">Realiza el Pago</h3>
+                <p class="text-gray-400 text-sm text-center mb-2">Envía exactamente <b class="text-[#00f0ff] text-lg"><span id="monto-pago"></span> TON</b> a esta dirección:</p>
+
+                <div class="bg-[#0f1423] border border-slate-700 p-3 rounded-xl w-full text-center mb-4 cursor-text select-all">
+                    <code id="direccion-ton" class="text-[11px] text-[#b026ff] break-all">UQCJtQwSR8fYJ7jQpdoVIO1mJtFK_fenTOkK9FuQAcZpiQrV</code>
+                </div>
+
+                <p class="text-red-400 text-sm text-center font-bold mb-2">⚠️ IMPORTANTE ⚠️<br> <span class="text-gray-400 font-normal">Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:</span></p>
+                <div class="bg-[#0f1423] border border-red-900/50 p-3 rounded-xl w-full text-center mb-6 cursor-text select-all">
+                    <code id="memo-pago" class="text-xl text-white font-bold"></code>
+                </div>
+
+                <button id="btn-verificar" onclick="verificarPago()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-3 rounded-2xl shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/50 mb-3 transition-all">
+                    Verificar Pago
+                </button>
+                <button onclick="cancelarPago()" class="w-full bg-transparent border border-gray-600 text-gray-400 hover:bg-gray-800 transition-colors font-bold py-3 rounded-2xl mb-4">
+                    Cancelar
+                </button>
+
+                <div class="text-center w-full mt-2">
+                    <a href="https://t.me/Spxdxrr" target="_blank" class="text-sm font-bold text-[#b026ff] flex items-center justify-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                        Soporte técnico (@Spxdxrr)
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -316,14 +343,14 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-        const userId = tg.initDataUnsafe?.user?.id || "DEBUG_USER";
+        const userId = tg.initDataUnsafe?.user?.id || "123456789"; // ID de Telegram para el Memo
 
         // Variables de Usuario (Reset)
         let balanceGHS = 0.000000;
         let userEnergy = 500;
         const uiGHS = document.getElementById('balance-ghs');
         const uiTON = document.getElementById('balance-ton');
-        let ratePerSecond = 44 / 86400; // 44 H/día por defecto
+        let ratePerSecond = 44 / 86400; 
 
         // Minado 100% Automático
         setInterval(() => {
@@ -346,7 +373,72 @@
             activeNav.classList.add('text-[#00f0ff]', 'drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]');
         }
 
-        // Funciones UI
+        // ==========================================
+        // LÓGICA DE COMPRA Y VERIFICACIÓN
+        // ==========================================
+        let mineroSeleccionado = {};
+
+        function mostrarPago(precio, power) {
+            mineroSeleccionado = { precio: precio, power: power };
+            
+            // Ocultar lista de tienda y mostrar pago
+            document.getElementById('shop-items').style.display = 'none';
+            document.getElementById('payment-view').classList.remove('hidden');
+            document.getElementById('payment-view').classList.add('flex');
+            
+            // Asignar los valores a la interfaz
+            document.getElementById('monto-pago').innerText = precio;
+            document.getElementById('memo-pago').innerText = userId;
+        }
+
+        function cancelarPago() {
+            document.getElementById('payment-view').classList.add('hidden');
+            document.getElementById('payment-view').classList.remove('flex');
+            document.getElementById('shop-items').style.display = 'block';
+        }
+
+        function verificarPago() {
+            const btn = document.getElementById('btn-verificar');
+            btn.innerText = "Verificando en blockchain...";
+            btn.disabled = true;
+
+            // IMPORTANTE: Cambia "URL_DE_TU_API_AQUI" por el link público donde alojes tu Flask backend.
+            fetch('https://jrlx.pythonanywhere.com/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegram_id: userId.toString(),
+                    monto_esperado: mineroSeleccionado.precio,
+                    memo_esperado: userId.toString(),
+                    power_comprado: mineroSeleccionado.power
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    tg.showAlert("✅ ¡Pago verificado! Minero asignado y funcionando con éxito.");
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    
+                    userEnergy += mineroSeleccionado.power;
+                    document.getElementById('stat-energy').innerText = userEnergy;
+                    cancelarPago();
+                } else {
+                    tg.showAlert("❌ Pago no encontrado. Si ya pagaste, espera 15 segundos e intenta verificar de nuevo.");
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                }
+            })
+            .catch(error => {
+                tg.showAlert("⚠️ Error de conexión con el servidor. Revisa tu internet.");
+            })
+            .finally(() => {
+                btn.innerText = "Verificar Pago";
+                btn.disabled = false;
+            });
+        }
+
+        // ==========================================
+        // OTRAS FUNCIONES UI
+        // ==========================================
         function exchangeTON() {
             if (balanceGHS < 100) {
                 tg.showAlert("⚠️ Necesitas al menos 100 GHS para intercambiar.");
@@ -356,11 +448,6 @@
             balanceGHS -= 100;
             tg.showAlert("✅ ¡Intercambio exitoso!");
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        function buyItem(cost) {
-            tg.showAlert(`❌ Saldo insuficiente. Necesitas ${cost} TON para adquirir este contrato de minería.`);
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
         }
 
         function doTask(btn, type, amount) {
