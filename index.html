@@ -6,6 +6,7 @@
     <title>VoltTON Miner App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* ========================================== */
         /* ESTILOS BASE Y NEÓN                        */
@@ -150,7 +151,7 @@
                         <div class="w-12 h-12 rounded-xl bg-purple-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(176,38,255,0.3)]">🎲</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="daily_spin">Minijuego de Dados</h3>
-                            <p class="text-xs text-[#00f0ff]">¡Saca 3 iguales y gana +100 ENERGY!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="daily_spin_desc">¡Saca 3 iguales y gana +100 ENERGY!</p>
                         </div>
                     </div>
                 </div>
@@ -177,7 +178,7 @@
         
         <div class="bg-[#0f1423] border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg mb-6 text-center">
             <div class="w-full">
-                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Referidos</h3>
+                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider" data-i18n="total_ref">Total Referidos</h3>
                 <p class="text-3xl font-extrabold text-[#00f0ff] mt-1" id="ref-count">0</p>
             </div>
         </div>
@@ -278,15 +279,16 @@
     </nav>
 
     <script>
+        // ==========================================
+        // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
+        // ==========================================
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
         const userId = tg.initDataUnsafe?.user?.id || "123456789"; 
         
-        // ¡ACTUALIZA ESTA URL CON TU LINK DE RAILWAY!
         const API_URL = "https://idk-production-e6b4.up.railway.app"; 
 
-        // Variables Globales
         let balanceGHS = 0.000000;
         let userEnergy = 0; 
         const uiGHS = document.getElementById('balance-ghs');
@@ -294,34 +296,47 @@
         let ratePerSecond = 0; 
 
         // ==========================================
-        // CALCULAR VELOCIDAD SEGÚN ENERGÍA
+        // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
+        // ==========================================
+        const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; // Reemplazar con tu URL de proyecto Supabase
+        const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';       // Reemplazar con tu anon key de Supabase
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // ==========================================
+        // 3. CALCULAR VELOCIDAD SEGÚN ENERGÍA
         // ==========================================
         function calculateRate() {
-            // Ejemplo: 500 Energy = 44 H/Día
             const dailyRate = (userEnergy / 500) * 44;
             document.getElementById('stat-rate').innerText = Math.floor(dailyRate);
-            ratePerSecond = dailyRate / 86400; // Hashes por segundo
+            ratePerSecond = dailyRate / 86400; 
         }
 
         // ==========================================
-        // OBTENER DATOS DE LA BASE DE DATOS AL ENTRAR
+        // 4. OBTENER DATOS DE SUPABASE AL ENTRAR
         // ==========================================
-        function initUserData() {
-            fetch(`${API_URL}/api/user/${userId}`)
-            .then(res => res.json())
-            .then(data => {
-                if(!data.error) {
-                    balanceGHS = data.ghs_balance || 0;
-                    userEnergy = data.energy || 500;
+        async function initUserData() {
+            try {
+                // Consultamos directamente la tabla de Supabase usando los nombres exactos
+                const { data, error } = await _supabase
+                    .from('progreso_minero')
+                    .select('*')
+                    .eq('telegram_id', userId.toString())
+                    .single();
+
+                if (data) {
+                    balanceGHS = parseFloat(data.current_ghs) || 0;
+                    userEnergy = parseFloat(data.energy) || 500;
                 } else {
-                    userEnergy = 500; // Por defecto
+                    userEnergy = 500; // Energía inicial si es usuario nuevo
                 }
+                
                 document.getElementById('stat-energy').innerText = userEnergy;
                 calculateRate();
-            })
-            .catch(err => console.error("Error conectando a API:", err));
+            } catch (err) {
+                console.error("Error conectando a Supabase:", err);
+            }
 
-            // Cargar cantidad de referidos
+            // Mantenemos la llamada a tu Railway sólo para los referidos
             fetch(`${API_URL}/api/referrals/${userId}`)
             .then(res => res.json())
             .then(data => {
@@ -331,7 +346,7 @@
         initUserData(); 
 
         // ==========================================
-        // MINADO AUTOMÁTICO EN TIEMPO REAL
+        // 5. MINADO AUTOMÁTICO EN TIEMPO REAL
         // ==========================================
         setInterval(() => {
             balanceGHS += ratePerSecond / 10;
@@ -340,42 +355,87 @@
         }, 100);
 
         // ==========================================
-        // SISTEMA DE AUTOGUARDADO (Soluciona la pérdida de datos)
+        // 6. SISTEMA DE AUTOGUARDADO EN SUPABASE
         // ==========================================
-        function saveProgress() {
+        async function saveProgress() {
             const statusEl = document.getElementById('save-status');
             statusEl.innerText = "⏳ Guardando...";
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
-            fetch(`${API_URL}/api/sync`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telegram_id: userId.toString(),
-                    current_ghs: balanceGHS,
-                    energy: userEnergy
-                })
-            }).then(res => res.json())
-            .then(data => {
+            try {
+                // Guardamos directamente en la tabla con los nombres de columna correctos
+                const { error } = await _supabase
+                    .from('progreso_minero')
+                    .upsert({
+                        telegram_id: userId.toString(),
+                        current_ghs: balanceGHS,
+                        energy: userEnergy
+                    }, { onConflict: 'telegram_id' });
+
+                if (error) throw error;
+
                 statusEl.innerText = "✔️ Progreso guardado";
                 statusEl.classList.replace('text-yellow-400', 'text-green-400');
-            }).catch(e => {
+            } catch (e) {
+                console.error(e);
                 statusEl.innerText = "⚠️ Error al guardar";
                 statusEl.classList.replace('text-green-400', 'text-red-400');
-            });
+            }
         }
         
         // Guarda el progreso cada 10 segundos
         setInterval(saveProgress, 10000);
-
-        // Intenta guardar justo antes de que el usuario cierre la Mini App
         window.addEventListener('beforeunload', saveProgress);
 
         // ==========================================
-        // SISTEMA DE IDIOMAS Y PESTAÑAS
+        // 7. SISTEMA DE IDIOMAS COMPLETO (CORREGIDO)
         // ==========================================
-        const langData = { /* (Omitido visualmente aquí para brevedad, pero mantenemos tu código) */ };
-        function setLang(lang) { /* (Tu código intacto) */ }
+        const langData = {
+            es: {
+                mined: "GHS Minados", h_day: "H/Día", expiration: "Próx. expiración",
+                btn_exchange: "CAMBIAR GHS → TON", btn_exchange_desc: "Convierte GHS minados a TON",
+                nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
+                daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
+                nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
+                btn_copy: "🔗 Copiar Enlace de Invitación", nav_rank: "Rank", rank_desc: "Los mineros más potentes.",
+                loading: "Cargando base de datos...", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
+                return: "Retorno final:", pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
+                pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
+                btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador"
+            },
+            en: {
+                mined: "Mined GHS", h_day: "H/Day", expiration: "Next expiration",
+                btn_exchange: "EXCHANGE GHS → TON", btn_exchange_desc: "Convert mined GHS to TON",
+                nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
+                daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
+                nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
+                btn_copy: "🔗 Copy Invite Link", nav_rank: "Rank", rank_desc: "The most powerful miners.",
+                loading: "Loading database...", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
+                return: "Final return:", pay_title: "Make Payment", pay_desc: "Send exactly",
+                pay_desc2: "to this address:", important: "IMPORTANT", pay_memo: "Copy and include this MEMO in your payment, otherwise you'll lose your money:",
+                btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner"
+            }
+        };
+
+        function setLang(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (langData[lang] && langData[lang][key]) {
+                    el.innerHTML = langData[lang][key];
+                }
+            });
+
+            const btnEs = document.getElementById('btn-es');
+            const btnEn = document.getElementById('btn-en');
+            
+            if(lang === 'es') {
+                btnEs.className = "text-xl transition-all scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]";
+                btnEn.className = "text-xl transition-all opacity-50 hover:opacity-100";
+            } else {
+                btnEn.className = "text-xl transition-all scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]";
+                btnEs.className = "text-xl transition-all opacity-50 hover:opacity-100";
+            }
+        }
         
         function changeTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -398,7 +458,7 @@
         }
 
         // ==========================================
-        // LÓGICA DE COMPRA Y VERIFICACIÓN
+        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN
         // ==========================================
         let mineroSeleccionado = {};
 
@@ -441,8 +501,8 @@
                     
                     userEnergy += mineroSeleccionado.power;
                     document.getElementById('stat-energy').innerText = userEnergy;
-                    calculateRate(); // Recalcula la velocidad al instante
-                    saveProgress();  // Guarda el minero comprado de inmediato
+                    calculateRate(); 
+                    saveProgress();  
                     cancelarPago();
                 } else {
                     tg.showAlert("❌ Pago no encontrado. Si ya enviaste, la red puede tardar un poco. Espera 30s e intenta de nuevo.");
@@ -459,7 +519,7 @@
         }
 
         // ==========================================
-        // MINIJUEGO DE DADOS REAL
+        // 9. MINIJUEGO DE DADOS REAL
         // ==========================================
         function playDiceGame() {
             const btn = document.getElementById('btn-play-dice');
@@ -475,7 +535,6 @@
             let rolls = 0;
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-            // Animación de giro
             const interval = setInterval(() => {
                 d1.innerText = faces[Math.floor(Math.random() * 6)];
                 d2.innerText = faces[Math.floor(Math.random() * 6)];
@@ -485,7 +544,6 @@
                 if (rolls > 15) {
                     clearInterval(interval);
                     
-                    // Resultado final
                     const res1 = Math.floor(Math.random() * 6);
                     const res2 = Math.floor(Math.random() * 6);
                     const res3 = Math.floor(Math.random() * 6);
@@ -494,7 +552,6 @@
                     d2.innerText = faces[res2];
                     d3.innerText = faces[res3];
 
-                    // Lógica de victoria: ¡Los 3 iguales!
                     if(res1 === res2 && res2 === res3) {
                         tg.showAlert("🎉 ¡BINGO! Sacaste 3 iguales y ganaste +100 ENERGY.");
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -502,23 +559,21 @@
                         userEnergy += 100;
                         document.getElementById('stat-energy').innerText = userEnergy;
                         calculateRate();
-                        saveProgress(); // Guardamos el premio en base de datos
+                        saveProgress(); 
                     } else {
-                        // Descomenta el alert de abajo si quieres avisarle siempre, pero puede ser molesto
-                        // tg.showAlert("Vaya, no hubo suerte. ¡Inténtalo de nuevo!");
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                     }
                     
                     setTimeout(() => {
                         btn.innerHTML = "¡Lanzar Dados!";
                         btn.disabled = false;
-                    }, 2000); // 2 Segundos de espera para evitar spam
+                    }, 2000); 
                 }
             }, 80);
         }
 
         // ==========================================
-        // OTRAS FUNCIONES
+        // 10. OTRAS FUNCIONES
         // ==========================================
         function exchangeTON() {
             if (balanceGHS < 100) {
