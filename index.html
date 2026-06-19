@@ -114,11 +114,11 @@
                     <span class="text-[10px] text-gray-500 uppercase" data-i18n="h_day">H/Día</span>
                 </div>
                 <div class="flex flex-col items-center border-l border-r border-slate-700">
-                    <span id="stat-energy" class="text-xl font-bold text-white">---</span>
+                    <span id="stat-energy" class="text-xl font-bold text-white">0</span>
                     <span class="text-[10px] text-gray-500 uppercase">Energy</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <span class="text-xl font-bold text-white">6d 8h</span>
+                    <span id="stat-expiration" class="text-lg font-bold text-white">--</span>
                     <span class="text-[10px] text-gray-500 uppercase" data-i18n="expiration">Próx. expiración</span>
                 </div>
             </div>
@@ -140,10 +140,10 @@
                 <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
 
-            <div class="w-full">
+            <div class="w-full pb-6">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-lg font-bold text-white" data-i18n="your_contracts">Tus Contratos</h3>
-                    <span class="text-xs text-[#00f0ff] font-medium" id="active-contracts-count">1 Activo</span>
+                    <span class="text-xs text-[#00f0ff] font-medium" id="active-contracts-count">0 Activos</span>
                 </div>
                 <div id="contracts-list" class="space-y-3">
                     </div>
@@ -151,7 +151,7 @@
         </div>
 
         <div id="withdraw-view" class="hidden w-full flex-col mt-4">
-            <button onclick="closeWithdrawView()" class="mb-6 flex items-center text-gray-400 hover:text-white transition-colors">
+            <button onclick="closeWithdrawView()" class="mb-6 flex items-center text-gray-400 hover:text-white transition-colors w-fit">
                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 <span data-i18n="back">Volver</span>
             </button>
@@ -162,16 +162,20 @@
                 <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg">
                     <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
                         <span class="text-sm text-gray-400" data-i18n="exchange_rate">Tasa de cambio:</span>
-                        <span class="text-sm font-bold text-white">1 GHS = 0.0000144 TON</span>
+                        <span class="text-sm font-bold text-[#00f0ff]">1000 GHS = 0.01 TON</span>
                     </div>
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-sm text-gray-400" data-i18n="your_hashes">Tus Hashes (GHS):</span>
-                        <span class="text-lg font-bold text-[#00f0ff]" id="withdraw-hashes-display">0.000000</span>
+                        <span class="text-lg font-bold text-white" id="withdraw-hashes-display">0.000000</span>
                     </div>
                     <div class="flex justify-between items-center pt-3 border-t border-slate-800">
                         <span class="text-sm text-gray-400" data-i18n="ton_equivalent">Equivalente:</span>
                         <span class="text-2xl font-extrabold text-[#b026ff]" id="withdraw-ton-display">0.000000 TON</span>
                     </div>
+                </div>
+
+                <div class="text-center mb-2">
+                    <p class="text-xs text-gray-500">Mínimo de retiro: 1000 GHS</p>
                 </div>
 
                 <button onclick="showAddressInput()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.4)] border border-[#00f0ff]/50 transition-all">
@@ -183,6 +187,7 @@
                 <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg text-center">
                     <p class="text-sm text-gray-400 mb-4" data-i18n="enter_wallet">Ingresa tu dirección de billetera TON para recibir los fondos.</p>
                     <input type="text" id="ton-address-input" placeholder="Ej: UQ..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-xl px-4 py-3 outline-none focus:border-[#00f0ff] transition-colors mb-2">
+                    <p class="text-[10px] text-yellow-400 mt-2">Nota: Al retirar, se vaciarán todos tus GHS actuales.</p>
                 </div>
 
                 <button onclick="procesarRetiro()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(176,38,255,0.4)] border border-[#b026ff]/50 transition-all">
@@ -256,7 +261,6 @@
         </div>
         
         <div id="shop-items" class="space-y-4 pb-8">
-            
             <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#00f0ff]/10 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
@@ -277,7 +281,7 @@
                         <span class="text-green-400 font-bold">0.105 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(0.1, 11800)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(0.1, 11800, 'Minero Básico')" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
             <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
@@ -299,7 +303,7 @@
                         <span class="text-green-400 font-bold">0.525 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(0.5, 59000)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(0.5, 59000, 'Minero Estándar')" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
             <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
@@ -321,7 +325,7 @@
                         <span class="text-green-400 font-bold">1.050 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(1.0, 118000)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(1.0, 118000, 'Minero Avanzado')" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
             <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
@@ -344,7 +348,7 @@
                         <span class="text-green-400 font-bold">2.625 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(2.5, 295000)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(2.5, 295000, 'Minero Pro')" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
             <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
@@ -367,7 +371,7 @@
                         <span class="text-green-400 font-bold">5.250 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(5.0, 590000)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(5.0, 590000, 'Minero Ultra')" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
         </div>
 
@@ -429,8 +433,12 @@
         
         const API_URL = "https://idk-production-e6b4.up.railway.app"; 
 
+        // NUEVA TASA: 1000 GHS = 0.01 TON => 1 GHS = 0.00001 TON
+        const GHS_TO_TON_RATE = 0.00001; 
+
         let balanceGHS = 0.000000;
         let userEnergy = 0; 
+        let misContratos = []; // Almacenará los contratos activos de la DB
         const uiGHS = document.getElementById('balance-ghs');
         const uiTON = document.getElementById('balance-ton');
         let ratePerSecond = 0; 
@@ -452,10 +460,139 @@
         }
 
         // ==========================================
-        // 4. OBTENER DATOS Y CALCULAR MINADO OFFLINE
+        // 4. SISTEMA DE CONTRATOS (NUEVO)
+        // ==========================================
+        async function fetchContracts() {
+            try {
+                const { data, error } = await _supabase
+                    .from('contratos_mineros')
+                    .select('*')
+                    .eq('telegram_id', userId.toString());
+                
+                if (data && data.length > 0) {
+                    misContratos = data;
+                } else {
+                    // Si no tiene contratos, le damos un Minero Free por defecto de 30 días
+                    const inicio = new Date();
+                    const fin = new Date();
+                    fin.setDate(fin.getDate() + 30);
+                    
+                    const freeMiner = {
+                        telegram_id: userId.toString(),
+                        nombre: "Minero Free",
+                        potencia: 500,
+                        fecha_inicio: inicio.toISOString(),
+                        fecha_fin: fin.toISOString()
+                    };
+                    
+                    await _supabase.from('contratos_mineros').insert([freeMiner]);
+                    misContratos = [freeMiner];
+                }
+                
+                updateEnergyFromContracts();
+            } catch (err) {
+                console.error("Error al obtener contratos:", err);
+            }
+        }
+
+        function updateEnergyFromContracts() {
+            let totalEnergy = 0;
+            const now = new Date();
+            let proxExpiracion = null;
+
+            misContratos.forEach(c => {
+                const fin = new Date(c.fecha_fin);
+                if (fin > now) {
+                    totalEnergy += parseFloat(c.potencia);
+                    // Determinar cuál expira primero
+                    if (!proxExpiracion || fin < proxExpiracion) {
+                        proxExpiracion = fin;
+                    }
+                }
+            });
+
+            userEnergy = totalEnergy;
+            document.getElementById('stat-energy').innerText = userEnergy;
+            
+            // Actualizar etiqueta superior de expiración
+            if (proxExpiracion) {
+                const ms = proxExpiracion - now;
+                const d = Math.floor(ms / (1000 * 60 * 60 * 24));
+                const h = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById('stat-expiration').innerText = `${d}d ${h}h`;
+            } else {
+                document.getElementById('stat-expiration').innerText = "--";
+            }
+
+            calculateRate();
+            renderContracts();
+        }
+
+        function renderContracts() {
+            const container = document.getElementById('contracts-list');
+            container.innerHTML = "";
+            const now = new Date();
+            let activos = 0;
+
+            misContratos.forEach(contrato => {
+                const inicio = new Date(contrato.fecha_inicio);
+                const fin = new Date(contrato.fecha_fin);
+                
+                if (fin > now) {
+                    activos++;
+                    const totalMs = fin - inicio;
+                    const elapsedMs = now - inicio;
+                    
+                    // Calcular progreso de 0 a 100%
+                    let progreso = (elapsedMs / totalMs) * 100;
+                    if (progreso < 0) progreso = 0;
+                    if (progreso > 100) progreso = 100;
+                    
+                    const restantesMs = fin - now;
+                    const dias = Math.floor(restantesMs / (1000 * 60 * 60 * 24));
+                    const horas = Math.floor((restantesMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((restantesMs % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    let tiempoTexto = `${dias}d ${horas}h`;
+                    if (dias === 0) tiempoTexto = `${horas}h ${mins}m`;
+
+                    const card = `
+                    <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600">⚡</div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">${contrato.nombre}</h4>
+                                    <p class="text-[10px] text-gray-400">${contrato.potencia} ENERGY</p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">${tiempoTexto}</span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                                <span>Progreso del contrato</span>
+                                <span class="text-[#00f0ff]">${progreso.toFixed(1)}%</span>
+                            </div>
+                            <div class="bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/50">
+                                <div class="bg-gradient-to-r from-[#00f0ff] to-[#b026ff] h-full shadow-[0_0_10px_rgba(0,240,255,0.8)]" style="width: ${progreso}%;"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                    container.innerHTML += card;
+                }
+            });
+            document.getElementById('active-contracts-count').innerText = `${activos} Activo(s)`;
+        }
+
+        // ==========================================
+        // 5. OBTENER DATOS Y CALCULAR MINADO OFFLINE
         // ==========================================
         async function initUserData() {
             try {
+                // Primero obtener contratos para establecer energía base
+                await fetchContracts();
+
                 const { data, error } = await _supabase
                     .from('progreso_minero')
                     .select('*')
@@ -464,8 +601,6 @@
 
                 if (data) {
                     balanceGHS = parseFloat(data.current_ghs) || 0;
-                    userEnergy = parseFloat(data.energy) || 500;
-                    calculateRate(); 
 
                     if (data.updated_at) {
                         const lastUpdate = new Date(data.updated_at).getTime();
@@ -483,18 +618,9 @@
                             }
                         }
                     }
-                } else {
-                    userEnergy = 500; 
-                    calculateRate();
                 }
-                
-                document.getElementById('stat-energy').innerText = userEnergy;
-                renderContracts(); // Renderizar los contratos al iniciar
-                
             } catch (err) {
-                console.error("Error conectando a Supabase:", err);
-                calculateRate();
-                renderContracts(); 
+                console.error("Error inicializando datos:", err);
             }
 
             fetch(`${API_URL}/api/referrals/${userId}`)
@@ -506,16 +632,19 @@
         initUserData(); 
 
         // ==========================================
-        // 5. MINADO AUTOMÁTICO EN TIEMPO REAL
+        // 6. MINADO AUTOMÁTICO EN TIEMPO REAL
         // ==========================================
         setInterval(() => {
             balanceGHS += ratePerSecond / 10;
             uiGHS.innerText = balanceGHS.toFixed(6);
-            uiTON.innerText = `≈ ${(balanceGHS * 0.0000144).toFixed(8)} TON`;
+            uiTON.innerText = `≈ ${(balanceGHS * GHS_TO_TON_RATE).toFixed(8)} TON`;
         }, 100);
 
+        // Actualizar visualmente los contratos cada minuto para que el tiempo/porcentaje baje
+        setInterval(renderContracts, 60000);
+
         // ==========================================
-        // 6. SISTEMA DE AUTOGUARDADO (CON TIMESTAMP)
+        // 7. SISTEMA DE AUTOGUARDADO
         // ==========================================
         async function saveProgress() {
             const statusEl = document.getElementById('save-status');
@@ -547,7 +676,7 @@
         window.addEventListener('beforeunload', saveProgress);
 
         // ==========================================
-        // 7. SISTEMA DE IDIOMAS Y PESTAÑAS
+        // 8. SISTEMA DE IDIOMAS Y PESTAÑAS
         // ==========================================
         const langData = {
             es: {
@@ -620,7 +749,7 @@
             targetTab.classList.remove('hidden');
             if(tabId === 'miner') {
                 targetTab.classList.add('flex');
-                closeWithdrawView(); // reset withdraw view when changing tabs
+                closeWithdrawView(); 
             } else {
                 targetTab.classList.add('block');
             }
@@ -631,18 +760,16 @@
         }
 
         // ==========================================
-        // NUEVO: SISTEMA DE RETIRO DETALLADO
+        // 9. SISTEMA DE RETIRO VACIANDO HASHES
         // ==========================================
         function openWithdrawView() {
             document.getElementById('miner-main-content').classList.add('hidden');
             document.getElementById('withdraw-view').classList.remove('hidden');
             document.getElementById('withdraw-view').classList.add('flex');
             
-            // Actualizar valores
             document.getElementById('withdraw-hashes-display').innerText = balanceGHS.toFixed(6);
-            document.getElementById('withdraw-ton-display').innerText = (balanceGHS * 0.0000144).toFixed(6) + " TON";
+            document.getElementById('withdraw-ton-display').innerText = (balanceGHS * GHS_TO_TON_RATE).toFixed(6) + " TON";
 
-            // Resetear vistas de pasos
             document.getElementById('withdraw-step-1').classList.remove('hidden');
             document.getElementById('withdraw-step-2').classList.add('hidden');
         }
@@ -654,8 +781,8 @@
         }
 
         function showAddressInput() {
-            if (balanceGHS < 100) {
-                tg.showAlert("⚠️ Necesitas al menos 100 GHS para retirar.");
+            if (balanceGHS < 1000) {
+                tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.01 TON) para retirar.");
                 return;
             }
             document.getElementById('withdraw-step-1').classList.add('hidden');
@@ -669,66 +796,24 @@
                 return;
             }
             
-            // Lógica ficticia de retiro (descontar saldo)
-            balanceGHS -= 100; // Descontar monto mínimo o el total (ajustar según tu lógica)
+            const montoRetirado = (balanceGHS * GHS_TO_TON_RATE).toFixed(6);
+            
+            // VACIAMOS LOS HASHES AL RETIRAR
+            balanceGHS = 0; 
             saveProgress();
             
-            tg.showAlert(`✅ ¡Retiro solicitado con éxito a la dirección: ${address.substring(0, 8)}...!`);
+            tg.showAlert(`✅ ¡Retiro de ${montoRetirado} TON solicitado a la dirección: ${address.substring(0, 8)}...! Tus hashes han vuelto a cero.`);
             closeWithdrawView();
-            document.getElementById('ton-address-input').value = ""; // limpiar
+            document.getElementById('ton-address-input').value = ""; 
         }
 
         // ==========================================
-        // NUEVO: RENDERIZADO DE CONTRATOS
-        // ==========================================
-        function renderContracts() {
-            const container = document.getElementById('contracts-list');
-            
-            // Simulación de un contrato activo con progreso calculado
-            // En un futuro, puedes llenar este array con datos de tu base de datos
-            const misContratos = [
-                { nombre: "Minero Free", potencia: "500 ENERGY", progreso: 45, diasRestantes: "6d 8h" }
-            ];
-
-            container.innerHTML = "";
-            document.getElementById('active-contracts-count').innerText = `${misContratos.length} Activo(s)`;
-
-            misContratos.forEach(contrato => {
-                const card = `
-                <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg relative overflow-hidden">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600">⚡</div>
-                            <div>
-                                <h4 class="text-white font-bold text-sm">${contrato.nombre}</h4>
-                                <p class="text-[10px] text-gray-400">${contrato.potencia}</p>
-                            </div>
-                        </div>
-                        <span class="text-xs text-gray-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">${contrato.diasRestantes}</span>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <div class="flex justify-between text-[10px] text-gray-400 mb-1">
-                            <span>Progreso del contrato</span>
-                            <span class="text-[#00f0ff]">${contrato.progreso}%</span>
-                        </div>
-                        <div class="bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/50">
-                            <div class="bg-gradient-to-r from-[#00f0ff] to-[#b026ff] h-full shadow-[0_0_10px_rgba(0,240,255,0.8)]" style="width: ${contrato.progreso}%;"></div>
-                        </div>
-                    </div>
-                </div>`;
-                container.innerHTML += card;
-            });
-        }
-
-
-        // ==========================================
-        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN
+        // 10. LÓGICA DE COMPRA Y VERIFICACIÓN
         // ==========================================
         let mineroSeleccionado = {};
 
-        function mostrarPago(precio, power) {
-            mineroSeleccionado = { precio: precio, power: power };
+        function mostrarPago(precio, power, nombre) {
+            mineroSeleccionado = { precio: precio, power: power, nombre: nombre };
             document.getElementById('shop-items').style.display = 'none';
             document.getElementById('payment-view').classList.remove('hidden');
             document.getElementById('payment-view').classList.add('flex');
@@ -761,22 +846,35 @@
                     request_id: timestampActual
                 })
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(async (response) => {
+                const data = await response.json();
                 if(data.success) {
                     tg.showAlert("✅ ¡Pago verificado! Tu nuevo minero ha sido activado.");
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     
-                    userEnergy += mineroSeleccionado.power;
-                    document.getElementById('stat-energy').innerText = userEnergy;
-                    calculateRate(); 
+                    // CREAR CONTRATO EN DB
+                    const inicio = new Date();
+                    const fin = new Date();
+                    fin.setDate(fin.getDate() + 30); // 30 Días
+                    
+                    await _supabase.from('contratos_mineros').insert([{
+                        telegram_id: userId.toString(),
+                        nombre: mineroSeleccionado.nombre || "Nuevo Minero",
+                        potencia: mineroSeleccionado.power,
+                        fecha_inicio: inicio.toISOString(),
+                        fecha_fin: fin.toISOString()
+                    }]);
+
+                    // Recargar contratos para actualizar UI y energía
+                    await fetchContracts();
                     saveProgress();  
                     cancelarPago();
+                    changeTab('miner'); // Volver a la pantalla principal para ver el contrato
                 } else if (data.error === "used_tx") {
                     tg.showAlert("⚠️ Error: Esta transacción ya fue cobrada anteriormente.");
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 } else {
-                    tg.showAlert("❌ Pago no encontrado. Si ya enviaste, la red puede tardar un poco. Espera 30s e intenta de nuevo.");
+                    tg.showAlert("❌ Pago no encontrado. Espera 30s e intenta de nuevo.");
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 }
             })
@@ -790,7 +888,7 @@
         }
 
         // ==========================================
-        // 9. MINIJUEGO DE DADOS REAL
+        // 11. MINIJUEGO DE DADOS
         // ==========================================
         function playDiceGame() {
             const btn = document.getElementById('btn-play-dice');
@@ -827,6 +925,7 @@
                         tg.showAlert("🎉 ¡BINGO! Sacaste 3 iguales y ganaste +100 ENERGY.");
                         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                         
+                        // Agregar como un mini-contrato o bono directo, aquí lo sumamos directamente (opcional)
                         userEnergy += 100;
                         document.getElementById('stat-energy').innerText = userEnergy;
                         calculateRate();
@@ -844,7 +943,7 @@
         }
 
         // ==========================================
-        // 10. OTRAS FUNCIONES
+        // 12. OTRAS FUNCIONES
         // ==========================================
         function copyRefLink() {
             const link = `https://t.me/TuBotDePruebaBot?start=ref_${userId}`;
