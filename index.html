@@ -298,8 +298,8 @@
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
         // ==========================================
-        const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; // Reemplazar con tu URL de proyecto Supabase
-        const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM';       // Reemplazar con tu anon key de Supabase
+        const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; // Reemplazar con tu URL
+        const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM'; // Reemplazar con tu anon key
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // ==========================================
@@ -312,11 +312,10 @@
         }
 
         // ==========================================
-        // 4. OBTENER DATOS DE SUPABASE AL ENTRAR
+        // 4. OBTENER DATOS Y CALCULAR MINADO OFFLINE
         // ==========================================
         async function initUserData() {
             try {
-                // Consultamos directamente la tabla de Supabase usando los nombres exactos
                 const { data, error } = await _supabase
                     .from('progreso_minero')
                     .select('*')
@@ -326,14 +325,36 @@
                 if (data) {
                     balanceGHS = parseFloat(data.current_ghs) || 0;
                     userEnergy = parseFloat(data.energy) || 500;
+                    calculateRate(); // Calculamos la velocidad actual
+
+                    // LÓGICA DE MINADO OFFLINE
+                    if (data.updated_at) {
+                        const lastUpdate = new Date(data.updated_at).getTime();
+                        const now = Date.now();
+                        const diffSeconds = (now - lastUpdate) / 1000;
+
+                        if (diffSeconds > 0) {
+                            const offlineMined = diffSeconds * ratePerSecond;
+                            balanceGHS += offlineMined;
+                            
+                            // Mostrar alerta si minó algo significativo mientras estaba fuera
+                            if (offlineMined > 0.001) {
+                                setTimeout(() => {
+                                    tg.showAlert(`⚡ ¡Bienvenido de vuelta! Minaste ${offlineMined.toFixed(4)} GHS mientras estabas desconectado.`);
+                                }, 1500);
+                            }
+                        }
+                    }
                 } else {
-                    userEnergy = 500; // Energía inicial si es usuario nuevo
+                    userEnergy = 500; // Energía inicial
+                    calculateRate();
                 }
                 
                 document.getElementById('stat-energy').innerText = userEnergy;
-                calculateRate();
+                
             } catch (err) {
                 console.error("Error conectando a Supabase:", err);
+                calculateRate(); // Por si falla, que arranque con los valores default
             }
 
             // Mantenemos la llamada a tu Railway sólo para los referidos
@@ -355,7 +376,7 @@
         }, 100);
 
         // ==========================================
-        // 6. SISTEMA DE AUTOGUARDADO EN SUPABASE
+        // 6. SISTEMA DE AUTOGUARDADO (CON TIMESTAMP)
         // ==========================================
         async function saveProgress() {
             const statusEl = document.getElementById('save-status');
@@ -363,13 +384,14 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
-                // Guardamos directamente en la tabla con los nombres de columna correctos
+                // Guardamos el progreso y el timestamp actual para el minado offline
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
                         telegram_id: userId.toString(),
                         current_ghs: balanceGHS,
-                        energy: userEnergy
+                        energy: userEnergy,
+                        updated_at: new Date().toISOString() // NUEVO: Registra la hora exacta
                     }, { onConflict: 'telegram_id' });
 
                 if (error) throw error;
@@ -383,12 +405,11 @@
             }
         }
         
-        // Guarda el progreso cada 10 segundos
         setInterval(saveProgress, 10000);
         window.addEventListener('beforeunload', saveProgress);
 
         // ==========================================
-        // 7. SISTEMA DE IDIOMAS COMPLETO (CORREGIDO)
+        // 7. SISTEMA DE IDIOMAS
         // ==========================================
         const langData = {
             es: {
@@ -458,7 +479,7 @@
         }
 
         // ==========================================
-        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN
+        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN (PROTEGIDA EN FRONTEND)
         // ==========================================
         let mineroSeleccionado = {};
 
@@ -483,6 +504,9 @@
             btn.innerText = "Verificando en Blockchain...";
             btn.disabled = true;
 
+            // Se envía un identificador único basado en tiempo para que la API sepa que es una petición nueva
+            const timestampActual = Date.now();
+
             fetch(`${API_URL}/api/verify_payment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -490,7 +514,8 @@
                     telegram_id: userId.toString(),
                     monto_esperado: mineroSeleccionado.precio,
                     memo_esperado: userId.toString(),
-                    power_comprado: mineroSeleccionado.power
+                    power_comprado: mineroSeleccionado.power,
+                    request_id: timestampActual // Añadido para seguridad de tu backend
                 })
             })
             .then(response => response.json())
@@ -504,6 +529,10 @@
                     calculateRate(); 
                     saveProgress();  
                     cancelarPago();
+                } else if (data.error === "used_tx") {
+                    // Si tu API detecta que el TXID ya fue cobrado, mandará este error
+                    tg.showAlert("⚠️ Error: Esta transacción ya fue cobrada anteriormente.");
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 } else {
                     tg.showAlert("❌ Pago no encontrado. Si ya enviaste, la red puede tardar un poco. Espera 30s e intenta de nuevo.");
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
