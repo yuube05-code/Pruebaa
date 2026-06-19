@@ -64,7 +64,7 @@
             height: calc(100vh - 80px); 
             overflow-y: auto;
             padding: 1.5rem;
-            padding-bottom: 2rem;
+            padding-bottom: 6rem; /* Extra padding for bottom nav */
             animation: fadeIn 0.3s ease;
         }
         
@@ -93,51 +93,103 @@
         <button onclick="setLang('en')" id="btn-en" class="text-xl transition-all opacity-50 hover:opacity-100">🇺🇸</button>
     </div>
 
-    <div id="tab-miner" class="tab-content flex flex-col items-center pt-8">
+    <div id="tab-miner" class="tab-content flex flex-col pt-8">
         
-        <div class="relative w-56 h-56 rounded-full border-4 border-[#1a1f35] flex items-center justify-center mx-auto mb-8 miner-circle neon-glow-main bg-gradient-to-br from-[#1a1f35] to-[#0a0d18]">
-            <div class="absolute inset-2 rounded-full bg-gradient-to-br from-purple-600 via-blue-500 to-cyan-400 opacity-90 flex items-center justify-center">
-                <svg class="w-24 h-24 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                </svg>
-            </div>
-        </div>
-
-        <h1 id="balance-ghs" class="text-5xl font-extrabold tracking-tight text-white mb-1 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">0.000000</h1>
-        <p class="text-xs font-semibold text-gray-400 tracking-widest uppercase mb-1" data-i18n="mined">GHS Minados</p>
-        <p id="balance-ton" class="text-xs text-[#00f0ff] font-medium mb-6">≈ 0.00000000 TON</p>
-
-        <div class="w-full bg-slate-900/80 rounded-2xl p-4 border border-slate-700 grid grid-cols-3 gap-2 text-center mb-6 shadow-lg">
-            <div class="flex flex-col items-center">
-                <span id="stat-rate" class="text-xl font-bold text-white">0</span>
-                <span class="text-[10px] text-gray-500 uppercase" data-i18n="h_day">H/Día</span>
-            </div>
-            <div class="flex flex-col items-center border-l border-r border-slate-700">
-                <span id="stat-energy" class="text-xl font-bold text-white">---</span>
-                <span class="text-[10px] text-gray-500 uppercase">Energy</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <span class="text-xl font-bold text-white">6d 8h</span>
-                <span class="text-[10px] text-gray-500 uppercase" data-i18n="expiration">Próx. expiración</span>
-            </div>
-        </div>
-
-        <div class="text-center w-full mb-4">
-            <span id="save-status" class="text-[10px] text-green-400 font-medium">✔️ Progreso guardado</span>
-        </div>
-
-        <button onclick="exchangeTON()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl flex items-center justify-between px-6 shadow-[0_0_20px_rgba(176,38,255,0.5)] border border-[#b026ff]/50 transition-all mb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <svg class="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                </div>
-                <div class="text-left">
-                    <p class="text-sm font-bold drop-shadow-md" data-i18n="btn_exchange">CAMBIAR GHS → TON</p>
-                    <p class="text-[10px] text-white/80 font-normal" data-i18n="btn_exchange_desc">Convierte GHS minados a TON</p>
+        <div id="miner-main-content" class="w-full flex flex-col items-center transition-all duration-300">
+            <div class="relative w-56 h-56 rounded-full border-4 border-[#1a1f35] flex items-center justify-center mx-auto mb-8 miner-circle neon-glow-main bg-gradient-to-br from-[#1a1f35] to-[#0a0d18]">
+                <div class="absolute inset-2 rounded-full bg-gradient-to-br from-purple-600 via-blue-500 to-cyan-400 opacity-90 flex items-center justify-center">
+                    <svg class="w-24 h-24 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
                 </div>
             </div>
-            <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-        </button>
+
+            <h1 id="balance-ghs" class="text-5xl font-extrabold tracking-tight text-white mb-1 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">0.000000</h1>
+            <p class="text-xs font-semibold text-gray-400 tracking-widest uppercase mb-1" data-i18n="mined">GHS Minados</p>
+            <p id="balance-ton" class="text-xs text-[#00f0ff] font-medium mb-6">≈ 0.00000000 TON</p>
+
+            <div class="w-full bg-slate-900/80 rounded-2xl p-4 border border-slate-700 grid grid-cols-3 gap-2 text-center mb-6 shadow-lg">
+                <div class="flex flex-col items-center">
+                    <span id="stat-rate" class="text-xl font-bold text-white">0</span>
+                    <span class="text-[10px] text-gray-500 uppercase" data-i18n="h_day">H/Día</span>
+                </div>
+                <div class="flex flex-col items-center border-l border-r border-slate-700">
+                    <span id="stat-energy" class="text-xl font-bold text-white">---</span>
+                    <span class="text-[10px] text-gray-500 uppercase">Energy</span>
+                </div>
+                <div class="flex flex-col items-center">
+                    <span class="text-xl font-bold text-white">6d 8h</span>
+                    <span class="text-[10px] text-gray-500 uppercase" data-i18n="expiration">Próx. expiración</span>
+                </div>
+            </div>
+
+            <div class="text-center w-full mb-4">
+                <span id="save-status" class="text-[10px] text-green-400 font-medium">✔️ Progreso guardado</span>
+            </div>
+
+            <button onclick="openWithdrawView()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl flex items-center justify-between px-6 shadow-[0_0_20px_rgba(176,38,255,0.5)] border border-[#b026ff]/50 transition-all mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                        <svg class="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-sm font-bold drop-shadow-md" data-i18n="btn_exchange">CAMBIAR GHS → TON</p>
+                        <p class="text-[10px] text-white/80 font-normal" data-i18n="btn_exchange_desc">Convierte GHS minados a TON</p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+
+            <div class="w-full">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-bold text-white" data-i18n="your_contracts">Tus Contratos</h3>
+                    <span class="text-xs text-[#00f0ff] font-medium" id="active-contracts-count">1 Activo</span>
+                </div>
+                <div id="contracts-list" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+
+        <div id="withdraw-view" class="hidden w-full flex-col mt-4">
+            <button onclick="closeWithdrawView()" class="mb-6 flex items-center text-gray-400 hover:text-white transition-colors">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <span data-i18n="back">Volver</span>
+            </button>
+
+            <h2 class="text-3xl font-bold mb-6 text-white text-center" data-i18n="withdraw_title">Retirar TON</h2>
+
+            <div id="withdraw-step-1" class="w-full flex flex-col space-y-4">
+                <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg">
+                    <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
+                        <span class="text-sm text-gray-400" data-i18n="exchange_rate">Tasa de cambio:</span>
+                        <span class="text-sm font-bold text-white">1 GHS = 0.0000144 TON</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm text-gray-400" data-i18n="your_hashes">Tus Hashes (GHS):</span>
+                        <span class="text-lg font-bold text-[#00f0ff]" id="withdraw-hashes-display">0.000000</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+                        <span class="text-sm text-gray-400" data-i18n="ton_equivalent">Equivalente:</span>
+                        <span class="text-2xl font-extrabold text-[#b026ff]" id="withdraw-ton-display">0.000000 TON</span>
+                    </div>
+                </div>
+
+                <button onclick="showAddressInput()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.4)] border border-[#00f0ff]/50 transition-all">
+                    <span data-i18n="continue_withdraw">Continuar Retiro</span>
+                </button>
+            </div>
+
+            <div id="withdraw-step-2" class="hidden w-full flex flex-col space-y-4">
+                <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg text-center">
+                    <p class="text-sm text-gray-400 mb-4" data-i18n="enter_wallet">Ingresa tu dirección de billetera TON para recibir los fondos.</p>
+                    <input type="text" id="ton-address-input" placeholder="Ej: UQ..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-xl px-4 py-3 outline-none focus:border-[#00f0ff] transition-colors mb-2">
+                </div>
+
+                <button onclick="procesarRetiro()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(176,38,255,0.4)] border border-[#b026ff]/50 transition-all">
+                    <span data-i18n="confirm_withdraw">Confirmar y Retirar</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="tab-tasks" class="tab-content hidden block">
@@ -203,70 +255,119 @@
             <div class="text-4xl drop-shadow-[0_0_10px_rgba(176,38,255,0.5)] text-blue-500">🛒</div>
         </div>
         
-        <div id="shop-items" class="space-y-3 pb-8">
-            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div>
-                    <h3 class="font-bold text-lg text-white">11.8K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
-                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="return">Retorno final:</span> 0.105 TON
-                    </p>
+        <div id="shop-items" class="space-y-4 pb-8">
+            
+            <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#00f0ff]/10 rounded-full blur-xl"></div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                    <h3 class="text-white font-bold text-lg">Minero Básico</h3>
+                    <span class="text-[#00f0ff] font-extrabold text-lg">0.1 TON</span>
                 </div>
-                <button onclick="mostrarPago(0.1, 11800)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
-                    <span class="drop-shadow-md">0.1</span> <span class="drop-shadow-md">💎</span>
-                </button>
+                <div class="space-y-1 mt-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
+                        <span class="text-white font-medium">11.8K ENERGY</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
+                        <span class="text-white font-medium">30 Días</span>
+                    </div>
+                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
+                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
+                        <span class="text-green-400 font-bold">0.105 TON</span>
+                    </div>
+                </div>
+                <button onclick="mostrarPago(0.1, 11800)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
-            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div>
-                    <h3 class="font-bold text-lg text-white">59K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
-                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="return">Retorno final:</span> 0.525 TON
-                    </p>
+            <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                    <h3 class="text-white font-bold text-lg">Minero Estándar</h3>
+                    <span class="text-[#00f0ff] font-extrabold text-lg">0.5 TON</span>
                 </div>
-                <button onclick="mostrarPago(0.5, 59000)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
-                    <span class="drop-shadow-md">0.5</span> <span class="drop-shadow-md">💎</span>
-                </button>
+                <div class="space-y-1 mt-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
+                        <span class="text-white font-medium">59K ENERGY</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
+                        <span class="text-white font-medium">30 Días</span>
+                    </div>
+                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
+                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
+                        <span class="text-green-400 font-bold">0.525 TON</span>
+                    </div>
+                </div>
+                <button onclick="mostrarPago(0.5, 59000)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
-            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div>
-                    <h3 class="font-bold text-lg text-white">118K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
-                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="return">Retorno final:</span> 1.050 TON
-                    </p>
+            <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                    <h3 class="text-white font-bold text-lg">Minero Avanzado</h3>
+                    <span class="text-[#00f0ff] font-extrabold text-lg">1.0 TON</span>
                 </div>
-                <button onclick="mostrarPago(1.0, 118000)" class="premium-btn bg-gradient-to-r from-[#00f0ff] to-[#0066ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(0,240,255,0.5)] border border-[#00f0ff]/40">
-                    <span class="drop-shadow-md">1.0</span> <span class="drop-shadow-md">💎</span>
-                </button>
+                <div class="space-y-1 mt-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
+                        <span class="text-white font-medium">118K ENERGY</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
+                        <span class="text-white font-medium">30 Días</span>
+                    </div>
+                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
+                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
+                        <span class="text-green-400 font-bold">1.050 TON</span>
+                    </div>
+                </div>
+                <button onclick="mostrarPago(1.0, 118000)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
-            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div>
-                    <h3 class="font-bold text-lg text-white">295K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
-                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="return">Retorno final:</span> 2.625 TON
-                    </p>
+            <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#b026ff]/20 rounded-full blur-xl"></div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                    <h3 class="text-white font-bold text-lg">Minero Pro</h3>
+                    <span class="text-[#b026ff] font-extrabold text-lg">2.5 TON</span>
                 </div>
-                <button onclick="mostrarPago(2.5, 295000)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
-                    <span class="drop-shadow-md">2.5</span> <span class="drop-shadow-md">💎</span>
-                </button>
+                <div class="space-y-1 mt-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
+                        <span class="text-white font-medium">295K ENERGY</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
+                        <span class="text-white font-medium">30 Días</span>
+                    </div>
+                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
+                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
+                        <span class="text-green-400 font-bold">2.625 TON</span>
+                    </div>
+                </div>
+                <button onclick="mostrarPago(2.5, 295000)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
-            <div class="bg-[#0f1423] border border-[#1e2538] p-4 rounded-2xl flex justify-between items-center shadow-lg">
-                <div>
-                    <h3 class="font-bold text-lg text-white">590K <span class="text-xs text-gray-400 font-normal">ENERGY</span></h3>
-                    <p class="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="return">Retorno final:</span> 5.250 TON
-                    </p>
+            <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#b026ff]/20 rounded-full blur-xl"></div>
+                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                    <h3 class="text-white font-bold text-lg">Minero Ultra</h3>
+                    <span class="text-[#b026ff] font-extrabold text-lg">5.0 TON</span>
                 </div>
-                <button onclick="mostrarPago(5.0, 590000)" class="premium-btn bg-gradient-to-r from-[#b026ff] to-[#6000ff] px-4 py-2 font-bold rounded-xl flex items-center gap-1 transition-all text-white shadow-[0_0_15px_rgba(176,38,255,0.5)] border border-[#b026ff]/40">
-                    <span class="drop-shadow-md">5.0</span> <span class="drop-shadow-md">💎</span>
-                </button>
+                <div class="space-y-1 mt-1">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
+                        <span class="text-white font-medium">590K ENERGY</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
+                        <span class="text-white font-medium">30 Días</span>
+                    </div>
+                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
+                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
+                        <span class="text-green-400 font-bold">5.250 TON</span>
+                    </div>
+                </div>
+                <button onclick="mostrarPago(5.0, 590000)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
         </div>
 
@@ -337,8 +438,8 @@
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
         // ==========================================
-        const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; // Reemplazar con tu URL
-        const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM'; // Reemplazar con tu anon key
+        const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; 
+        const supabaseKey = 'sb_publishable_QwAtprHGKyqQPb1bHBJWLg_oWpderNM'; 
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         // ==========================================
@@ -364,9 +465,8 @@
                 if (data) {
                     balanceGHS = parseFloat(data.current_ghs) || 0;
                     userEnergy = parseFloat(data.energy) || 500;
-                    calculateRate(); // Calculamos la velocidad actual
+                    calculateRate(); 
 
-                    // LÓGICA DE MINADO OFFLINE
                     if (data.updated_at) {
                         const lastUpdate = new Date(data.updated_at).getTime();
                         const now = Date.now();
@@ -376,7 +476,6 @@
                             const offlineMined = diffSeconds * ratePerSecond;
                             balanceGHS += offlineMined;
                             
-                            // Mostrar alerta si minó algo significativo mientras estaba fuera
                             if (offlineMined > 0.001) {
                                 setTimeout(() => {
                                     tg.showAlert(`⚡ ¡Bienvenido de vuelta! Minaste ${offlineMined.toFixed(4)} GHS mientras estabas desconectado.`);
@@ -385,18 +484,19 @@
                         }
                     }
                 } else {
-                    userEnergy = 500; // Energía inicial
+                    userEnergy = 500; 
                     calculateRate();
                 }
                 
                 document.getElementById('stat-energy').innerText = userEnergy;
+                renderContracts(); // Renderizar los contratos al iniciar
                 
             } catch (err) {
                 console.error("Error conectando a Supabase:", err);
-                calculateRate(); // Por si falla, que arranque con los valores default
+                calculateRate();
+                renderContracts(); 
             }
 
-            // Mantenemos la llamada a tu Railway sólo para los referidos
             fetch(`${API_URL}/api/referrals/${userId}`)
             .then(res => res.json())
             .then(data => {
@@ -423,14 +523,13 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
-                // Guardamos el progreso y el timestamp actual para el minado offline
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
                         telegram_id: userId.toString(),
                         current_ghs: balanceGHS,
                         energy: userEnergy,
-                        updated_at: new Date().toISOString() // NUEVO: Registra la hora exacta
+                        updated_at: new Date().toISOString()
                     }, { onConflict: 'telegram_id' });
 
                 if (error) throw error;
@@ -448,30 +547,40 @@
         window.addEventListener('beforeunload', saveProgress);
 
         // ==========================================
-        // 7. SISTEMA DE IDIOMAS
+        // 7. SISTEMA DE IDIOMAS Y PESTAÑAS
         // ==========================================
         const langData = {
             es: {
                 mined: "GHS Minados", h_day: "H/Día", expiration: "Próx. expiración",
                 btn_exchange: "CAMBIAR GHS → TON", btn_exchange_desc: "Convierte GHS minados a TON",
+                your_contracts: "Tus Contratos", active_contracts: "Activo",
+                withdraw_title: "Retirar TON", back: "Volver", exchange_rate: "Tasa de cambio:",
+                your_hashes: "Tus Hashes (GHS):", ton_equivalent: "Equivalente:", continue_withdraw: "Continuar Retiro",
+                enter_wallet: "Ingresa tu dirección de billetera TON para recibir los fondos.", confirm_withdraw: "Confirmar y Retirar",
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
                 btn_copy: "🔗 Copiar Enlace de Invitación", nav_rank: "Rank", rank_desc: "Los mineros más potentes.",
                 loading: "Cargando base de datos...", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
-                return: "Retorno final:", pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
+                lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
+                pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
                 pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
                 btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador"
             },
             en: {
                 mined: "Mined GHS", h_day: "H/Day", expiration: "Next expiration",
                 btn_exchange: "EXCHANGE GHS → TON", btn_exchange_desc: "Convert mined GHS to TON",
+                your_contracts: "Your Contracts", active_contracts: "Active",
+                withdraw_title: "Withdraw TON", back: "Back", exchange_rate: "Exchange Rate:",
+                your_hashes: "Your Hashes (GHS):", ton_equivalent: "Equivalent:", continue_withdraw: "Continue Withdrawal",
+                enter_wallet: "Enter your TON wallet address to receive funds.", confirm_withdraw: "Confirm & Withdraw",
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
                 btn_copy: "🔗 Copy Invite Link", nav_rank: "Rank", rank_desc: "The most powerful miners.",
                 loading: "Loading database...", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
-                return: "Final return:", pay_title: "Make Payment", pay_desc: "Send exactly",
+                lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
+                pay_title: "Make Payment", pay_desc: "Send exactly",
                 pay_desc2: "to this address:", important: "IMPORTANT", pay_memo: "Copy and include this MEMO in your payment, otherwise you'll lose your money:",
                 btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner"
             }
@@ -509,8 +618,12 @@
 
             const targetTab = document.getElementById('tab-' + tabId);
             targetTab.classList.remove('hidden');
-            if(tabId === 'miner') targetTab.classList.add('flex');
-            else targetTab.classList.add('block');
+            if(tabId === 'miner') {
+                targetTab.classList.add('flex');
+                closeWithdrawView(); // reset withdraw view when changing tabs
+            } else {
+                targetTab.classList.add('block');
+            }
 
             const activeNav = document.getElementById('nav-' + tabId);
             activeNav.classList.remove('text-gray-500');
@@ -518,7 +631,99 @@
         }
 
         // ==========================================
-        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN (PROTEGIDA EN FRONTEND)
+        // NUEVO: SISTEMA DE RETIRO DETALLADO
+        // ==========================================
+        function openWithdrawView() {
+            document.getElementById('miner-main-content').classList.add('hidden');
+            document.getElementById('withdraw-view').classList.remove('hidden');
+            document.getElementById('withdraw-view').classList.add('flex');
+            
+            // Actualizar valores
+            document.getElementById('withdraw-hashes-display').innerText = balanceGHS.toFixed(6);
+            document.getElementById('withdraw-ton-display').innerText = (balanceGHS * 0.0000144).toFixed(6) + " TON";
+
+            // Resetear vistas de pasos
+            document.getElementById('withdraw-step-1').classList.remove('hidden');
+            document.getElementById('withdraw-step-2').classList.add('hidden');
+        }
+
+        function closeWithdrawView() {
+            document.getElementById('withdraw-view').classList.add('hidden');
+            document.getElementById('withdraw-view').classList.remove('flex');
+            document.getElementById('miner-main-content').classList.remove('hidden');
+        }
+
+        function showAddressInput() {
+            if (balanceGHS < 100) {
+                tg.showAlert("⚠️ Necesitas al menos 100 GHS para retirar.");
+                return;
+            }
+            document.getElementById('withdraw-step-1').classList.add('hidden');
+            document.getElementById('withdraw-step-2').classList.remove('hidden');
+        }
+
+        function procesarRetiro() {
+            const address = document.getElementById('ton-address-input').value.trim();
+            if(address.length < 15) {
+                tg.showAlert("❌ Por favor, ingresa una dirección TON válida.");
+                return;
+            }
+            
+            // Lógica ficticia de retiro (descontar saldo)
+            balanceGHS -= 100; // Descontar monto mínimo o el total (ajustar según tu lógica)
+            saveProgress();
+            
+            tg.showAlert(`✅ ¡Retiro solicitado con éxito a la dirección: ${address.substring(0, 8)}...!`);
+            closeWithdrawView();
+            document.getElementById('ton-address-input').value = ""; // limpiar
+        }
+
+        // ==========================================
+        // NUEVO: RENDERIZADO DE CONTRATOS
+        // ==========================================
+        function renderContracts() {
+            const container = document.getElementById('contracts-list');
+            
+            // Simulación de un contrato activo con progreso calculado
+            // En un futuro, puedes llenar este array con datos de tu base de datos
+            const misContratos = [
+                { nombre: "Minero Free", potencia: "500 ENERGY", progreso: 45, diasRestantes: "6d 8h" }
+            ];
+
+            container.innerHTML = "";
+            document.getElementById('active-contracts-count').innerText = `${misContratos.length} Activo(s)`;
+
+            misContratos.forEach(contrato => {
+                const card = `
+                <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-600">⚡</div>
+                            <div>
+                                <h4 class="text-white font-bold text-sm">${contrato.nombre}</h4>
+                                <p class="text-[10px] text-gray-400">${contrato.potencia}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700">${contrato.diasRestantes}</span>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                            <span>Progreso del contrato</span>
+                            <span class="text-[#00f0ff]">${contrato.progreso}%</span>
+                        </div>
+                        <div class="bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/50">
+                            <div class="bg-gradient-to-r from-[#00f0ff] to-[#b026ff] h-full shadow-[0_0_10px_rgba(0,240,255,0.8)]" style="width: ${contrato.progreso}%;"></div>
+                        </div>
+                    </div>
+                </div>`;
+                container.innerHTML += card;
+            });
+        }
+
+
+        // ==========================================
+        // 8. LÓGICA DE COMPRA Y VERIFICACIÓN
         // ==========================================
         let mineroSeleccionado = {};
 
@@ -543,7 +748,6 @@
             btn.innerText = "Verificando en Blockchain...";
             btn.disabled = true;
 
-            // Se envía un identificador único basado en tiempo para que la API sepa que es una petición nueva
             const timestampActual = Date.now();
 
             fetch(`${API_URL}/api/verify_payment`, {
@@ -554,7 +758,7 @@
                     monto_esperado: mineroSeleccionado.precio,
                     memo_esperado: userId.toString(),
                     power_comprado: mineroSeleccionado.power,
-                    request_id: timestampActual // Añadido para seguridad de tu backend
+                    request_id: timestampActual
                 })
             })
             .then(response => response.json())
@@ -569,7 +773,6 @@
                     saveProgress();  
                     cancelarPago();
                 } else if (data.error === "used_tx") {
-                    // Si tu API detecta que el TXID ya fue cobrado, mandará este error
                     tg.showAlert("⚠️ Error: Esta transacción ya fue cobrada anteriormente.");
                     if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 } else {
@@ -643,16 +846,6 @@
         // ==========================================
         // 10. OTRAS FUNCIONES
         // ==========================================
-        function exchangeTON() {
-            if (balanceGHS < 100) {
-                tg.showAlert("⚠️ Necesitas al menos 100 GHS para intercambiar.");
-                return;
-            }
-            balanceGHS -= 100;
-            saveProgress();
-            tg.showAlert("✅ ¡Intercambio exitoso!");
-        }
-
         function copyRefLink() {
             const link = `https://t.me/TuBotDePruebaBot?start=ref_${userId}`;
             navigator.clipboard.writeText(link);
