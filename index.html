@@ -145,9 +145,12 @@
                     <h3 class="text-lg font-bold text-white" data-i18n="your_contracts">Tus Contratos</h3>
                     <span class="text-xs text-[#00f0ff] font-medium" id="active-contracts-count">0 Activos</span>
                 </div>
-                <div id="contracts-list" class="space-y-3">
-                    </div>
+                <div id="contracts-list" class="space-y-3"></div>
             </div>
+
+            <a href="https://t.me/Spxdxrr" target="_blank" class="w-full bg-slate-800/60 hover:bg-slate-800 text-center text-gray-300 font-bold py-3.5 rounded-2xl border border-slate-700/50 transition-all text-xs flex items-center justify-center gap-2 mt-2 shadow-inner">
+                <span>💬 Soporte Técnico (@Spxdxrr)</span>
+            </a>
         </div>
 
         <div id="withdraw-view" class="hidden w-full flex-col mt-4">
@@ -222,6 +225,11 @@
                 <button id="btn-play-dice" onclick="playDiceGame()" class="premium-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(176,38,255,0.4)]" data-i18n="btn_spin">¡Lanzar Dados!</button>
             </div>
         </div>
+
+        <div class="mt-6">
+            <h3 class="text-md font-bold text-white mb-3 tracking-wide uppercase text-slate-400 text-xs">Tareas del Servidor</h3>
+            <div id="system-tasks-list" class="space-y-3"></div>
+        </div>
     </div>
 
     <div id="tab-team" class="tab-content hidden block">
@@ -233,22 +241,27 @@
             <div class="text-4xl">👥</div>
         </div>
         
-        <div class="bg-[#0f1423] border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg mb-6 text-center">
-            <div class="w-full">
-                <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider" data-i18n="total_ref">Total Referidos</h3>
-                <p class="text-3xl font-extrabold text-[#00f0ff] mt-1" id="ref-count">0</p>
+        <div class="bg-[#0f1423] border border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-lg mb-6">
+            <div class="flex justify-between items-center border-b border-slate-800/60 pb-3">
+                <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Tu Referidor</span>
+                <span id="ref-referrer" class="text-sm font-bold text-purple-400">Ninguno</span>
             </div>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                    <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider" data-i18n="total_ref">Total Referidos</h3>
+                    <p class="text-2xl font-extrabold text-[#00f0ff] mt-1" id="ref-count">0</p>
+                </div>
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                    <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Energía por Referidos</h3>
+                    <p class="text-2xl font-extrabold text-green-400 mt-1" id="ref-energy-earned">0 E</p>
+                </div>
+            </div>
+            <p class="text-[10px] text-center text-gray-500 mt-1">🎁 Recibes +1,000 de ENERGY permanente por cada usuario que invites.</p>
         </div>
 
         <button onclick="copyRefLink()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.5)] border border-[#00f0ff]/50 flex items-center justify-center gap-2 transition-all">
             <span class="drop-shadow-md" data-i18n="btn_copy">🔗 Copiar Enlace de Invitación</span>
         </button>
-    </div>
-
-    <div id="tab-rank" class="tab-content hidden block">
-        <h2 class="text-3xl font-bold mb-1 text-white" data-i18n="nav_rank">Rank</h2>
-        <p class="text-sm text-gray-400 mb-6" data-i18n="rank_desc">Los mineros más potentes.</p>
-        <div class="text-center text-gray-500 text-sm animate-pulse mt-12" data-i18n="loading">Cargando base de datos...</div>
     </div>
 
     <div id="tab-shop" class="tab-content hidden block">
@@ -409,6 +422,42 @@
             <button onclick="adminSearchUser()" class="bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white px-4 rounded-xl font-bold">Buscar</button>
         </div>
 
+        <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider mb-3 text-purple-400">Usuarios Registrados</h3>
+            <div id="admin-users-list" class="space-y-2 max-h-52 overflow-y-auto pr-1"></div>
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-800 text-xs">
+                <button onclick="adminPrevPage()" id="btn-admin-prev" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-medium disabled:opacity-40">Anterior</button>
+                <span id="admin-page-indicator" class="text-gray-400">Pág. 1</span>
+                <button onclick="adminNextPage()" id="btn-admin-next" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-medium disabled:opacity-40">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider mb-3 text-purple-400">Crear Nueva Tarea</h3>
+            <div class="flex flex-col gap-2.5">
+                <input type="text" id="task-title" placeholder="Título de la tarea..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#b026ff]">
+                
+                <select id="task-type" onchange="toggleTaskTypeFields()" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none">
+                    <option value="canal">Unirse a un Canal</option>
+                    <option value="grupo">Unirse a un Grupo</option>
+                    <option value="referidos">Meta de Referidos Invitados</option>
+                </select>
+
+                <div id="field-task-link" class="block">
+                    <input type="text" id="task-link" placeholder="Enlace de invitación (https://t.me/...)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none">
+                    <p class="text-[10px] text-yellow-500 mt-1">⚠️ El bot de Telegram debe ser Administrador en el canal/grupo para verificar.</p>
+                </div>
+
+                <div id="field-task-ref-count" class="hidden">
+                    <input type="number" id="task-ref-target" placeholder="Cantidad de referidos requeridos (Ej: 5)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none">
+                </div>
+
+                <input type="number" id="task-energy-reward" placeholder="Recompensa en Energy (Ej: 1000)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none">
+                
+                <button onclick="adminCreateTask()" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-2 rounded-lg font-bold text-xs mt-1">Insertar Tarea</button>
+            </div>
+        </div>
+
         <div id="admin-user-panel" class="hidden flex-col gap-4">
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
@@ -435,8 +484,7 @@
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-white text-sm">Contratos del Usuario</h3>
                 </div>
-                <div id="admin-contracts-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto">
-                    </div>
+                <div id="admin-contracts-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
 
                 <h3 class="font-bold text-white mb-2 text-sm border-t border-slate-700 pt-3">Regalar Minero</h3>
                 <select id="admin-miner-select" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2">
@@ -464,15 +512,10 @@
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[10px] font-medium" data-i18n="nav_team">Equipo</span>
         </button>
-        <button onclick="changeTab('rank')" id="nav-rank" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-16 transition-colors">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-            <span class="text-[10px] font-medium" data-i18n="nav_rank">Rank</span>
-        </button>
         <button onclick="changeTab('shop')" id="nav-shop" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-16 transition-colors">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[10px] font-medium" data-i18n="nav_shop">Tienda</span>
         </button>
-
         <button onclick="changeTab('admin')" id="nav-admin" class="nav-btn text-gray-500 hidden flex-col items-center justify-center w-16 transition-colors">
             <span class="text-xl mb-1">👑</span>
             <span class="text-[10px] font-medium">Admin</span>
@@ -498,7 +541,14 @@
         const uiGHS = document.getElementById('balance-ghs');
         const uiTON = document.getElementById('balance-ton');
         let ratePerSecond = 0; 
-        let isBanned = false; // Variable global para detener el minado visual si está baneado
+        let isBanned = false;
+
+        // Variables añadidas para control administrativo y dados
+        let adminBonusEnergy = 0;
+        let adminCurrentPage = 1;
+        const adminPageSize = 10;
+        let lastDiceRollTime = null;
+        let referralCount = 0;
 
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
@@ -513,6 +563,7 @@
         if (userId.toString() === "6017105462") {
             document.getElementById('nav-admin').classList.remove('hidden');
             document.getElementById('nav-admin').classList.add('flex');
+            loadAdminUsersList(); 
         }
 
         // ==========================================
@@ -530,7 +581,7 @@
         }
 
         // ==========================================
-        // 4. SISTEMA DE CONTRATOS (AHORA 7 DÍAS)
+        // 4. SISTEMA DE CONTRATOS
         // ==========================================
         async function fetchContracts() {
             try {
@@ -544,7 +595,7 @@
                 } else {
                     const inicio = new Date();
                     const fin = new Date();
-                    fin.setDate(fin.getDate() + 7); // AHORA 7 DÍAS POR DEFECTO
+                    fin.setDate(fin.getDate() + 7); 
                     
                     const freeMiner = {
                         telegram_id: userId.toString(),
@@ -579,7 +630,8 @@
                 }
             });
 
-            userEnergy = totalEnergy;
+            // Se integra la potencia de contratos + bonos de administración + referidos reales (1000 E por ref)
+            userEnergy = totalEnergy + adminBonusEnergy + (referralCount * 1000);
             document.getElementById('stat-energy').innerText = userEnergy;
             
             if (proxExpiracion) {
@@ -652,7 +704,7 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y CALCULAR MINADO OFFLINE
+        // 5. OBTENER DATOS Y ENTORNO INICIAL
         // ==========================================
         async function initUserData() {
             try {
@@ -663,14 +715,25 @@
                     .single();
 
                 if (data) {
-                    // BLOQUEO VISUAL SI ESTÁ BANEADO
+                    // INTERFAZ ESTILIZADA DE BLOQUEO EN CASO DE BANEO
                     if(data.is_banned) {
                         isBanned = true;
-                        document.body.innerHTML = "<div style='height: 100vh; display:flex; align-items:center; justify-content:center; flex-direction:column;'><h1 style='color:red; font-size:30px; font-weight:bold;'>ESTÁS BANEADO</h1><p style='color:gray;'>Contacta a soporte.</p></div>";
+                        document.body.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-screen bg-[#0a0d18] text-white px-6 text-center">
+                            <div class="w-20 h-20 bg-red-600/20 text-red-500 rounded-full flex items-center justify-center text-4xl mb-6 border border-red-500/30 shadow-[0_0_25px_rgba(239,68,68,0.3)]">🚫</div>
+                            <h1 class="text-3xl font-extrabold text-red-500 mb-2 tracking-tight">ACCESO RESTRINGIDO</h1>
+                            <p class="text-gray-400 text-sm mb-6 max-w-xs">Estás baneado, contacta a soporte para apelar tu situación.</p>
+                            <a href="https://t.me/Spxdxrr" target="_blank" class="premium-btn w-full max-w-xs bg-gradient-to-r from-red-600 to-amber-600 text-white font-bold py-4 rounded-2xl shadow-[0_0_15px_rgba(220,38,38,0.4)] border border-red-500/50 text-center transition-all">
+                                SOPORTE
+                            </a>
+                        </div>`;
                         return;
                     }
 
                     balanceGHS = parseFloat(data.current_ghs) || 0;
+                    adminBonusEnergy = parseInt(data.bonus_energy) || 0;
+                    lastDiceRollTime = data.last_dice_roll || null;
+                    document.getElementById('ref-referrer').innerText = data.referred_by || "Ninguno";
 
                     await fetchContracts();
 
@@ -697,11 +760,17 @@
                 console.error("Error inicializando datos:", err);
             }
 
+            // Consumo de referidos reales
             fetch(`${API_URL}/api/referrals/${userId}`)
             .then(res => res.json())
             .then(data => {
-                document.getElementById('ref-count').innerText = data.count || 0;
+                referralCount = data.count || 0;
+                document.getElementById('ref-count').innerText = referralCount;
+                document.getElementById('ref-energy-earned').innerText = (referralCount * 1000) + " E";
+                updateEnergyFromContracts();
             }).catch(() => {});
+
+            loadSystemTasks(); 
         }
         initUserData(); 
 
@@ -754,7 +823,7 @@
         // 8. SISTEMA DE IDIOMAS Y PESTAÑAS
         // ==========================================
         const langData = {
-            es: { /* Manteniendo los textos base en español */
+            es: { 
                 mined: "GHS Minados", h_day: "H/Día", expiration: "Próx. expiración",
                 btn_exchange: "CAMBIAR GHS → TON", btn_exchange_desc: "Convierte GHS minados a TON",
                 your_contracts: "Tus Contratos", active_contracts: "Activo",
@@ -764,8 +833,7 @@
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
-                btn_copy: "🔗 Copiar Enlace de Invitación", nav_rank: "Rank", rank_desc: "Los mineros más potentes.",
-                loading: "Cargando base de datos...", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
+                btn_copy: "🔗 Copiar Enlace de Invitación", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
                 lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
                 pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
                 pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
@@ -781,8 +849,7 @@
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
-                btn_copy: "🔗 Copy Invite Link", nav_rank: "Rank", rank_desc: "The most powerful miners.",
-                loading: "Loading database...", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
+                btn_copy: "🔗 Copy Invite Link", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
                 lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
                 pay_title: "Make Payment", pay_desc: "Send exactly",
                 pay_desc2: "to this address:", important: "IMPORTANT", pay_memo: "Copy and include this MEMO in your payment, otherwise you'll lose your money:",
@@ -851,6 +918,9 @@
             document.getElementById('miner-main-content').classList.remove('hidden');
         }
 
+        // ==========================================
+        // LÓGICA DE DADOS CON CONTROL DE COOLDOWN DE 24 HORAS
+        // ==========================================
         function showAddressInput() {
             if (balanceGHS < 1000) {
                 tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.01 TON) para retirar.");
@@ -870,14 +940,13 @@
             balanceGHS = 0; 
             saveProgress();
             
-            // Aquí el backend Python debería ser notificado para sumar a total_withdrawn
             tg.showAlert(`✅ ¡Retiro de ${montoRetirado} TON solicitado a la dirección: ${address.substring(0, 8)}...!`);
             closeWithdrawView();
             document.getElementById('ton-address-input').value = ""; 
         }
 
         // ==========================================
-        // 10. COMPRA DE MINEROS Y VERIFICACIÓN (7 Días)
+        // 10. COMPRA DE MINEROS Y VERIFICACIÓN
         // ==========================================
         let mineroSeleccionado = {};
 
@@ -921,7 +990,7 @@
                     
                     const inicio = new Date();
                     const fin = new Date();
-                    fin.setDate(fin.getDate() + 7); // CONTRATO AHORA DE 7 DÍAS
+                    fin.setDate(fin.getDate() + 7); 
                     
                     await _supabase.from('contratos_mineros').insert([{
                         telegram_id: userId.toString(),
@@ -949,9 +1018,24 @@
         }
 
         // ==========================================
-        // 11. MINIJUEGO DE DADOS
+        // 11. MINIJUEGO DE DADOS RESTRICCIÓN 24H
         // ==========================================
-        function playDiceGame() {
+        async function playDiceGame() {
+            const now = new Date();
+            if (lastDiceRollTime) {
+                const lastRoll = new Date(lastDiceRollTime);
+                const diffMs = now - lastRoll;
+                const cooldownMs = 24 * 60 * 60 * 1000; // 24 horas
+
+                if (diffMs < cooldownMs) {
+                    const remainingMs = cooldownMs - diffMs;
+                    const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                    const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                    tg.showAlert(`⏳ Cooldown Activo: Podrás volver a lanzar los dados en ${hours}h y ${minutes}m.`);
+                    return;
+                }
+            }
+
             const btn = document.getElementById('btn-play-dice');
             if(btn.disabled) return;
             btn.disabled = true;
@@ -963,7 +1047,7 @@
             const d3 = document.getElementById('dice-3');
             
             let rolls = 0;
-            const interval = setInterval(() => {
+            const interval = setInterval(async () => {
                 d1.innerText = faces[Math.floor(Math.random() * 6)];
                 d2.innerText = faces[Math.floor(Math.random() * 6)];
                 d3.innerText = faces[Math.floor(Math.random() * 6)];
@@ -978,11 +1062,14 @@
                     d2.innerText = faces[res2];
                     d3.innerText = faces[res3];
 
+                    // Guardar marca de tiempo persistente
+                    lastDiceRollTime = new Date().toISOString();
+                    await _supabase.from('progreso_minero').update({ last_dice_roll: lastDiceRollTime }).eq('telegram_id', userId.toString());
+
                     if(res1 === res2 && res2 === res3) {
                         tg.showAlert("🎉 ¡BINGO! Sacaste 3 iguales y ganaste +100 ENERGY.");
-                        userEnergy += 100;
-                        document.getElementById('stat-energy').innerText = userEnergy;
-                        calculateRate();
+                        adminBonusEnergy += 100;
+                        updateEnergyFromContracts();
                         saveProgress(); 
                     }
                     setTimeout(() => {
@@ -1000,17 +1087,118 @@
         }
 
         // ==========================================
-        // 12. SISTEMA DE ADMINISTRADOR (NUEVO)
+        // 12. SISTEMA DE ADMINISTRADOR COMPLETO
         // ==========================================
         let adminCurrentUserId = null;
         let adminUserIsBanned = false;
+
+        async function loadAdminUsersList() {
+            const from = (adminCurrentPage - 1) * adminPageSize;
+            const to = from + adminPageSize - 1;
+
+            const { data: users, error } = await _supabase
+                .from('progreso_minero')
+                .select('telegram_id')
+                .range(from, to);
+
+            const container = document.getElementById('admin-users-list');
+            container.innerHTML = "";
+
+            if (users && users.length > 0) {
+                users.forEach(u => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full bg-slate-800 hover:bg-slate-700 text-left text-xs text-gray-200 py-2.5 px-4 rounded-xl border border-slate-700/50 transition-colors flex justify-between items-center shadow-sm";
+                    btn.innerHTML = `<span>👤 ID Usuario: <b>${u.telegram_id}</b></span> <span class="text-[10px] text-purple-400 font-bold">Gestionar →</span>`;
+                    btn.onclick = () => {
+                        document.getElementById('admin-search-id').value = u.telegram_id;
+                        adminSearchUser();
+                    };
+                    container.appendChild(btn);
+                });
+            } else {
+                container.innerHTML = "<p class='text-xs text-gray-500 text-center py-2'>No se encontraron más usuarios registrados.</p>";
+            }
+
+            document.getElementById('admin-page-indicator').innerText = `Pág. ${adminCurrentPage}`;
+            document.getElementById('btn-admin-prev').disabled = adminCurrentPage === 1;
+            document.getElementById('btn-admin-next').disabled = !users || users.length < adminPageSize;
+        }
+
+        function adminPrevPage() { if (adminCurrentPage > 1) { adminCurrentPage--; loadAdminUsersList(); } }
+        function adminNextPage() { adminCurrentPage++; loadAdminUsersList(); }
+
+        function toggleTaskTypeFields() {
+            const type = document.getElementById('task-type').value;
+            if (type === 'referidos') {
+                document.getElementById('field-task-link').classList.replace('block', 'hidden');
+                document.getElementById('field-task-ref-count').classList.replace('hidden', 'block');
+            } else {
+                document.getElementById('field-task-link').classList.replace('hidden', 'block');
+                document.getElementById('field-task-ref-count').classList.replace('block', 'hidden');
+            }
+        }
+
+        async function adminCreateTask() {
+            const title = document.getElementById('task-title').value.trim();
+            const type = document.getElementById('task-type').value;
+            const reward = parseInt(document.getElementById('task-energy-reward').value);
+            const link = document.getElementById('task-link').value.trim();
+            const targetRef = parseInt(document.getElementById('task-ref-target').value) || 0;
+
+            if (!title || isNaN(reward)) {
+                tg.showAlert("❌ Ingresa un título válido junto con la recompensa en energía.");
+                return;
+            }
+
+            const { error } = await _supabase.from('tareas_sistema').insert([{
+                titulo: title,
+                tipo: type,
+                recompensa_energia: reward,
+                meta_referidos: type === 'referidos' ? targetRef : 0,
+                enlace_destino: type !== 'referidos' ? link : ''
+            }]);
+
+            if (error) {
+                tg.showAlert("❌ Error al insertar tarea: " + error.message);
+            } else {
+                tg.showAlert("✅ Tarea del sistema publicada con éxito.");
+                document.getElementById('task-title').value = "";
+                document.getElementById('task-energy-reward').value = "";
+                document.getElementById('task-link').value = "";
+                document.getElementById('task-ref-target').value = "";
+                loadSystemTasks();
+            }
+        }
+
+        async function loadSystemTasks() {
+            const { data: tasks } = await _supabase.from('tareas_sistema').select('*');
+            const container = document.getElementById('system-tasks-list');
+            container.innerHTML = "";
+
+            if (tasks && tasks.length > 0) {
+                tasks.forEach(t => {
+                    let desc = t.tipo === 'referidos' ? `Meta: ${t.meta_referidos} Invitados` : `Unirse a un ${t.tipo}`;
+                    container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center shadow-md">
+                        <div>
+                            <h4 class="font-bold text-sm text-white">${t.titulo}</h4>
+                            <p class="text-xs text-gray-400">${desc} | <span class="text-green-400">+${t.recompensa_energia} E</span></p>
+                        </div>
+                        ${t.tipo !== 'referidos' ? 
+                        `<a href="${t.enlace_destino}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors">Ir</a>` : 
+                        `<button onclick="changeTab('team')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors">Invitar</button>`}
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = "<p class='text-xs text-gray-500 py-1 text-center'>No hay tareas activas en este momento.</p>";
+            }
+        }
 
         async function adminSearchUser() {
             const searchId = document.getElementById('admin-search-id').value.trim();
             if(!searchId) return;
 
             try {
-                // Obtener perfil
                 const { data: profile, error: profError } = await _supabase
                     .from('progreso_minero')
                     .select('*')
@@ -1043,7 +1231,6 @@
                     btnBan.className = "text-xs px-3 py-1 rounded bg-red-600/20 text-red-400 border border-red-600/50";
                 }
 
-                // Cargar contratos
                 await adminLoadContracts(searchId);
 
             } catch(e) {
@@ -1056,20 +1243,32 @@
             const newStatus = !adminUserIsBanned;
             await _supabase.from('progreso_minero').update({ is_banned: newStatus }).eq('telegram_id', adminCurrentUserId);
             tg.showAlert(newStatus ? "✅ Usuario Baneado" : "✅ Usuario Desbaneado");
-            adminSearchUser(); // Recargar datos
+            adminSearchUser();
         }
 
+        // FIX DEFINITIVO: Ajusta la columna bonus_energy para que no sea destruida por los contratos
         async function adminModifyEnergy() {
             if(!adminCurrentUserId) return;
             const val = parseInt(document.getElementById('admin-energy-input').value);
             if(isNaN(val)) return;
 
-            const currentEnergy = parseInt(document.getElementById('adm-energy').innerText);
-            const newEnergy = Math.max(0, currentEnergy + val);
+            const { data: userProf } = await _supabase
+                .from('progreso_minero')
+                .select('bonus_energy')
+                .eq('telegram_id', adminCurrentUserId)
+                .single();
 
-            await _supabase.from('progreso_minero').update({ energy: newEnergy }).eq('telegram_id', adminCurrentUserId);
-            tg.showAlert(`✅ Energía actualizada a ${newEnergy}`);
+            const baseBonus = userProf ? (parseInt(userProf.bonus_energy) || 0) : 0;
+            const targetBonus = baseBonus + val;
+
+            await _supabase.from('progreso_minero').update({ bonus_energy: targetBonus }).eq('telegram_id', adminCurrentUserId);
+            tg.showAlert(`✅ Modificación realizada. Variación: ${val}. Total acumulado: ${targetBonus}`);
             document.getElementById('admin-energy-input').value = "";
+            
+            if(adminCurrentUserId === userId.toString()) {
+                adminBonusEnergy = targetBonus;
+                updateEnergyFromContracts();
+            }
             adminSearchUser();
         }
 
@@ -1109,7 +1308,7 @@
 
             const inicio = new Date();
             const fin = new Date();
-            fin.setDate(fin.getDate() + 7); // Regalo Admin 7 días
+            fin.setDate(fin.getDate() + 7); 
 
             await _supabase.from('contratos_mineros').insert([{
                 telegram_id: adminCurrentUserId,
