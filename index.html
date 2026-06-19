@@ -473,13 +473,26 @@
             </div>
 
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
-                <h3 class="font-bold text-white mb-2 text-sm">Agregar/Quitar Energía Manual</h3>
-                <div class="flex gap-2">
-                    <input type="number" id="admin-energy-input" placeholder="Ej: 500 o -500" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none">
-                    <button onclick="adminModifyEnergy()" class="bg-[#00f0ff] text-black px-3 rounded-lg font-bold">Aplicar</button>
+                <h3 class="font-bold text-white mb-3 text-sm text-blue-400">⚡ Modificar Energía (Bonus)</h3>
+                <div class="flex flex-col gap-2">
+                    <input type="number" id="admin-energy-input" placeholder="Cantidad de energía (Ej: 500)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none">
+                    <div class="flex gap-2">
+                        <button onclick="adminModifyEnergy('add')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold text-xs transition-colors">➕ Agregar</button>
+                        <button onclick="adminModifyEnergy('sub')" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold text-xs transition-colors">➖ Quitar</button>
+                    </div>
                 </div>
             </div>
 
+            <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
+                <h3 class="font-bold text-white mb-3 text-sm text-[#00f0ff]">⛏️ Modificar Hashes (GHS)</h3>
+                <div class="flex flex-col gap-2">
+                    <input type="number" id="admin-ghs-input" placeholder="Cantidad de GHS (Ej: 1500)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none">
+                    <div class="flex gap-2">
+                        <button onclick="adminModifyGHS('add')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-bold text-xs transition-colors">➕ Agregar</button>
+                        <button onclick="adminModifyGHS('sub')" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold text-xs transition-colors">➖ Quitar</button>
+                    </div>
+                </div>
+            </div>
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-white text-sm">Contratos del Usuario</h3>
@@ -543,7 +556,6 @@
         let ratePerSecond = 0; 
         let isBanned = false;
 
-        // Variables añadidas para control administrativo y dados
         let adminBonusEnergy = 0;
         let adminCurrentPage = 1;
         const adminPageSize = 10;
@@ -630,7 +642,6 @@
                 }
             });
 
-            // Se integra la potencia de contratos + bonos de administración + referidos reales (1000 E por ref)
             userEnergy = totalEnergy + adminBonusEnergy + (referralCount * 1000);
             document.getElementById('stat-energy').innerText = userEnergy;
             
@@ -715,7 +726,6 @@
                     .single();
 
                 if (data) {
-                    // INTERFAZ ESTILIZADA DE BLOQUEO EN CASO DE BANEO
                     if(data.is_banned) {
                         isBanned = true;
                         document.body.innerHTML = `
@@ -760,7 +770,6 @@
                 console.error("Error inicializando datos:", err);
             }
 
-            // Consumo de referidos reales
             fetch(`${API_URL}/api/referrals/${userId}`)
             .then(res => res.json())
             .then(data => {
@@ -918,9 +927,6 @@
             document.getElementById('miner-main-content').classList.remove('hidden');
         }
 
-        // ==========================================
-        // LÓGICA DE DADOS CON CONTROL DE COOLDOWN DE 24 HORAS
-        // ==========================================
         function showAddressInput() {
             if (balanceGHS < 1000) {
                 tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.01 TON) para retirar.");
@@ -1018,14 +1024,14 @@
         }
 
         // ==========================================
-        // 11. MINIJUEGO DE DADOS RESTRICCIÓN 24H
+        // 11. MINIJUEGO DE DADOS
         // ==========================================
         async function playDiceGame() {
             const now = new Date();
             if (lastDiceRollTime) {
                 const lastRoll = new Date(lastDiceRollTime);
                 const diffMs = now - lastRoll;
-                const cooldownMs = 24 * 60 * 60 * 1000; // 24 horas
+                const cooldownMs = 24 * 60 * 60 * 1000; 
 
                 if (diffMs < cooldownMs) {
                     const remainingMs = cooldownMs - diffMs;
@@ -1062,7 +1068,6 @@
                     d2.innerText = faces[res2];
                     d3.innerText = faces[res3];
 
-                    // Guardar marca de tiempo persistente
                     lastDiceRollTime = new Date().toISOString();
                     await _supabase.from('progreso_minero').update({ last_dice_roll: lastDiceRollTime }).eq('telegram_id', userId.toString());
 
@@ -1246,11 +1251,17 @@
             adminSearchUser();
         }
 
-        // FIX DEFINITIVO: Ajusta la columna bonus_energy para que no sea destruida por los contratos
-        async function adminModifyEnergy() {
+        // LÓGICA CORREGIDA PARA MODIFICAR SÓLO LA ENERGÍA MEDIANTE BOTONES CLAROS
+        async function adminModifyEnergy(action) {
             if(!adminCurrentUserId) return;
-            const val = parseInt(document.getElementById('admin-energy-input').value);
-            if(isNaN(val)) return;
+            const inputVal = parseInt(document.getElementById('admin-energy-input').value);
+            
+            if(isNaN(inputVal) || inputVal <= 0) {
+                tg.showAlert("❌ Ingresa un número válido mayor a 0.");
+                return;
+            }
+
+            const val = action === 'add' ? inputVal : -Math.abs(inputVal);
 
             const { data: userProf } = await _supabase
                 .from('progreso_minero')
@@ -1259,15 +1270,52 @@
                 .single();
 
             const baseBonus = userProf ? (parseInt(userProf.bonus_energy) || 0) : 0;
-            const targetBonus = baseBonus + val;
+            let targetBonus = baseBonus + val;
+            
+            if (targetBonus < 0) targetBonus = 0; // Previene energía negativa total si intentan quitar más de lo que tiene
 
             await _supabase.from('progreso_minero').update({ bonus_energy: targetBonus }).eq('telegram_id', adminCurrentUserId);
-            tg.showAlert(`✅ Modificación realizada. Variación: ${val}. Total acumulado: ${targetBonus}`);
+            tg.showAlert(`✅ Energía actualizada. Nuevo total de energía manual: ${targetBonus}`);
             document.getElementById('admin-energy-input').value = "";
             
             if(adminCurrentUserId === userId.toString()) {
                 adminBonusEnergy = targetBonus;
                 updateEnergyFromContracts();
+            }
+            adminSearchUser();
+        }
+
+        // NUEVA LÓGICA EXCLUSIVA PARA MODIFICAR LOS HASHES DIRECTAMENTE
+        async function adminModifyGHS(action) {
+            if(!adminCurrentUserId) return;
+            const inputVal = parseFloat(document.getElementById('admin-ghs-input').value);
+            
+            if(isNaN(inputVal) || inputVal <= 0) {
+                tg.showAlert("❌ Ingresa un número válido mayor a 0.");
+                return;
+            }
+
+            const val = action === 'add' ? inputVal : -Math.abs(inputVal);
+
+            const { data: userProf } = await _supabase
+                .from('progreso_minero')
+                .select('current_ghs')
+                .eq('telegram_id', adminCurrentUserId)
+                .single();
+
+            const baseGHS = userProf ? (parseFloat(userProf.current_ghs) || 0) : 0;
+            let targetGHS = baseGHS + val;
+
+            if (targetGHS < 0) targetGHS = 0; // Evita que se quede en negativo
+
+            await _supabase.from('progreso_minero').update({ current_ghs: targetGHS }).eq('telegram_id', adminCurrentUserId);
+            tg.showAlert(`✅ Hashes (GHS) actualizados. Nuevo saldo: ${targetGHS.toFixed(6)}`);
+            document.getElementById('admin-ghs-input').value = "";
+            
+            if(adminCurrentUserId === userId.toString()) {
+                balanceGHS = targetGHS;
+                uiGHS.innerText = balanceGHS.toFixed(6);
+                uiTON.innerText = `≈ ${(balanceGHS * GHS_TO_TON_RATE).toFixed(8)} TON`;
             }
             adminSearchUser();
         }
