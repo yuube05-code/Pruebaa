@@ -817,7 +817,6 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
-                // AQUÍ SE CORRIGIÓ EL ERROR DE LAS TAREAS (Se añadió bonus_energy al guardado)
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
@@ -1237,17 +1236,42 @@
         }
 
         async function adminAprobarRetiro(id, telegramId, montoTon) {
-            if(!confirm("¿Estás seguro de Aprobar este retiro? (Asegúrate de haberle pagado los TON a su billetera antes de hacer click aquí).")) return;
+            // MODIFICACIÓN: Pedir enlace de transacción antes de aprobar
+            const txLink = prompt("Ingresa el enlace Tonviewer de la transacción para el comprobante de pago:\n(Déjalo en blanco si solo quieres aprobar sin enviar notificación al grupo)");
 
-            // Cambiar el estado a aprobado
-            await _supabase.from('solicitudes_retiro').update({ estado: 'aprobado' }).eq('id', id);
+            if(txLink === null) return; // Si el admin da a "Cancelar" en el prompt, abortamos.
 
-            // Opcional: Registrarlo en las estadísticas del usuario (Depositado/Retirado)
+            if(!confirm(`¿Estás seguro de Aprobar este retiro de ${montoTon} TON y registrarlo?`)) return;
+
+            // Cambiar el estado a aprobado y guardar el link en la nueva columna tx_hash
+            await _supabase.from('solicitudes_retiro').update({ 
+                estado: 'aprobado',
+                tx_hash: txLink || 'Sin enlace' 
+            }).eq('id', id);
+
+            // Registrarlo en las estadísticas del usuario (Depositado/Retirado)
             const { data: userProf } = await _supabase.from('progreso_minero').select('total_withdrawn').eq('telegram_id', telegramId).single();
             const totalWit = (userProf && userProf.total_withdrawn) ? parseFloat(userProf.total_withdrawn) : 0;
             await _supabase.from('progreso_minero').update({ total_withdrawn: totalWit + montoTon }).eq('telegram_id', telegramId);
 
-            tg.showAlert("✅ Retiro marcado como Aprobado y Pagado.");
+            // MODIFICACIÓN: Llamar al backend de Python para enviar el mensaje al grupo si hay un enlace válido
+            if (txLink && txLink.trim() !== "") {
+                try {
+                    await fetch(`${API_URL}/api/notify_withdrawal`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegram_id: telegramId,
+                            monto: montoTon,
+                            tx_link: txLink
+                        })
+                    });
+                } catch(e) {
+                    console.error("Error notificando al backend para el grupo:", e);
+                }
+            }
+
+            tg.showAlert("✅ Retiro aprobado, procesado y notificado al grupo (si pusiste link).");
             loadWithdrawalRequests();
         }
 
