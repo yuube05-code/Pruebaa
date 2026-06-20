@@ -1092,10 +1092,57 @@
         }
 
         // ==========================================
-        // 12. SISTEMA DE ADMINISTRADOR COMPLETO
+        // 12. SISTEMA DE ADMINISTRADOR COMPLETO Y VERIFICACIÓN
         // ==========================================
         let adminCurrentUserId = null;
         let adminUserIsBanned = false;
+
+        async function verifyTask(taskId, taskType, reward, link = null) {
+            tg.showAlert("⏳ Verificando tarea...");
+            
+            if (taskType === 'referidos') {
+                const { data: taskData } = await _supabase.from('tareas_sistema').select('meta_referidos').eq('id', taskId).single();
+                if (taskData && referralCount >= taskData.meta_referidos) {
+                    await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
+                    adminBonusEnergy += reward;
+                    updateEnergyFromContracts();
+                    saveProgress();
+                    tg.showAlert(`🎉 ¡Misión completada! Has ganado +${reward} ENERGY.`);
+                    loadSystemTasks();
+                } else {
+                    tg.showAlert("❌ Aún no alcanzas la meta de referidos requerida.");
+                }
+                return;
+            }
+
+            // Para unirse a un canal o grupo verificamos con el backend de Python
+            fetch(`${API_URL}/api/verify_task`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegram_id: userId.toString(),
+                    task_id: taskId,
+                    link: link
+                })
+            })
+            .then(res => res.json())
+            .then(async data => {
+                if (data.success) {
+                    await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
+                    adminBonusEnergy += reward;
+                    updateEnergyFromContracts();
+                    saveProgress();
+                    tg.showAlert(`🎉 ¡Tarea verificada! Has ganado +${reward} ENERGY.`);
+                    loadSystemTasks();
+                } else {
+                    tg.showAlert("❌ No se pudo verificar. Asegúrate de haberte unido al canal o grupo con tu cuenta de Telegram.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                tg.showAlert("⚠️ Error de conexión con el servidor. Intenta de nuevo.");
+            });
+        }
 
         async function loadAdminUsersList() {
             const from = (adminCurrentPage - 1) * adminPageSize;
@@ -1177,21 +1224,58 @@
 
         async function loadSystemTasks() {
             const { data: tasks } = await _supabase.from('tareas_sistema').select('*');
+            const { data: completed } = await _supabase.from('tareas_completadas').select('tarea_id').eq('telegram_id', userId.toString());
+            
+            const completedIds = completed ? completed.map(c => c.tarea_id) : [];
             const container = document.getElementById('system-tasks-list');
             container.innerHTML = "";
 
             if (tasks && tasks.length > 0) {
                 tasks.forEach(t => {
+                    const isCompleted = completedIds.includes(t.id);
                     let desc = t.tipo === 'referidos' ? `Meta: ${t.meta_referidos} Invitados` : `Unirse a un ${t.tipo}`;
+                    
+                    let actionHTML = "";
+                    let progressHTML = "";
+
+                    if (isCompleted) {
+                        actionHTML = `<span class="text-xs text-green-400 font-bold bg-green-900/30 px-3 py-1.5 rounded-lg border border-green-800/50">✅ Completada</span>`;
+                    } else {
+                        if (t.tipo === 'referidos') {
+                            let progreso = (referralCount / t.meta_referidos) * 100;
+                            if (progreso > 100) progreso = 100;
+                            
+                            progressHTML = `
+                            <div class="mt-3 mb-1 w-full">
+                                <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                                    <span>Progreso</span>
+                                    <span class="text-[#00f0ff]">${referralCount} / ${t.meta_referidos}</span>
+                                </div>
+                                <div class="bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+                                    <div class="bg-gradient-to-r from-[#00f0ff] to-[#b026ff] h-full transition-all duration-500" style="width: ${progreso}%;"></div>
+                                </div>
+                            </div>`;
+                            
+                            actionHTML = `<button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia})" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>`;
+                        } else {
+                            actionHTML = `
+                            <div class="flex gap-2">
+                                <a href="${t.enlace_destino}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors flex items-center justify-center">Ir</a>
+                                <button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia}, '${t.enlace_destino}')" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>
+                            </div>`;
+                        }
+                    }
+
                     container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex justify-between items-center shadow-md">
-                        <div>
-                            <h4 class="font-bold text-sm text-white">${t.titulo}</h4>
-                            <p class="text-xs text-gray-400">${desc} | <span class="text-green-400">+${t.recompensa_energia} E</span></p>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col shadow-md">
+                        <div class="flex justify-between items-center w-full">
+                            <div>
+                                <h4 class="font-bold text-sm text-white">${t.titulo}</h4>
+                                <p class="text-xs text-gray-400">${desc} | <span class="text-green-400">+${t.recompensa_energia} E</span></p>
+                            </div>
+                            ${actionHTML}
                         </div>
-                        ${t.tipo !== 'referidos' ? 
-                        `<a href="${t.enlace_destino}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors">Ir</a>` : 
-                        `<button onclick="changeTab('team')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors">Invitar</button>`}
+                        ${progressHTML}
                     </div>`;
                 });
             } else {
@@ -1251,7 +1335,6 @@
             adminSearchUser();
         }
 
-        // LÓGICA CORREGIDA PARA MODIFICAR SÓLO LA ENERGÍA MEDIANTE BOTONES CLAROS
         async function adminModifyEnergy(action) {
             if(!adminCurrentUserId) return;
             const inputVal = parseInt(document.getElementById('admin-energy-input').value);
@@ -1272,7 +1355,7 @@
             const baseBonus = userProf ? (parseInt(userProf.bonus_energy) || 0) : 0;
             let targetBonus = baseBonus + val;
             
-            if (targetBonus < 0) targetBonus = 0; // Previene energía negativa total si intentan quitar más de lo que tiene
+            if (targetBonus < 0) targetBonus = 0; 
 
             await _supabase.from('progreso_minero').update({ bonus_energy: targetBonus }).eq('telegram_id', adminCurrentUserId);
             tg.showAlert(`✅ Energía actualizada. Nuevo total de energía manual: ${targetBonus}`);
@@ -1285,7 +1368,6 @@
             adminSearchUser();
         }
 
-        // NUEVA LÓGICA EXCLUSIVA PARA MODIFICAR LOS HASHES DIRECTAMENTE
         async function adminModifyGHS(action) {
             if(!adminCurrentUserId) return;
             const inputVal = parseFloat(document.getElementById('admin-ghs-input').value);
@@ -1306,7 +1388,7 @@
             const baseGHS = userProf ? (parseFloat(userProf.current_ghs) || 0) : 0;
             let targetGHS = baseGHS + val;
 
-            if (targetGHS < 0) targetGHS = 0; // Evita que se quede en negativo
+            if (targetGHS < 0) targetGHS = 0;
 
             await _supabase.from('progreso_minero').update({ current_ghs: targetGHS }).eq('telegram_id', adminCurrentUserId);
             tg.showAlert(`✅ Hashes (GHS) actualizados. Nuevo saldo: ${targetGHS.toFixed(6)}`);
