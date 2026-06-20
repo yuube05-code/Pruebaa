@@ -190,10 +190,10 @@
                 <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg text-center">
                     <p class="text-sm text-gray-400 mb-4" data-i18n="enter_wallet">Ingresa tu dirección de billetera TON para recibir los fondos.</p>
                     <input type="text" id="ton-address-input" placeholder="Ej: UQ..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-xl px-4 py-3 outline-none focus:border-[#00f0ff] transition-colors mb-2">
-                    <p class="text-[10px] text-yellow-400 mt-2">Nota: Al retirar, se vaciarán todos tus GHS actuales.</p>
+                    <p class="text-[10px] text-yellow-400 mt-2">Nota: Al solicitar el retiro, tus GHS actuales se descontarán. Podrás ver el estado con los administradores.</p>
                 </div>
 
-                <button onclick="procesarRetiro()" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(176,38,255,0.4)] border border-[#b026ff]/50 transition-all">
+                <button onclick="procesarRetiro(this)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(176,38,255,0.4)] border border-[#b026ff]/50 transition-all">
                     <span data-i18n="confirm_withdraw">Confirmar y Retirar</span>
                 </button>
             </div>
@@ -417,6 +417,11 @@
         <h2 class="text-3xl font-bold mb-1 text-[#b026ff]">Panel Admin</h2>
         <p class="text-sm text-gray-400 mb-6">Gestión de usuarios y sistema.</p>
 
+        <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider mb-3 text-yellow-400">Solicitudes de Retiro Pendientes</h3>
+            <div id="admin-withdrawals-list" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+        </div>
+
         <div class="flex gap-2 mb-6">
             <input type="text" id="admin-search-id" placeholder="ID de Telegram del usuario..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-xl px-4 py-3 outline-none focus:border-[#b026ff] transition-colors">
             <button onclick="adminSearchUser()" class="bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white px-4 rounded-xl font-bold">Buscar</button>
@@ -576,6 +581,7 @@
             document.getElementById('nav-admin').classList.remove('hidden');
             document.getElementById('nav-admin').classList.add('flex');
             loadAdminUsersList(); 
+            loadWithdrawalRequests(); // Cargar retiros pendientes al iniciar panel admin
         }
 
         // ==========================================
@@ -909,7 +915,7 @@
         }
 
         // ==========================================
-        // 9. RETIROS
+        // 9. RETIROS (MODIFICADO PARA ESTADO PENDIENTE)
         // ==========================================
         function openWithdrawView() {
             document.getElementById('miner-main-content').classList.add('hidden');
@@ -936,19 +942,48 @@
             document.getElementById('withdraw-step-2').classList.remove('hidden');
         }
 
-        function procesarRetiro() {
+        async function procesarRetiro(btnContext) {
             const address = document.getElementById('ton-address-input').value.trim();
             if(address.length < 15) {
                 tg.showAlert("❌ Por favor, ingresa una dirección TON válida.");
                 return;
             }
-            const montoRetirado = (balanceGHS * GHS_TO_TON_RATE).toFixed(6);
-            balanceGHS = 0; 
-            saveProgress();
-            
-            tg.showAlert(`✅ ¡Retiro de ${montoRetirado} TON solicitado a la dirección: ${address.substring(0, 8)}...!`);
-            closeWithdrawView();
-            document.getElementById('ton-address-input').value = ""; 
+
+            const montoTon = (balanceGHS * GHS_TO_TON_RATE).toFixed(6);
+            const montoGhs = balanceGHS;
+
+            // Cambiar botón a estado visual de carga
+            const originalText = btnContext.innerHTML;
+            btnContext.innerHTML = "⏳ Solicitando...";
+            btnContext.disabled = true;
+
+            try {
+                // Guardar la solicitud en Supabase
+                const { error } = await _supabase.from('solicitudes_retiro').insert([{
+                    telegram_id: userId.toString(),
+                    monto_ton: montoTon,
+                    monto_ghs: montoGhs,
+                    billetera: address,
+                    estado: 'pendiente'
+                }]);
+
+                if (error) throw error;
+
+                // Restar saldo al usuario de inmediato para evitar que solicite doble
+                balanceGHS = 0; 
+                saveProgress();
+                
+                tg.showAlert(`✅ ¡Retiro de ${montoTon} TON solicitado con éxito! El administrador lo revisará pronto.`);
+                closeWithdrawView();
+                document.getElementById('ton-address-input').value = ""; 
+            } catch(e) {
+                console.error(e);
+                tg.showAlert("⚠️ Hubo un error al solicitar el retiro. Intenta de nuevo más tarde.");
+            } finally {
+                // Restaurar botón
+                btnContext.innerHTML = originalText;
+                btnContext.disabled = false;
+            }
         }
 
         // ==========================================
@@ -1092,41 +1127,52 @@
         }
 
         // ==========================================
-        // 12. SISTEMA DE ADMINISTRADOR COMPLETO Y VERIFICACIÓN
+        // 12. SISTEMA DE ADMINISTRADOR Y VERIFICACIÓN (ARREGLADO)
         // ==========================================
         let adminCurrentUserId = null;
         let adminUserIsBanned = false;
 
-        async function verifyTask(taskId, taskType, reward, link = null) {
-            tg.showAlert("⏳ Verificando tarea...");
-            
-            if (taskType === 'referidos') {
-                const { data: taskData } = await _supabase.from('tareas_sistema').select('meta_referidos').eq('id', taskId).single();
-                if (taskData && referralCount >= taskData.meta_referidos) {
-                    await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
-                    adminBonusEnergy += reward;
-                    updateEnergyFromContracts();
-                    saveProgress();
-                    tg.showAlert(`🎉 ¡Misión completada! Has ganado +${reward} ENERGY.`);
-                    loadSystemTasks();
-                } else {
-                    tg.showAlert("❌ Aún no alcanzas la meta de referidos requerida.");
-                }
-                return;
+        async function verifyTask(taskId, taskType, reward, link = null, btnContext = null) {
+            // Guardamos el texto original del botón y mostramos estado de carga
+            let originalText = "Verificar";
+            if (btnContext) {
+                originalText = btnContext.innerHTML;
+                btnContext.innerHTML = "⏳...";
+                btnContext.disabled = true;
             }
 
-            // Para unirse a un canal o grupo verificamos con el backend de Python
-            fetch(`${API_URL}/api/verify_task`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telegram_id: userId.toString(),
-                    task_id: taskId,
-                    link: link
-                })
-            })
-            .then(res => res.json())
-            .then(async data => {
+            try {
+                if (taskType === 'referidos') {
+                    const { data: taskData, error } = await _supabase.from('tareas_sistema').select('meta_referidos').eq('id', taskId).single();
+                    if (error) throw error;
+
+                    if (taskData && referralCount >= taskData.meta_referidos) {
+                        await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
+                        adminBonusEnergy += reward;
+                        updateEnergyFromContracts();
+                        saveProgress();
+                        tg.showAlert(`🎉 ¡Misión completada! Has ganado +${reward} ENERGY.`);
+                        loadSystemTasks();
+                    } else {
+                        tg.showAlert("❌ Aún no alcanzas la meta de referidos requerida.");
+                        if (btnContext) { btnContext.innerHTML = originalText; btnContext.disabled = false; }
+                    }
+                    return;
+                }
+
+                // Para unirse a un canal o grupo verificamos con el backend de Python
+                const res = await fetch(`${API_URL}/api/verify_task`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        telegram_id: userId.toString(),
+                        task_id: taskId,
+                        link: link
+                    })
+                });
+
+                const data = await res.json();
+                
                 if (data.success) {
                     await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
                     adminBonusEnergy += reward;
@@ -1136,13 +1182,85 @@
                     loadSystemTasks();
                 } else {
                     tg.showAlert("❌ No se pudo verificar. Asegúrate de haberte unido al canal o grupo con tu cuenta de Telegram.");
+                    if (btnContext) { btnContext.innerHTML = originalText; btnContext.disabled = false; }
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                tg.showAlert("⚠️ Error de conexión con el servidor. Intenta de nuevo.");
-            });
+            } catch (err) {
+                console.error("Error al verificar la tarea:", err);
+                tg.showAlert("⚠️ Error de conexión. Intenta de nuevo.");
+                if (btnContext) { btnContext.innerHTML = originalText; btnContext.disabled = false; }
+            }
         }
+
+        // --- NUEVAS FUNCIONES PARA RETIROS (ADMIN) ---
+        async function loadWithdrawalRequests() {
+            const { data: retiros, error } = await _supabase
+                .from('solicitudes_retiro')
+                .select('*')
+                .eq('estado', 'pendiente')
+                .order('created_at', { ascending: false });
+
+            const container = document.getElementById('admin-withdrawals-list');
+            container.innerHTML = "";
+
+            if (retiros && retiros.length > 0) {
+                retiros.forEach(r => {
+                    container.innerHTML += `
+                    <div class="bg-[#1a1f35] p-3 rounded-xl border border-slate-700 shadow-md">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-xs text-white"><b>ID:</b> ${r.telegram_id}</p>
+                                <p class="text-xs text-[#00f0ff] font-bold">${r.monto_ton} TON <span class="text-gray-400 font-normal">(${r.monto_ghs} GHS)</span></p>
+                            </div>
+                            <span class="text-[10px] bg-yellow-600/20 text-yellow-500 px-2 py-1 rounded font-bold border border-yellow-600/50">Pendiente</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mb-1">Billetera de destino:</p>
+                        <div class="bg-[#0f1423] p-2 rounded-lg mb-3 text-[10px] text-purple-300 break-all select-all font-mono border border-slate-700">
+                            ${r.billetera}
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="adminAprobarRetiro('${r.id}', '${r.telegram_id}', ${r.monto_ton})" class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 text-white py-2 rounded-lg text-xs font-bold transition-colors">Aprobar</button>
+                            <button onclick="adminRechazarRetiro('${r.id}', '${r.telegram_id}', ${r.monto_ghs})" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white py-2 rounded-lg text-xs font-bold transition-colors">Rechazar (Devolver)</button>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = "<p class='text-xs text-gray-500 text-center py-3'>No hay retiros pendientes por revisar.</p>";
+            }
+        }
+
+        async function adminAprobarRetiro(id, telegramId, montoTon) {
+            if(!confirm("¿Estás seguro de Aprobar este retiro? (Asegúrate de haberle pagado los TON a su billetera antes de hacer click aquí).")) return;
+
+            // Cambiar el estado a aprobado
+            await _supabase.from('solicitudes_retiro').update({ estado: 'aprobado' }).eq('id', id);
+
+            // Opcional: Registrarlo en las estadísticas del usuario (Depositado/Retirado)
+            const { data: userProf } = await _supabase.from('progreso_minero').select('total_withdrawn').eq('telegram_id', telegramId).single();
+            const totalWit = (userProf && userProf.total_withdrawn) ? parseFloat(userProf.total_withdrawn) : 0;
+            await _supabase.from('progreso_minero').update({ total_withdrawn: totalWit + montoTon }).eq('telegram_id', telegramId);
+
+            tg.showAlert("✅ Retiro marcado como Aprobado y Pagado.");
+            loadWithdrawalRequests();
+        }
+
+        async function adminRechazarRetiro(id, telegramId, montoGhs) {
+            if(!confirm("¿Deseas Rechazar este retiro? Esto le devolverá los GHS a la cuenta del usuario.")) return;
+
+            // Cambiar el estado a rechazado
+            await _supabase.from('solicitudes_retiro').update({ estado: 'rechazado' }).eq('id', id);
+
+            // Buscar saldo actual del usuario
+            const { data: userProf } = await _supabase.from('progreso_minero').select('current_ghs').eq('telegram_id', telegramId).single();
+            const currentGhs = (userProf && userProf.current_ghs) ? parseFloat(userProf.current_ghs) : 0;
+            
+            // Devolverle los GHS de la solicitud
+            await _supabase.from('progreso_minero').update({ current_ghs: currentGhs + parseFloat(montoGhs) }).eq('telegram_id', telegramId);
+
+            tg.showAlert("❌ Retiro rechazado. Los GHS han sido devueltos al usuario.");
+            loadWithdrawalRequests();
+            if (adminCurrentUserId === telegramId) adminSearchUser(); // Refrescar panel admin si estamos viéndolo a él
+        }
+        // ---------------------------------------------
 
         async function loadAdminUsersList() {
             const from = (adminCurrentPage - 1) * adminPageSize;
@@ -1256,12 +1374,13 @@
                                 </div>
                             </div>`;
                             
-                            actionHTML = `<button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia})" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>`;
+                            // Pasamos 'this' para enviarle el contexto del botón a verifyTask
+                            actionHTML = `<button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia}, null, this)" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>`;
                         } else {
                             actionHTML = `
                             <div class="flex gap-2">
                                 <a href="${t.enlace_destino}" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors flex items-center justify-center">Ir</a>
-                                <button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia}, '${t.enlace_destino}')" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>
+                                <button onclick="verifyTask('${t.id}', '${t.tipo}', ${t.recompensa_energia}, '${t.enlace_destino}', this)" class="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]">Verificar</button>
                             </div>`;
                         }
                     }
