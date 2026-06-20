@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VoltTON Miner App</title>
+    <title>Volt Miner | Ton</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -96,6 +96,12 @@
     <div id="tab-miner" class="tab-content flex flex-col pt-8">
         
         <div id="miner-main-content" class="w-full flex flex-col items-center transition-all duration-300">
+            
+            <div class="text-center mb-6">
+                <h2 class="text-3xl font-black text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">VOLT MINER</h2>
+                <h2 class="text-3xl font-black text-[#00f0ff] tracking-widest drop-shadow-[0_0_15px_rgba(0,240,255,0.8)] mt-1">TON</h2>
+            </div>
+
             <div class="relative w-56 h-56 rounded-full border-4 border-[#1a1f35] flex items-center justify-center mx-auto mb-8 miner-circle neon-glow-main bg-gradient-to-br from-[#1a1f35] to-[#0a0d18]">
                 <div class="absolute inset-2 rounded-full bg-gradient-to-br from-purple-600 via-blue-500 to-cyan-400 opacity-90 flex items-center justify-center">
                     <svg class="w-24 h-24 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" fill="currentColor" viewBox="0 0 24 24">
@@ -802,7 +808,7 @@
         setInterval(renderContracts, 60000);
 
         // ==========================================
-        // 7. SISTEMA DE AUTOGUARDADO
+        // 7. SISTEMA DE AUTOGUARDADO (CORREGIDO)
         // ==========================================
         async function saveProgress() {
             if(isBanned) return;
@@ -811,12 +817,14 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
+                // AQUÍ SE CORRIGIÓ EL ERROR DE LAS TAREAS (Se añadió bonus_energy al guardado)
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
                         telegram_id: userId.toString(),
                         current_ghs: balanceGHS,
                         energy: userEnergy,
+                        bonus_energy: adminBonusEnergy, 
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'telegram_id' });
 
@@ -1249,12 +1257,21 @@
             // Cambiar el estado a rechazado
             await _supabase.from('solicitudes_retiro').update({ estado: 'rechazado' }).eq('id', id);
 
-            // Buscar saldo actual del usuario
+            // Buscar saldo actual del usuario en la BD
             const { data: userProf } = await _supabase.from('progreso_minero').select('current_ghs').eq('telegram_id', telegramId).single();
             const currentGhs = (userProf && userProf.current_ghs) ? parseFloat(userProf.current_ghs) : 0;
             
-            // Devolverle los GHS de la solicitud
-            await _supabase.from('progreso_minero').update({ current_ghs: currentGhs + parseFloat(montoGhs) }).eq('telegram_id', telegramId);
+            // Devolverle los GHS a la BD
+            const nuevosGhs = currentGhs + parseFloat(montoGhs);
+            await _supabase.from('progreso_minero').update({ current_ghs: nuevosGhs }).eq('telegram_id', telegramId);
+
+            // SOLUCIÓN AL BUG: Si estás rechazando TUS PROPIOS retiros de prueba,
+            // tenemos que actualizar tu variable local para que el auto-guardado no la sobreescriba.
+            if (telegramId === userId.toString()) {
+                balanceGHS += parseFloat(montoGhs);
+                uiGHS.innerText = balanceGHS.toFixed(6);
+                uiTON.innerText = `≈ ${(balanceGHS * GHS_TO_TON_RATE).toFixed(8)} TON`;
+            }
 
             tg.showAlert("❌ Retiro rechazado. Los GHS han sido devueltos al usuario.");
             loadWithdrawalRequests();
