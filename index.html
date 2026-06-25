@@ -171,7 +171,7 @@
                 <div class="bg-[#0f1423] border border-slate-700 rounded-2xl p-5 shadow-lg">
                     <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-3">
                         <span class="text-sm text-gray-400" data-i18n="exchange_rate">Tasa de cambio:</span>
-                        <span class="text-sm font-bold text-[#00f0ff]">1000 GHS = 0.01 TON</span>
+                        <span class="text-sm font-bold text-[#00f0ff]">1000 GHS = 0.0144 TON</span>
                     </div>
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-sm text-gray-400" data-i18n="your_hashes">Tus Hashes (GHS):</span>
@@ -557,7 +557,7 @@
         
         const API_URL = "https://idk-production-e6b4.up.railway.app"; 
 
-        const GHS_TO_TON_RATE = 0.00001; 
+        const GHS_TO_TON_RATE = 0.0000144; 
 
         let balanceGHS = 0.000000;
         let userEnergy = 0; 
@@ -942,7 +942,7 @@
 
         function showAddressInput() {
             if (balanceGHS < 1000) {
-                tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.01 TON) para retirar.");
+                tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.0144 TON) para retirar.");
                 return;
             }
             document.getElementById('withdraw-step-1').classList.add('hidden');
