@@ -754,17 +754,15 @@
         // ==========================================
         // 5. OBTENER DATOS Y ENTORNO INICIAL (REFERIDOS FIX)
         // ==========================================
-        async function initUserData(isRetry = false) {
+        async function initUserData() {
             try {
+                // Verificar si abrió desde un link de referido
                 let refFromUrl = null;
-                if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-                    let sp = tg.initDataUnsafe.start_param;
-                    if (sp.startsWith('ref_')) {
-                        refFromUrl = sp.replace('ref_', '');
-                    } else {
-                        refFromUrl = sp;
+                if (tg.initDataUnsafe?.start_param && tg.initDataUnsafe.start_param.startsWith('ref_')) {
+                    const urlRef = tg.initDataUnsafe.start_param.replace('ref_', '');
+                    if (urlRef !== userId.toString()) { // Prevenir auto-referido
+                        refFromUrl = urlRef;
                     }
-                    if (refFromUrl === userId.toString()) refFromUrl = null;
                 }
 
                 const { data, error } = await _supabase
@@ -812,25 +810,18 @@
                         }
                     }
                 } else {
-                    // USUARIO NUEVO - FIX DE REFERIDOS (CONDICIÓN DE CARRERA)
-                    if (!isRetry) {
-                        // Esperamos 2.5 segundos. Esto le da tiempo al bot de Python de registrar al usuario, 
-                        // colocar el referred_by en la base de datos y sumarle la energía al referidor.
-                        setTimeout(() => initUserData(true), 2500);
-                        return;
-                    } else {
-                        // Si después de 2.5s Python no lo hizo (por alguna falla), lo hace el frontend como respaldo
-                        userReferredBy = refFromUrl;
-                        await _supabase.from('progreso_minero').insert([{
-                            telegram_id: userId.toString(),
-                            current_ghs: 0,
-                            energy: 500,
-                            bonus_energy: 0,
-                            referred_by: userReferredBy,
-                            updated_at: new Date().toISOString()
-                        }]);
-                        await fetchContracts();
-                    }
+                    // USUARIO NUEVO
+                    userReferredBy = refFromUrl;
+                    // Forzar guardado inicial con el referidor
+                    await _supabase.from('progreso_minero').insert([{
+                        telegram_id: userId.toString(),
+                        current_ghs: 0,
+                        energy: 0,
+                        bonus_energy: 0,
+                        referred_by: userReferredBy,
+                        updated_at: new Date().toISOString()
+                    }]);
+                    await fetchContracts();
                 }
 
                 document.getElementById('ref-referrer').innerText = userReferredBy || "Ninguno";
@@ -874,22 +865,16 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
-                const payload = {
-                    telegram_id: userId.toString(),
-                    current_ghs: balanceGHS,
-                    energy: userEnergy,
-                    bonus_energy: adminBonusEnergy, 
-                    updated_at: new Date().toISOString()
-                };
-
-                // PREVENCIÓN: Solo enviamos referred_by si tiene un valor válido para no borrarlo de Supabase
-                if (userReferredBy) {
-                    payload.referred_by = userReferredBy;
-                }
-
                 const { error } = await _supabase
                     .from('progreso_minero')
-                    .upsert(payload, { onConflict: 'telegram_id' });
+                    .upsert({
+                        telegram_id: userId.toString(),
+                        current_ghs: balanceGHS,
+                        energy: userEnergy,
+                        bonus_energy: adminBonusEnergy, 
+                        referred_by: userReferredBy, // MANTENER REFERIDOR EN LA BD
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'telegram_id' });
 
                 if (error) throw error;
 
@@ -1663,4 +1648,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
