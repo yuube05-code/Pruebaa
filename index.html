@@ -587,17 +587,9 @@
 
     <script>
         // ==========================================
-        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS
-        // (Monitorea si la app pierde el foco durante el ad)
+        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS - ELIMINADA
+        // (Ahora se delega el 100% a la API de Adsgram)
         // ==========================================
-        let isAdPlaying = false;
-        let adInteractionDetected = false;
-        
-        window.addEventListener('blur', () => {
-            if (isAdPlaying) {
-                adInteractionDetected = true;
-            }
-        });
 
         // ==========================================
         // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
@@ -1058,7 +1050,7 @@
         function showAddressInput() {
             // Validar anuncios vistos
             if (!withdrawalsUnlocked) {
-                tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver e interactuar con al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
+                tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
                 return;
             }
@@ -1301,21 +1293,8 @@
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
 
-            isAdPlaying = true;
-            adInteractionDetected = false;
-
             AdController.show().then((result) => {
-                isAdPlaying = false;
-
-                // Validar la interacción (el usuario perdió el foco = hizo clic en el enlace)
-                if (!adInteractionDetected) {
-                    tg.showAlert("⚠️ ERROR: Para validar el anuncio y que no sea considerado Spam, DEBES interactuar con él (pulsar el botón 'Jugar', 'Visitar', etc. dentro del anuncio). Vuelve a intentarlo.");
-                    updateAdBtnText();
-                    btn.disabled = false;
-                    return;
-                }
-
-                // Dar la recompensa
+                // Dar la recompensa directamente (100% manejado por la validación de la promesa de Adsgram)
                 adminBonusEnergy += 100;
                 lastAdTime = Date.now();
 
@@ -1340,7 +1319,6 @@
                 startAdCooldownTimer(60000);
 
             }).catch((result) => {
-                isAdPlaying = false;
                 tg.showAlert("⚠️ Anuncio cancelado o cerrado antes de tiempo.");
                 updateAdBtnText();
                 btn.disabled = false;
