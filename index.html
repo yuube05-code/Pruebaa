@@ -238,11 +238,12 @@
                         <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
-                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +250 ENERGY!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +100 ENERGY!</p>
                         </div>
                     </div>
                 </div>
-                <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)]" data-i18n="btn_watch_ad">Ver Video</button>
+                <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)]">Ver Video</button>
+                <p class="text-[10px] text-gray-500 text-center mt-2">Para retirar fondos, debes ver e interactuar con <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
             </div>
         </div>
 
@@ -586,6 +587,19 @@
 
     <script>
         // ==========================================
+        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS
+        // (Monitorea si la app pierde el foco durante el ad)
+        // ==========================================
+        let isAdPlaying = false;
+        let adInteractionDetected = false;
+        
+        window.addEventListener('blur', () => {
+            if (isAdPlaying) {
+                adInteractionDetected = true;
+            }
+        });
+
+        // ==========================================
         // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
         // ==========================================
         const tg = window.Telegram.WebApp;
@@ -610,7 +624,13 @@
         const adminPageSize = 10;
         let lastDiceRollTime = null;
         let referralCount = 0;
-        let userReferredBy = null; // Variable global para conservar el referidor en caso de guardado
+        let userReferredBy = null; 
+
+        // Nuevas variables para los anuncios y retiros
+        let lastAdTime = null;
+        let lastAdDate = null;
+        let dailyAdsWatched = 0;
+        let withdrawalsUnlocked = false;
 
         // ==========================================
         // 1.5. INICIALIZAR ADSGRAM
@@ -634,7 +654,7 @@
             document.getElementById('nav-admin').classList.remove('hidden');
             document.getElementById('nav-admin').classList.add('flex');
             loadAdminUsersList(); 
-            loadWithdrawalRequests(); // Cargar retiros pendientes al iniciar panel admin
+            loadWithdrawalRequests(); 
         }
 
         // ==========================================
@@ -774,15 +794,14 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL (REFERIDOS FIX)
+        // 5. OBTENER DATOS Y ENTORNO INICIAL
         // ==========================================
         async function initUserData() {
             try {
-                // Verificar si abrió desde un link de referido
                 let refFromUrl = null;
                 if (tg.initDataUnsafe?.start_param && tg.initDataUnsafe.start_param.startsWith('ref_')) {
                     const urlRef = tg.initDataUnsafe.start_param.replace('ref_', '');
-                    if (urlRef !== userId.toString()) { // Prevenir auto-referido
+                    if (urlRef !== userId.toString()) { 
                         refFromUrl = urlRef;
                     }
                 }
@@ -813,6 +832,12 @@
                     adminBonusEnergy = parseInt(data.bonus_energy) || 0;
                     lastDiceRollTime = data.last_dice_roll || null;
 
+                    // Asignación de variables de anuncios
+                    lastAdTime = data.last_ad_time ? new Date(data.last_ad_time).getTime() : null;
+                    lastAdDate = data.last_ad_date || null;
+                    dailyAdsWatched = data.daily_ads_watched || 0;
+                    withdrawalsUnlocked = data.withdrawals_unlocked || false;
+
                     await fetchContracts();
 
                     if (data.updated_at && ratePerSecond > 0) {
@@ -832,9 +857,7 @@
                         }
                     }
                 } else {
-                    // USUARIO NUEVO
                     userReferredBy = refFromUrl;
-                    // Forzar guardado inicial con el referidor
                     await _supabase.from('progreso_minero').insert([{
                         telegram_id: userId.toString(),
                         current_ghs: 0,
@@ -847,6 +870,7 @@
                 }
 
                 document.getElementById('ref-referrer').innerText = userReferredBy || "Ninguno";
+                checkAdCooldownOnLoad();
                 
             } catch (err) {
                 console.error("Error inicializando datos:", err);
@@ -878,7 +902,7 @@
         setInterval(renderContracts, 60000);
 
         // ==========================================
-        // 7. SISTEMA DE AUTOGUARDADO (CORREGIDO)
+        // 7. SISTEMA DE AUTOGUARDADO (ACTUALIZADO)
         // ==========================================
         async function saveProgress() {
             if(isBanned) return;
@@ -894,7 +918,11 @@
                         current_ghs: balanceGHS,
                         energy: userEnergy,
                         bonus_energy: adminBonusEnergy, 
-                        referred_by: userReferredBy, // MANTENER REFERIDOR EN LA BD
+                        referred_by: userReferredBy, 
+                        last_ad_time: lastAdTime ? new Date(lastAdTime).toISOString() : null,
+                        last_ad_date: lastAdDate,
+                        daily_ads_watched: dailyAdsWatched,
+                        withdrawals_unlocked: withdrawalsUnlocked,
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'telegram_id' });
 
@@ -925,7 +953,7 @@
                 enter_wallet: "Ingresa tu dirección de billetera TON para recibir los fondos.", confirm_withdraw: "Confirmar y Retirar",
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
-                watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +250 ENERGY!", btn_watch_ad: "Ver Video",
+                watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +100 ENERGY!",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
                 btn_copy: "🔗 Copiar Enlace de Invitación", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
                 lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
@@ -942,7 +970,7 @@
                 enter_wallet: "Enter your TON wallet address to receive funds.", confirm_withdraw: "Confirm & Withdraw",
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
-                watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +250 ENERGY!", btn_watch_ad: "Watch Video",
+                watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +100 ENERGY!",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
                 btn_copy: "🔗 Copy Invite Link", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
                 lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
@@ -951,6 +979,19 @@
                 btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner"
             }
         };
+
+        function updateAdBtnText() {
+            const btn = document.getElementById('btn-watch-ad');
+            if(btn.disabled) return; 
+            const lang = document.getElementById('btn-es').classList.contains('opacity-50') ? 'en' : 'es';
+            const text = lang === 'es' ? 'Ver Video' : 'Watch Video';
+            
+            if(withdrawalsUnlocked) {
+                btn.innerHTML = `${text} (Desbloqueado)`;
+            } else {
+                btn.innerHTML = `${text} (${dailyAdsWatched}/5)`;
+            }
+        }
 
         function setLang(lang) {
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -966,6 +1007,7 @@
                 btnEn.className = "text-xl transition-all scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]";
                 btnEs.className = "text-xl transition-all opacity-50 hover:opacity-100";
             }
+            updateAdBtnText();
         }
         
         function changeTab(tabId) {
@@ -995,7 +1037,7 @@
         }
 
         // ==========================================
-        // 9. RETIROS 
+        // 9. RETIROS (CON VALIDACIÓN DE ANUNCIOS)
         // ==========================================
         function openWithdrawView() {
             document.getElementById('miner-main-content').classList.add('hidden');
@@ -1014,6 +1056,13 @@
         }
 
         function showAddressInput() {
+            // Validar anuncios vistos
+            if (!withdrawalsUnlocked) {
+                tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver e interactuar con al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
+                changeTab('tasks');
+                return;
+            }
+
             if (balanceGHS < 1000) {
                 tg.showAlert("⚠️ Necesitas al menos 1000 GHS (0.0144 TON) para retirar.");
                 return;
@@ -1048,7 +1097,12 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
+                
+                // Reiniciar contador de anuncios después de un retiro exitoso
+                withdrawalsUnlocked = false;
+                dailyAdsWatched = 0; 
                 saveProgress();
+                updateAdBtnText();
                 
                 tg.showAlert(`✅ ¡Retiro de ${montoTon} TON solicitado con éxito! El administrador lo revisará pronto.`);
                 closeWithdrawView();
@@ -1063,7 +1117,7 @@
         }
 
         // ==========================================
-        // 10. COMPRA DE MINEROS Y VERIFICACIÓN (AHORA CON DÍAS VARIABLES)
+        // 10. COMPRA DE MINEROS Y VERIFICACIÓN 
         // ==========================================
         let mineroSeleccionado = {};
 
@@ -1197,31 +1251,98 @@
         }
         
         // ==========================================
-        // 11.5. MOSTRAR ANUNCIO DE ADSGRAM
+        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM (NUEVO)
         // ==========================================
+        function checkAdCooldownOnLoad() {
+            if (lastAdTime) {
+                const now = Date.now();
+                if (now - lastAdTime < 60000) {
+                    startAdCooldownTimer(60000 - (now - lastAdTime));
+                } else {
+                    updateAdBtnText();
+                }
+            } else {
+                updateAdBtnText();
+            }
+        }
+
+        function startAdCooldownTimer(msLeft) {
+            const btn = document.getElementById('btn-watch-ad');
+            let secondsLeft = Math.ceil(msLeft / 1000);
+            btn.disabled = true;
+            
+            const timerInterval = setInterval(() => {
+                btn.innerHTML = `⏳ Espera ${secondsLeft}s`;
+                secondsLeft--;
+                if (secondsLeft < 0) {
+                    clearInterval(timerInterval);
+                    btn.disabled = false;
+                    updateAdBtnText();
+                }
+            }, 1000);
+        }
+
         function showRewardAd() {
             if (!AdController) {
                 tg.showAlert("⚠️ El sistema de anuncios no está disponible temporalmente.");
                 return;
             }
+
             const btn = document.getElementById('btn-watch-ad');
             if (btn.disabled) return;
             
+            // Verificación del cooldown
+            if (lastAdTime && Date.now() - lastAdTime < 60000) {
+                tg.showAlert("⏳ Por favor espera antes de ver otro anuncio.");
+                return;
+            }
+
             const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
 
+            isAdPlaying = true;
+            adInteractionDetected = false;
+
             AdController.show().then((result) => {
-                // El usuario vio el video hasta el final
-                tg.showAlert("🎉 ¡Anuncio completado! Has ganado +250 ENERGY.");
-                adminBonusEnergy += 250;
-                updateEnergyFromContracts();
+                isAdPlaying = false;
+
+                // Validar la interacción (el usuario perdió el foco = hizo clic en el enlace)
+                if (!adInteractionDetected) {
+                    tg.showAlert("⚠️ ERROR: Para validar el anuncio y que no sea considerado Spam, DEBES interactuar con él (pulsar el botón 'Jugar', 'Visitar', etc. dentro del anuncio). Vuelve a intentarlo.");
+                    updateAdBtnText();
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Dar la recompensa
+                adminBonusEnergy += 100;
+                lastAdTime = Date.now();
+
+                // Lógica diaria de progreso
+                const today = new Date().toISOString().split('T')[0];
+                if (lastAdDate !== today) {
+                    dailyAdsWatched = 1;
+                    lastAdDate = today;
+                } else {
+                    dailyAdsWatched++;
+                }
+
+                if (dailyAdsWatched >= 5) {
+                    withdrawalsUnlocked = true;
+                }
+
                 saveProgress();
+                updateEnergyFromContracts();
+                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +100 ENERGY. (${dailyAdsWatched}/5)`);
+                
+                // Iniciar contador visual de cooldown (1 min)
+                startAdCooldownTimer(60000);
+
             }).catch((result) => {
-                // El usuario cerró el anuncio o hubo un error
+                isAdPlaying = false;
                 tg.showAlert("⚠️ Anuncio cancelado o cerrado antes de tiempo.");
-            }).finally(() => {
-                btn.innerHTML = originalText;
+                updateAdBtnText();
                 btn.disabled = false;
             });
         }
@@ -1679,9 +1800,8 @@
             if(!adminCurrentUserId) return;
             const sel = document.getElementById('admin-miner-select');
             const power = parseInt(sel.value);
-            const name = sel.options[sel.selectedIndex].text.split(" -")[0]; // Para limpiar el nombre
+            const name = sel.options[sel.selectedIndex].text.split(" -")[0]; 
 
-            // Calcular días (14 para el dorado de 4.5M, 7 para los demás)
             let dias = 7;
             if (power === 4509380) dias = 14;
 
