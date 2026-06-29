@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         /* ========================================== */
         /* ESTILOS BASE Y NEÓN                        */
@@ -229,6 +230,19 @@
                 </div>
 
                 <button id="btn-play-dice" onclick="playDiceGame()" class="premium-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(176,38,255,0.4)]" data-i18n="btn_spin">¡Lanzar Dados!</button>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-700 p-5 rounded-2xl flex flex-col shadow-lg mt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
+                        <div>
+                            <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +250 ENERGY!</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)]" data-i18n="btn_watch_ad">Ver Video</button>
             </div>
         </div>
 
@@ -599,6 +613,14 @@
         let userReferredBy = null; // Variable global para conservar el referidor en caso de guardado
 
         // ==========================================
+        // 1.5. INICIALIZAR ADSGRAM
+        // ==========================================
+        let AdController = null;
+        if (window.Adsgram) {
+            AdController = window.Adsgram.init({ blockId: "36568" });
+        }
+
+        // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
         // ==========================================
         const supabaseUrl = 'https://gzzkovrrrucwhiuwzvki.supabase.co'; 
@@ -903,6 +925,7 @@
                 enter_wallet: "Ingresa tu dirección de billetera TON para recibir los fondos.", confirm_withdraw: "Confirmar y Retirar",
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
+                watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +250 ENERGY!", btn_watch_ad: "Ver Video",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
                 btn_copy: "🔗 Copiar Enlace de Invitación", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
                 lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
@@ -919,6 +942,7 @@
                 enter_wallet: "Enter your TON wallet address to receive funds.", confirm_withdraw: "Confirm & Withdraw",
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
+                watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +250 ENERGY!", btn_watch_ad: "Watch Video",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
                 btn_copy: "🔗 Copy Invite Link", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
                 lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
@@ -1170,6 +1194,36 @@
                     }, 2000); 
                 }
             }, 80);
+        }
+        
+        // ==========================================
+        // 11.5. MOSTRAR ANUNCIO DE ADSGRAM
+        // ==========================================
+        function showRewardAd() {
+            if (!AdController) {
+                tg.showAlert("⚠️ El sistema de anuncios no está disponible temporalmente.");
+                return;
+            }
+            const btn = document.getElementById('btn-watch-ad');
+            if (btn.disabled) return;
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "⏳ Cargando...";
+            btn.disabled = true;
+
+            AdController.show().then((result) => {
+                // El usuario vio el video hasta el final
+                tg.showAlert("🎉 ¡Anuncio completado! Has ganado +250 ENERGY.");
+                adminBonusEnergy += 250;
+                updateEnergyFromContracts();
+                saveProgress();
+            }).catch((result) => {
+                // El usuario cerró el anuncio o hubo un error
+                tg.showAlert("⚠️ Anuncio cancelado o cerrado antes de tiempo.");
+            }).finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
         }
 
         function copyRefLink() {
@@ -1648,5 +1702,4 @@
         }
     </script>
 </body>
-    </html>
-    
+</html>
