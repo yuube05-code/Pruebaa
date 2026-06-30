@@ -238,7 +238,7 @@
                         <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
-                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video,interactua con el y gana +100 ENERGY!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video,interactua con el y gana +50 ENERGY!</p>
                         </div>
                     </div>
                 </div>
@@ -1295,7 +1295,7 @@
 
             AdController.show().then((result) => {
                 // Dar la recompensa directamente (100% manejado por la validación de la promesa de Adsgram)
-                adminBonusEnergy += 100;
+                adminBonusEnergy += 50;
                 lastAdTime = Date.now();
 
                 // Lógica diaria de progreso
@@ -1313,7 +1313,7 @@
 
                 saveProgress();
                 updateEnergyFromContracts();
-                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +100 ENERGY. (${dailyAdsWatched}/5)`);
+                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +50 ENERGY. (${dailyAdsWatched}/5)`);
                 
                 // Iniciar contador visual de cooldown (1 min)
                 startAdCooldownTimer(60000);
