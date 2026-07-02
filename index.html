@@ -238,12 +238,12 @@
                         <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
-                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video,interactua con el y gana +50 ENERGY!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +100 ENERGY!</p>
                         </div>
                     </div>
                 </div>
                 <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)]">Ver Video</button>
-                <p class="text-[10px] text-gray-500 text-center mt-2">Para retirar fondos, debes ver e interactuar con <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
+                <p class="text-[10px] text-gray-500 text-center mt-2">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
             </div>
         </div>
 
@@ -587,11 +587,6 @@
 
     <script>
         // ==========================================
-        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS - ELIMINADA
-        // (Ahora se delega el 100% a la API de Adsgram)
-        // ==========================================
-
-        // ==========================================
         // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
         // ==========================================
         const tg = window.Telegram.WebApp;
@@ -786,9 +781,9 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL
+        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
         // ==========================================
-        async function initUserData() {
+        async function initUserData(isRetry = false) {
             try {
                 let refFromUrl = null;
                 if (tg.initDataUnsafe?.start_param && tg.initDataUnsafe.start_param.startsWith('ref_')) {
@@ -849,16 +844,22 @@
                         }
                     }
                 } else {
-                    userReferredBy = refFromUrl;
-                    await _supabase.from('progreso_minero').insert([{
-                        telegram_id: userId.toString(),
-                        current_ghs: 0,
-                        energy: 0,
-                        bonus_energy: 0,
-                        referred_by: userReferredBy,
-                        updated_at: new Date().toISOString()
-                    }]);
-                    await fetchContracts();
+                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
+                    if (!isRetry) {
+                        setTimeout(() => initUserData(true), 2500);
+                        return;
+                    } else {
+                        userReferredBy = refFromUrl;
+                        await _supabase.from('progreso_minero').insert([{
+                            telegram_id: userId.toString(),
+                            current_ghs: 0,
+                            energy: 500, // Ajustado a 500
+                            bonus_energy: 0,
+                            referred_by: userReferredBy,
+                            updated_at: new Date().toISOString()
+                        }]);
+                        await fetchContracts();
+                    }
                 }
 
                 document.getElementById('ref-referrer').innerText = userReferredBy || "Ninguno";
@@ -894,7 +895,7 @@
         setInterval(renderContracts, 60000);
 
         // ==========================================
-        // 7. SISTEMA DE AUTOGUARDADO (ACTUALIZADO)
+        // 7. SISTEMA DE AUTOGUARDADO 
         // ==========================================
         async function saveProgress() {
             if(isBanned) return;
@@ -1243,7 +1244,7 @@
         }
         
         // ==========================================
-        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM (NUEVO)
+        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM
         // ==========================================
         function checkAdCooldownOnLoad() {
             if (lastAdTime) {
@@ -1283,7 +1284,6 @@
             const btn = document.getElementById('btn-watch-ad');
             if (btn.disabled) return;
             
-            // Verificación del cooldown
             if (lastAdTime && Date.now() - lastAdTime < 60000) {
                 tg.showAlert("⏳ Por favor espera antes de ver otro anuncio.");
                 return;
@@ -1294,11 +1294,9 @@
             btn.disabled = true;
 
             AdController.show().then((result) => {
-                // Dar la recompensa directamente (100% manejado por la validación de la promesa de Adsgram)
-                adminBonusEnergy += 50;
+                adminBonusEnergy += 100;
                 lastAdTime = Date.now();
 
-                // Lógica diaria de progreso
                 const today = new Date().toISOString().split('T')[0];
                 if (lastAdDate !== today) {
                     dailyAdsWatched = 1;
@@ -1313,9 +1311,8 @@
 
                 saveProgress();
                 updateEnergyFromContracts();
-                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +50 ENERGY. (${dailyAdsWatched}/5)`);
+                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +100 ENERGY. (${dailyAdsWatched}/5)`);
                 
-                // Iniciar contador visual de cooldown (1 min)
                 startAdCooldownTimer(60000);
 
             }).catch((result) => {
