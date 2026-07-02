@@ -277,7 +277,7 @@
                     <p class="text-2xl font-extrabold text-green-400 mt-1" id="ref-energy-earned">0 E</p>
                 </div>
             </div>
-            <p class="text-[10px] text-center text-gray-500 mt-1">🎁 Recibes +1,000 de ENERGY permanente por cada usuario que invites.</p>
+            <p class="text-[10px] text-center text-gray-500 mt-1">🎁 Recibes +200 de ENERGY permanente por cada usuario que invites.</p>
         </div>
 
         <button onclick="copyRefLink()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.5)] border border-[#00f0ff]/50 flex items-center justify-center gap-2 transition-all">
@@ -678,7 +678,7 @@
                     const freeMiner = {
                         telegram_id: userId.toString(),
                         nombre: "Minero Free",
-                        potencia: 500,
+                        potencia: 250,
                         fecha_inicio: inicio.toISOString(),
                         fecha_fin: fin.toISOString()
                     };
@@ -708,7 +708,7 @@
                 }
             });
 
-            userEnergy = totalEnergy + adminBonusEnergy + (referralCount * 1000);
+            userEnergy = totalEnergy + adminBonusEnergy + (referralCount * 200);
             document.getElementById('stat-energy').innerText = userEnergy;
             
             if (proxExpiracion) {
@@ -853,7 +853,7 @@
                         await _supabase.from('progreso_minero').insert([{
                             telegram_id: userId.toString(),
                             current_ghs: 0,
-                            energy: 500, // Ajustado a 500
+                            energy: 250, 
                             bonus_energy: 0,
                             referred_by: userReferredBy,
                             updated_at: new Date().toISOString()
@@ -874,7 +874,7 @@
             .then(data => {
                 referralCount = data.count || 0;
                 document.getElementById('ref-count').innerText = referralCount;
-                document.getElementById('ref-energy-earned').innerText = (referralCount * 1000) + " E";
+                document.getElementById('ref-energy-earned').innerText = (referralCount * 200) + " E";
                 updateEnergyFromContracts();
             }).catch(() => {});
 
