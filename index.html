@@ -242,7 +242,7 @@
                         </div>
                     </div>
                 </div>
-                <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)]">Ver Video</button>
+                <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">Ver Video</button>
                 <p class="text-[10px] text-gray-500 text-center mt-2">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
             </div>
         </div>
@@ -251,6 +251,25 @@
             <h3 class="text-md font-bold text-white mb-3 tracking-wide uppercase text-slate-400 text-xs">Tareas del Servidor</h3>
             <div id="system-tasks-list" class="space-y-3"></div>
         </div>
+    </div>
+
+    <div id="tab-ranking" class="tab-content hidden block">
+        <h2 class="text-3xl font-bold mb-4 text-white text-center">🏆 Ranking</h2>
+        
+        <div class="flex justify-center bg-slate-900 p-1 rounded-xl mb-4 border border-slate-700 w-full max-w-sm mx-auto shadow-md">
+            <button onclick="switchRanking('referrals')" id="btn-rank-ref" class="flex-1 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white shadow-md transition-all" data-i18n="rank_referrals">👥 Referidos</button>
+            <button onclick="switchRanking('ads')" id="btn-rank-ads" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-all" data-i18n="rank_ads">📺 Anuncios</button>
+        </div>
+
+        <div id="ads-subtabs" class="hidden flex justify-center gap-2 mb-6 w-full max-w-sm mx-auto">
+            <button onclick="switchAdsRanking('weekly')" id="btn-ads-weekly" class="px-4 py-1.5 text-xs font-bold rounded-full bg-blue-600 text-white shadow-md transition-all" data-i18n="rank_7days">7 Días</button>
+            <button onclick="switchAdsRanking('general')" id="btn-ads-general" class="px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 border border-slate-600 text-gray-400 transition-all" data-i18n="rank_general">General</button>
+        </div>
+        <p id="ranking-weekly-desc" class="hidden text-[10px] text-center text-[#00f0ff] mb-4 -mt-3" data-i18n="rank_prizes">🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)</p>
+
+        <div class="flex justify-center items-end gap-2 mb-8 px-2 min-h-[150px]" id="ranking-podium"></div>
+
+        <div class="space-y-2 pb-6" id="ranking-list"></div>
     </div>
 
     <div id="tab-team" class="tab-content hidden block">
@@ -562,26 +581,32 @@
         </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-[#0a0d18] border-t border-slate-800 flex justify-around items-center px-2 pb-2 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
-        <button onclick="changeTab('miner')" id="nav-miner" class="nav-btn text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.6)] flex flex-col items-center justify-center w-16 transition-colors">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            <span class="text-[10px] font-medium" data-i18n="nav_miner">Minador</span>
+    <nav class="fixed bottom-0 left-0 right-0 h-20 bg-[#0a0d18] border-t border-slate-800 flex justify-around items-center px-1 pb-2 z-50 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
+        <button onclick="changeTab('miner')" id="nav-miner" class="nav-btn text-[#00f0ff] drop-shadow-[0_0_8px_rgba(0,240,255,0.6)] flex flex-col items-center justify-center flex-1 transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span class="text-[9px] font-medium" data-i18n="nav_miner">Minador</span>
         </button>
-        <button onclick="changeTab('tasks')" id="nav-tasks" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-16 transition-colors">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-            <span class="text-[10px] font-medium" data-i18n="nav_tasks">Tareas</span>
+        <button onclick="changeTab('tasks')" id="nav-tasks" class="nav-btn text-gray-500 flex flex-col items-center justify-center flex-1 transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            <span class="text-[9px] font-medium" data-i18n="nav_tasks">Tareas</span>
         </button>
-        <button onclick="changeTab('team')" id="nav-team" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-16 transition-colors">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="text-[10px] font-medium" data-i18n="nav_team">Equipo</span>
+        <button onclick="changeTab('team')" id="nav-team" class="nav-btn text-gray-500 flex flex-col items-center justify-center flex-1 transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[9px] font-medium" data-i18n="nav_team">Equipo</span>
         </button>
-        <button onclick="changeTab('shop')" id="nav-shop" class="nav-btn text-gray-500 flex flex-col items-center justify-center w-16 transition-colors">
-            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="text-[10px] font-medium" data-i18n="nav_shop">Tienda</span>
+        
+        <button onclick="changeTab('ranking')" id="nav-ranking" class="nav-btn text-gray-500 flex flex-col items-center justify-center flex-1 transition-colors">
+            <span class="text-lg mb-0.5 grayscale">🏆</span>
+            <span class="text-[9px] font-medium" data-i18n="nav_ranking">Ranking</span>
         </button>
-        <button onclick="changeTab('admin')" id="nav-admin" class="nav-btn text-gray-500 hidden flex-col items-center justify-center w-16 transition-colors">
-            <span class="text-xl mb-1">👑</span>
-            <span class="text-[10px] font-medium">Admin</span>
+        
+        <button onclick="changeTab('shop')" id="nav-shop" class="nav-btn text-gray-500 flex flex-col items-center justify-center flex-1 transition-colors">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span class="text-[9px] font-medium" data-i18n="nav_shop">Tienda</span>
+        </button>
+        <button onclick="changeTab('admin')" id="nav-admin" class="nav-btn text-gray-500 hidden flex-col items-center justify-center flex-1 transition-colors">
+            <span class="text-xl mb-1 grayscale">👑</span>
+            <span class="text-[9px] font-medium">Admin</span>
         </button>
     </nav>
 
@@ -613,19 +638,61 @@
         let referralCount = 0;
         let userReferredBy = null; 
 
-        // Nuevas variables para los anuncios y retiros
+        // Variables para los anuncios y retiros
         let lastAdTime = null;
         let lastAdDate = null;
         let dailyAdsWatched = 0;
+        let adsWatchedTotal = 0;
+        let adsWatchedWeekly = 0;
         let withdrawalsUnlocked = false;
 
+        // Variables de Ranking
+        let currentRankingType = 'referrals'; // 'referrals' o 'ads'
+        let currentAdsRankingType = 'weekly'; // 'weekly' o 'general'
+
         // ==========================================
-        // 1.5. INICIALIZAR ADSGRAM
+        // 1.5. INICIALIZAR ADSGRAM (REWARD E INTERSTITIAL)
         // ==========================================
         let AdController = null;
+        let InterstitialController = null;
+        let isAdPlaying = false; // Bloqueador general
+        
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
+            InterstitialController = window.Adsgram.init({ blockId: "int-37002" });
         }
+
+        // ==========================================
+        // LÓGICA ANUNCIOS INTERSTITIAL (CADA 1 MINUTO)
+        // ==========================================
+        let lastInterstitialTime = Date.now();
+        let isInterstitialPlaying = false;
+        
+        setInterval(() => {
+            if (isBanned || isInterstitialPlaying || isAdPlaying) return;
+            
+            // Verificamos si estamos en una pestaña segura (No molestar en retiros ni admin ni pago)
+            const isWithdrawOpen = !document.getElementById('withdraw-view').classList.contains('hidden');
+            const isPaymentOpen = !document.getElementById('payment-view').classList.contains('hidden');
+            const activeTabElement = document.querySelector('.tab-content:not(.hidden)');
+            const activeTab = activeTabElement ? activeTabElement.id : '';
+
+            if (activeTab !== 'tab-admin' && !isWithdrawOpen && !isPaymentOpen) {
+                // Cooldown estricto de 1 minuto real (60000 ms)
+                if (Date.now() - lastInterstitialTime >= 60000) { 
+                    if (InterstitialController) {
+                        isInterstitialPlaying = true;
+                        InterstitialController.show().then((result) => {
+                            isInterstitialPlaying = false;
+                            lastInterstitialTime = Date.now();
+                        }).catch((result) => {
+                            isInterstitialPlaying = false;
+                            lastInterstitialTime = Date.now(); // Reinicia el timer igual para no espamear
+                        });
+                    }
+                }
+            }
+        }, 5000); // Revisa cada 5 segundos si ya pasó el minuto
 
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
@@ -824,6 +891,8 @@
                     lastAdDate = data.last_ad_date || null;
                     dailyAdsWatched = data.daily_ads_watched || 0;
                     withdrawalsUnlocked = data.withdrawals_unlocked || false;
+                    adsWatchedTotal = data.ads_watched_total || 0;
+                    adsWatchedWeekly = data.ads_watched_weekly || 0;
 
                     await fetchContracts();
 
@@ -844,7 +913,6 @@
                         }
                     }
                 } else {
-                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
                     if (!isRetry) {
                         setTimeout(() => initUserData(true), 2500);
                         return;
@@ -916,6 +984,8 @@
                         last_ad_date: lastAdDate,
                         daily_ads_watched: dailyAdsWatched,
                         withdrawals_unlocked: withdrawalsUnlocked,
+                        ads_watched_total: adsWatchedTotal,
+                        ads_watched_weekly: adsWatchedWeekly,
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'telegram_id' });
 
@@ -952,7 +1022,9 @@
                 lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
                 pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
                 pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
-                btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador"
+                btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador", nav_ranking: "Ranking",
+                rank_referrals: "👥 Referidos", rank_ads: "📺 Anuncios", rank_7days: "7 Días", rank_general: "General",
+                rank_prizes: "🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)"
             },
             en: {
                 mined: "Mined GHS", h_day: "H/Day", expiration: "Next expiration",
@@ -969,13 +1041,16 @@
                 lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
                 pay_title: "Make Payment", pay_desc: "Send exactly",
                 pay_desc2: "to this address:", important: "IMPORTANT", pay_memo: "Copy and include this MEMO in your payment, otherwise you'll lose your money:",
-                btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner"
+                btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner", nav_ranking: "Ranking",
+                rank_referrals: "👥 Referrals", rank_ads: "📺 Ads", rank_7days: "7 Days", rank_general: "General",
+                rank_prizes: "🎁 Weekly Prizes: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)"
             }
         };
 
         function updateAdBtnText() {
             const btn = document.getElementById('btn-watch-ad');
-            if(btn.disabled) return; 
+            if(btn.disabled && btn.innerHTML.includes('✅')) return; // No pisar si está en verde
+            
             const lang = document.getElementById('btn-es').classList.contains('opacity-50') ? 'en' : 'es';
             const text = lang === 'es' ? 'Ver Video' : 'Watch Video';
             
@@ -1011,6 +1086,9 @@
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-[#00f0ff]', 'drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]');
                 btn.classList.add('text-gray-500');
+                // Poner el icono del ranking en gris si pierde el foco
+                const iconSpan = btn.querySelector('span.text-lg');
+                if(iconSpan) iconSpan.classList.add('grayscale');
             });
 
             const targetTab = document.getElementById('tab-' + tabId);
@@ -1025,12 +1103,127 @@
             if(activeNav) {
                 activeNav.classList.remove('text-gray-500');
                 activeNav.classList.add('text-[#00f0ff]', 'drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]');
+                const iconSpan = activeNav.querySelector('span.text-lg');
+                if(iconSpan) iconSpan.classList.remove('grayscale');
             }
             if(tabId === 'miner') closeWithdrawView();
+            if(tabId === 'ranking') loadRanking(currentRankingType, currentAdsRankingType);
         }
 
         // ==========================================
-        // 9. RETIROS (CON VALIDACIÓN DE ANUNCIOS)
+        // SISTEMA DE RANKING
+        // ==========================================
+        function switchRanking(type) {
+            currentRankingType = type;
+            const btnRef = document.getElementById('btn-rank-ref');
+            const btnAds = document.getElementById('btn-rank-ads');
+            const subtabs = document.getElementById('ads-subtabs');
+            const desc = document.getElementById('ranking-weekly-desc');
+
+            if(type === 'referrals') {
+                btnRef.className = "flex-1 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white shadow-md transition-all";
+                btnAds.className = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-all";
+                subtabs.classList.replace('flex', 'hidden');
+                desc.classList.replace('block', 'hidden');
+            } else {
+                btnAds.className = "flex-1 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md transition-all";
+                btnRef.className = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-400 hover:text-white transition-all";
+                subtabs.classList.replace('hidden', 'flex');
+                if(currentAdsRankingType === 'weekly') desc.classList.replace('hidden', 'block');
+            }
+            loadRanking(currentRankingType, currentAdsRankingType);
+        }
+
+        function switchAdsRanking(subType) {
+            currentAdsRankingType = subType;
+            const btnW = document.getElementById('btn-ads-weekly');
+            const btnG = document.getElementById('btn-ads-general');
+            const desc = document.getElementById('ranking-weekly-desc');
+
+            if(subType === 'weekly') {
+                btnW.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-blue-600 text-white shadow-md transition-all";
+                btnG.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 border border-slate-600 text-gray-400 transition-all";
+                desc.classList.replace('hidden', 'block');
+            } else {
+                btnG.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-blue-600 text-white shadow-md transition-all";
+                btnW.className = "px-4 py-1.5 text-xs font-bold rounded-full bg-slate-800 border border-slate-600 text-gray-400 transition-all";
+                desc.classList.replace('block', 'hidden');
+            }
+            loadRanking('ads', currentAdsRankingType);
+        }
+
+        async function loadRanking(type, subType = 'weekly') {
+            const podiumEl = document.getElementById('ranking-podium');
+            const listEl = document.getElementById('ranking-list');
+            podiumEl.innerHTML = '<p class="text-xs text-gray-400 w-full text-center">Cargando...</p>';
+            listEl.innerHTML = '';
+
+            let column = 'total_referrals';
+            if (type === 'ads') {
+                column = subType === 'weekly' ? 'ads_watched_weekly' : 'ads_watched_total';
+            }
+
+            const { data, error } = await _supabase
+                .from('progreso_minero')
+                .select('username, total_referrals, ads_watched_weekly, ads_watched_total')
+                .order(column, { ascending: false })
+                .limit(10);
+            
+            if (error || !data || data.length === 0) {
+                podiumEl.innerHTML = '<p class="text-xs text-gray-400 w-full text-center">No hay datos suficientes.</p>';
+                return;
+            }
+
+            let pHTML = '';
+            const heights = ['h-28', 'h-36', 'h-20'];
+            const colors = ['bg-slate-300', 'bg-yellow-400', 'bg-amber-600'];
+            const borders = ['border-slate-400', 'border-yellow-300', 'border-amber-500'];
+            
+            // Orden visual del podio: 2do, 1ero, 3ro
+            const top3 = [data[1], data[0], data[2]];
+            const places = [2, 1, 3];
+
+            top3.forEach((user, index) => {
+                if(!user) return;
+                const score = user[column] || 0;
+                const place = places[index];
+                const h = heights[index];
+                const c = colors[index];
+                const b = borders[index];
+                let name = user.username || "Usuario";
+                if(name.length > 8) name = name.substring(0,6) + "..";
+                
+                pHTML += `
+                <div class="flex flex-col items-center w-1/3">
+                    <span class="text-[11px] text-white font-bold truncate w-full text-center mb-1 drop-shadow-md">${name}</span>
+                    <span class="text-[10px] font-bold text-[#00f0ff] mb-1 bg-slate-900/80 px-2 py-0.5 rounded-full border border-slate-700">${score}</span>
+                    <div class="w-full ${h} ${c} border-t-2 ${b} rounded-t-lg flex justify-center pt-2 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] bg-opacity-80 backdrop-blur-sm relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent"></div>
+                        <span class="text-3xl font-black text-black drop-shadow-md relative z-10 opacity-70">${place}</span>
+                    </div>
+                </div>`;
+            });
+            podiumEl.innerHTML = pHTML;
+
+            let lHTML = '';
+            for(let i=3; i<data.length; i++) {
+                const user = data[i];
+                const score = user[column] || 0;
+                const name = user.username || "Usuario";
+                lHTML += `
+                <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center shadow-sm mx-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-gray-400 border border-slate-700">${i+1}</div>
+                        <span class="text-xs font-bold text-gray-200">${name}</span>
+                    </div>
+                    <span class="text-xs font-extrabold text-[#00f0ff]">${score}</span>
+                </div>`;
+            }
+            listEl.innerHTML = lHTML;
+        }
+
+        // ==========================================
+        // 9. RETIROS 
         // ==========================================
         function openWithdrawView() {
             document.getElementById('miner-main-content').classList.add('hidden');
@@ -1264,11 +1457,24 @@
             let secondsLeft = Math.ceil(msLeft / 1000);
             btn.disabled = true;
             
+            // Guardamos las clases originales azules
+            const originalClasses = btn.className;
+            
+            // Reemplazamos visualmente el botón a verde
+            btn.className = "w-full bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all";
+            
             const timerInterval = setInterval(() => {
-                btn.innerHTML = `⏳ Espera ${secondsLeft}s`;
+                let secs = secondsLeft < 10 ? '0' + secondsLeft : secondsLeft;
+                const lang = document.getElementById('btn-es').classList.contains('opacity-50') ? 'en' : 'es';
+                const waitText = lang === 'es' ? 'Esperar' : 'Wait';
+                
+                btn.innerHTML = `✅ ${waitText} 00:${secs}`;
                 secondsLeft--;
+                
                 if (secondsLeft < 0) {
                     clearInterval(timerInterval);
+                    // Restauramos las clases azules originales
+                    btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
                     btn.disabled = false;
                     updateAdBtnText();
                 }
@@ -1292,10 +1498,14 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
+            isAdPlaying = true; // Bloquea los interstitials mientras ves un Reward
 
             AdController.show().then((result) => {
+                isAdPlaying = false;
                 adminBonusEnergy += 100;
                 lastAdTime = Date.now();
+                adsWatchedTotal++;
+                adsWatchedWeekly++;
 
                 const today = new Date().toISOString().split('T')[0];
                 if (lastAdDate !== today) {
@@ -1316,9 +1526,10 @@
                 startAdCooldownTimer(60000);
 
             }).catch((result) => {
+                isAdPlaying = false;
                 tg.showAlert("⚠️ Anuncio cancelado o cerrado antes de tiempo.");
-                updateAdBtnText();
                 btn.disabled = false;
+                updateAdBtnText();
             });
         }
 
