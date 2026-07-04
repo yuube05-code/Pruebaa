@@ -246,7 +246,7 @@
                         <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
-                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +50 ENERGY por 3 días!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +50 ENERGY por 3 Días!</p>
                         </div>
                     </div>
                 </div>
@@ -620,6 +620,18 @@
 
     <script>
         // ==========================================
+        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS (HACK DE VISIBILIDAD)
+        // ==========================================
+        let isAdPlaying = false;
+        let adInteractionDetected = false;
+        
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'hidden' && isAdPlaying) {
+                adInteractionDetected = true;
+            }
+        });
+
+        // ==========================================
         // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
         // ==========================================
         const tg = window.Telegram.WebApp;
@@ -675,7 +687,6 @@
         // ==========================================
         let AdController = null;
         let InterstitialController = null;
-        let isAdPlaying = false; // Bloqueador general
         
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
@@ -920,7 +931,7 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL
+        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
         // ==========================================
         async function initUserData(isRetry = false) {
             try {
@@ -996,6 +1007,7 @@
                         }
                     }
                 } else {
+                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
                     if (!isRetry) {
                         setTimeout(() => initUserData(true), 2500);
                         return;
@@ -1118,7 +1130,7 @@
                 pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
                 btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador", nav_ranking: "Ranking",
                 rank_referrals: "👥 Referidos", rank_ads: "📺 Anuncios", rank_7days: "7 Días", rank_general: "General",
-                rank_prizes: "🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)", daily_login: "Registro"
+                rank_prizes: "🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)", daily_login: "Diario"
             },
             en: {
                 mined: "Mined GHS", h_day: "H/Day", expiration: "Next expiration",
@@ -1386,6 +1398,7 @@
         }
 
         function showAddressInput() {
+            // Validar anuncios vistos
             if (!withdrawalsUnlocked) {
                 tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
@@ -1426,6 +1439,8 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
+                
+                // Reiniciar contador de anuncios después de un retiro exitoso
                 withdrawalsUnlocked = false;
                 dailyAdsWatched = 0; 
                 saveProgress();
@@ -1598,6 +1613,10 @@
             let secondsLeft = Math.ceil(msLeft / 1000);
             btn.disabled = true;
             
+            // Guardamos las clases originales azules
+            const originalClasses = btn.className;
+            
+            // Reemplazamos visualmente el botón a verde
             btn.className = "w-full bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all";
             
             const timerInterval = setInterval(() => {
@@ -1610,6 +1629,7 @@
                 
                 if (secondsLeft < 0) {
                     clearInterval(timerInterval);
+                    // Restauramos las clases azules originales
                     btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
                     btn.disabled = false;
                     updateAdBtnText();
@@ -1635,9 +1655,20 @@
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
             isAdPlaying = true; 
+            adInteractionDetected = false; // Reiniciamos el detector
 
             AdController.show().then(async (result) => {
                 isAdPlaying = false;
+
+                // VALIDACIÓN DEL CLIC (VISIBILITY HACK)
+                if (!adInteractionDetected) {
+                    tg.showAlert("⚠️ ¡Casi lo logras!\n\nPara reclamar tu recompensa DEBES pulsar el botón del anuncio ('Abrir', 'Juega ahora', etc.) e interactuar con el patrocinador. Inténtalo de nuevo.");
+                    btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
+                    btn.disabled = false;
+                    updateAdBtnText();
+                    return; 
+                }
+
                 lastAdTime = Date.now();
                 adsWatchedTotal++;
                 adsWatchedWeekly++;
