@@ -620,18 +620,6 @@
 
     <script>
         // ==========================================
-        // LÓGICA DE DETECCIÓN DE CLIC EN ANUNCIOS (HACK DE VISIBILIDAD)
-        // ==========================================
-        let isAdPlaying = false;
-        let adInteractionDetected = false;
-        
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === 'hidden' && isAdPlaying) {
-                adInteractionDetected = true;
-            }
-        });
-
-        // ==========================================
         // 1. CONFIGURACIÓN DE TELEGRAM Y VARIABLES
         // ==========================================
         const tg = window.Telegram.WebApp;
@@ -687,6 +675,7 @@
         // ==========================================
         let AdController = null;
         let InterstitialController = null;
+        let isAdPlaying = false; // Bloqueador general
         
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
@@ -1007,7 +996,6 @@
                         }
                     }
                 } else {
-                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
                     if (!isRetry) {
                         setTimeout(() => initUserData(true), 2500);
                         return;
@@ -1613,10 +1601,6 @@
             let secondsLeft = Math.ceil(msLeft / 1000);
             btn.disabled = true;
             
-            // Guardamos las clases originales azules
-            const originalClasses = btn.className;
-            
-            // Reemplazamos visualmente el botón a verde
             btn.className = "w-full bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all";
             
             const timerInterval = setInterval(() => {
@@ -1629,7 +1613,6 @@
                 
                 if (secondsLeft < 0) {
                     clearInterval(timerInterval);
-                    // Restauramos las clases azules originales
                     btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
                     btn.disabled = false;
                     updateAdBtnText();
@@ -1655,20 +1638,9 @@
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
             isAdPlaying = true; 
-            adInteractionDetected = false; // Reiniciamos el detector
 
             AdController.show().then(async (result) => {
                 isAdPlaying = false;
-
-                // VALIDACIÓN DEL CLIC (VISIBILITY HACK)
-                if (!adInteractionDetected) {
-                    tg.showAlert("⚠️ ¡Casi lo logras!\n\nPara reclamar tu recompensa DEBES pulsar el botón del anuncio ('Abrir', 'Juega ahora', etc.) e interactuar con el patrocinador. Inténtalo de nuevo.");
-                    btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
-                    btn.disabled = false;
-                    updateAdBtnText();
-                    return; 
-                }
-
                 lastAdTime = Date.now();
                 adsWatchedTotal++;
                 adsWatchedWeekly++;
