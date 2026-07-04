@@ -89,6 +89,14 @@
 </head>
 <body class="flex flex-col h-screen select-none relative">
 
+    <div class="absolute top-4 left-4 z-50 flex gap-2 bg-gradient-to-r from-yellow-500 to-amber-600 p-1.5 pr-3 rounded-full border border-yellow-300 shadow-lg items-center cursor-pointer hover:scale-105 transition-all hidden" id="btn-daily-login" onclick="claimDailyLogin()">
+        <span class="text-xl drop-shadow-md">🎁</span>
+        <div class="flex flex-col text-left">
+            <span class="text-[9px] font-black text-white uppercase leading-none" data-i18n="daily_login">Diario</span>
+            <span class="text-[9px] font-bold text-yellow-100 leading-none"><span id="daily-streak">0</span>/7</span>
+        </div>
+    </div>
+
     <div class="absolute top-4 right-4 z-50 flex gap-2 bg-slate-900/50 backdrop-blur-sm p-1.5 rounded-full border border-slate-700 shadow-lg">
         <button onclick="setLang('es')" id="btn-es" class="text-xl transition-all scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">🇪🇸</button>
         <button onclick="setLang('en')" id="btn-en" class="text-xl transition-all opacity-50 hover:opacity-100">🇺🇸</button>
@@ -238,12 +246,12 @@
                         <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center text-xl shadow-[0_0_10px_rgba(0,240,255,0.3)]">📺</div>
                         <div>
                             <h3 class="font-bold text-sm text-white" data-i18n="watch_ad">Anuncio de Recompensa</h3>
-                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +50 ENERGY!</p>
+                            <p class="text-xs text-[#00f0ff]" data-i18n="watch_ad_desc">¡Mira un video y gana +50 ENERGY por 3 días!</p>
                         </div>
                     </div>
                 </div>
                 <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">Ver Video</button>
-                <p class="text-[10px] text-gray-500 text-center mt-2">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
+                <p class="text-[10px] text-gray-500 text-center mt-2" data-i18n="ad_withdraw_req">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
             </div>
         </div>
 
@@ -291,12 +299,12 @@
                     <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider" data-i18n="total_ref">Total Referidos</h3>
                     <p class="text-2xl font-extrabold text-[#00f0ff] mt-1" id="ref-count">0</p>
                 </div>
-                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800">
-                    <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Energía por Referidos</h3>
-                    <p class="text-2xl font-extrabold text-green-400 mt-1" id="ref-energy-earned">0 E</p>
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800 flex flex-col justify-center items-center">
+                    <h3 class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Duración Bonus</h3>
+                    <p class="text-sm font-bold text-green-400 mt-1">30 DÍAS</p>
                 </div>
             </div>
-            <p class="text-[10px] text-center text-gray-500 mt-1">🎁 Recibes +200 de ENERGY permanente por cada usuario que invites.</p>
+            <p class="text-[10px] text-center text-gray-500 mt-1" data-i18n="ref_reward_desc">🎁 Recibes +200 de ENERGY por 30 Días por cada usuario que invites.</p>
         </div>
 
         <button onclick="copyRefLink()" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(0,240,255,0.5)] border border-[#00f0ff]/50 flex items-center justify-center gap-2 transition-all">
@@ -653,6 +661,11 @@
         let adsWatchedWeekly = 0;
         let withdrawalsUnlocked = false;
 
+        // Variables de Registro Diario
+        let totalDeposited = 0;
+        let lastDailyLogin = null;
+        let dailyLoginStreak = 0;
+
         // Variables de Ranking
         let currentRankingType = 'referrals'; // 'referrals' o 'ads'
         let currentAdsRankingType = 'weekly'; // 'weekly' o 'general'
@@ -782,7 +795,9 @@
                 }
             });
 
-            userEnergy = totalEnergy + adminBonusEnergy + (referralCount * 200);
+            // IMPORTANTE: Ya no se suma (referralCount * 200) aquí porque el Python creará un contrato de 30 días para los referidos y el Ranking creará un contrato de 7 días.
+            // Las Tareas y Bonus Admin sí quedan permanentes en adminBonusEnergy.
+            userEnergy = totalEnergy + adminBonusEnergy;
             document.getElementById('stat-energy').innerText = userEnergy;
             
             if (proxExpiracion) {
@@ -855,7 +870,57 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
+        // REGISTRO DIARIO FLOTANTE
+        // ==========================================
+        async function claimDailyLogin() {
+            if (totalDeposited <= 0) {
+                tg.showAlert("⚠️ Debes realizar al menos un depósito para activar el Registro Diario.");
+                return;
+            }
+            const today = new Date().toISOString().split('T')[0];
+            if (lastDailyLogin === today) {
+                tg.showAlert("⏳ Ya reclamaste tu registro diario hoy. Vuelve mañana.");
+                return;
+            }
+            
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            if (lastDailyLogin === yesterdayStr) {
+                dailyLoginStreak++;
+            } else {
+                dailyLoginStreak = 1;
+            }
+
+            lastDailyLogin = today;
+
+            if (dailyLoginStreak >= 7) {
+                const inicio = new Date();
+                const fin = new Date();
+                fin.setDate(fin.getDate() + 7); 
+                
+                await _supabase.from('contratos_mineros').insert([{
+                    telegram_id: userId.toString(),
+                    nombre: "Bono Semanal (Registro)",
+                    potencia: 250,
+                    fecha_inicio: inicio.toISOString(),
+                    fecha_fin: fin.toISOString()
+                }]);
+                
+                tg.showAlert("🎉 ¡Completaste 7 días seguidos! Has ganado un Minero de 250 ENERGY por 7 días.");
+                dailyLoginStreak = 0; 
+                await fetchContracts();
+            } else {
+                tg.showAlert(`✅ Día ${dailyLoginStreak} registrado. ¡Vuelve mañana para continuar tu racha!`);
+            }
+
+            document.getElementById('daily-streak').innerText = dailyLoginStreak;
+            saveProgress();
+        }
+
+        // ==========================================
+        // 5. OBTENER DATOS Y ENTORNO INICIAL
         // ==========================================
         async function initUserData(isRetry = false) {
             try {
@@ -900,6 +965,17 @@
                     withdrawalsUnlocked = data.withdrawals_unlocked || false;
                     adsWatchedTotal = data.ads_watched_total || 0;
                     adsWatchedWeekly = data.ads_watched_weekly || 0;
+
+                    // Asignación de variables de Registro Diario
+                    totalDeposited = data.total_deposited || 0;
+                    lastDailyLogin = data.last_daily_login || null;
+                    dailyLoginStreak = data.daily_login_streak || 0;
+
+                    // Mostrar botón flotante si hay depósitos
+                    if (totalDeposited > 0) {
+                        document.getElementById('btn-daily-login').classList.remove('hidden');
+                        document.getElementById('daily-streak').innerText = dailyLoginStreak;
+                    }
 
                     await fetchContracts();
 
@@ -953,7 +1029,6 @@
             .then(data => {
                 referralCount = data.count || 0;
                 document.getElementById('ref-count').innerText = referralCount;
-                document.getElementById('ref-energy-earned').innerText = (referralCount * 200) + " E";
                 updateEnergyFromContracts();
             }).catch(() => {});
 
@@ -997,6 +1072,8 @@
                         withdrawals_unlocked: withdrawalsUnlocked,
                         ads_watched_total: adsWatchedTotal,
                         ads_watched_weekly: adsWatchedWeekly,
+                        last_daily_login: lastDailyLogin,
+                        daily_login_streak: dailyLoginStreak,
                         first_name: firstName,
                         last_name: lastName,
                         photo_url: photoUrl,
@@ -1031,17 +1108,17 @@
                 enter_wallet: "Ingresa tu dirección de billetera TON para recibir los fondos.", confirm_withdraw: "Confirmar y Retirar",
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
-                watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +50 ENERGY!",
+                watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +50 ENERGY por 3 Días!",
                 ad_withdraw_req: "Para retirar fondos, debes ver al menos <span class='text-[#00f0ff] font-bold'>5 anuncios</span>.",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
-                ref_reward_desc: "🎁 Recibes +200 de ENERGY permanente por cada usuario que invites.",
+                ref_reward_desc: "🎁 Recibes +200 de ENERGY por 30 Días por cada usuario que invites.",
                 btn_copy: "🔗 Copiar Enlace de Invitación", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
                 lbl_power: "Potencia:", lbl_duration: "Duración:", lbl_return: "Retorno Total:", btn_buy_miner: "Comprar minero",
                 pay_title: "Realiza el Pago", pay_desc: "Envía exactamente",
                 pay_desc2: "a esta dirección:", important: "IMPORTANTE", pay_memo: "Copia e incluye este MEMO en tu pago, si no lo pones perderás tu dinero:",
                 btn_verify: "Verificar Pago", btn_cancel: "Cancelar", nav_miner: "Minador", nav_ranking: "Ranking",
                 rank_referrals: "👥 Referidos", rank_ads: "📺 Anuncios", rank_7days: "7 Días", rank_general: "General",
-                rank_prizes: "🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)"
+                rank_prizes: "🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)", daily_login: "Registro"
             },
             en: {
                 mined: "Mined GHS", h_day: "H/Day", expiration: "Next expiration",
@@ -1052,23 +1129,23 @@
                 enter_wallet: "Enter your TON wallet address to receive funds.", confirm_withdraw: "Confirm & Withdraw",
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
-                watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +50 ENERGY!",
+                watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +50 ENERGY for 3 Days!",
                 ad_withdraw_req: "To withdraw funds, you must watch at least <span class='text-[#00f0ff] font-bold'>5 ads</span>.",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
-                ref_reward_desc: "🎁 Get +200 ENERGY permanently for each invited user.",
+                ref_reward_desc: "🎁 Get +200 ENERGY for 30 Days for each invited user.",
                 btn_copy: "🔗 Copy Invite Link", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
                 lbl_power: "Power:", lbl_duration: "Duration:", lbl_return: "Total Return:", btn_buy_miner: "Buy miner",
                 pay_title: "Make Payment", pay_desc: "Send exactly",
                 pay_desc2: "to this address:", important: "IMPORTANT", pay_memo: "Copy and include this MEMO in your payment, otherwise you'll lose your money:",
                 btn_verify: "Verify Payment", btn_cancel: "Cancel", nav_miner: "Miner", nav_ranking: "Ranking",
                 rank_referrals: "👥 Referrals", rank_ads: "📺 Ads", rank_7days: "7 Days", rank_general: "General",
-                rank_prizes: "🎁 Weekly Prizes: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)"
+                rank_prizes: "🎁 Weekly Prizes: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)", daily_login: "Daily"
             }
         };
 
         function updateAdBtnText() {
             const btn = document.getElementById('btn-watch-ad');
-            if(btn.disabled && btn.innerHTML.includes('✅')) return; // No pisar si está en verde
+            if(btn.disabled && btn.innerHTML.includes('✅')) return; 
             
             const lang = document.getElementById('btn-es').classList.contains('opacity-50') ? 'en' : 'es';
             const text = lang === 'es' ? 'Ver Video' : 'Watch Video';
@@ -1181,7 +1258,6 @@
                 column = subType === 'weekly' ? 'ads_watched_weekly' : 'ads_watched_total';
             }
 
-            // Conseguir top 10 general
             const { data, error } = await _supabase
                 .from('progreso_minero')
                 .select('telegram_id, username, first_name, last_name, photo_url, total_referrals, ads_watched_weekly, ads_watched_total')
@@ -1198,7 +1274,6 @@
             const colors = ['bg-slate-300', 'bg-yellow-400', 'bg-amber-600'];
             const borders = ['border-slate-400', 'border-yellow-300', 'border-amber-500'];
             
-            // Orden visual del podio: 2do, 1ero, 3ro
             const top3 = [data[1], data[0], data[2]];
             const places = [2, 1, 3];
 
@@ -1213,7 +1288,6 @@
                 const c = colors[index];
                 const b = borders[index];
 
-                // Lógica de nombre: Username > First Last > ID
                 let name = user.username ? '@' + user.username : (user.first_name ? user.first_name + ' ' + (user.last_name || '') : user.telegram_id);
                 name = name.trim();
                 if(name.length > 10) name = name.substring(0, 8) + "..";
@@ -1262,7 +1336,6 @@
             }
             listEl.innerHTML = lHTML;
 
-            // Calcular y mostrar mi propia posición
             let myScore = 0;
             if(column === 'total_referrals') myScore = referralCount;
             if(column === 'ads_watched_weekly') myScore = adsWatchedWeekly;
@@ -1313,7 +1386,6 @@
         }
 
         function showAddressInput() {
-            // Validar anuncios vistos
             if (!withdrawalsUnlocked) {
                 tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
@@ -1354,8 +1426,6 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
-                
-                // Reiniciar contador de anuncios después de un retiro exitoso
                 withdrawalsUnlocked = false;
                 dailyAdsWatched = 0; 
                 saveProgress();
@@ -1528,10 +1598,6 @@
             let secondsLeft = Math.ceil(msLeft / 1000);
             btn.disabled = true;
             
-            // Guardamos las clases originales azules
-            const originalClasses = btn.className;
-            
-            // Reemplazamos visualmente el botón a verde
             btn.className = "w-full bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all";
             
             const timerInterval = setInterval(() => {
@@ -1544,7 +1610,6 @@
                 
                 if (secondsLeft < 0) {
                     clearInterval(timerInterval);
-                    // Restauramos las clases azules originales
                     btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
                     btn.disabled = false;
                     updateAdBtnText();
@@ -1569,11 +1634,10 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
-            isAdPlaying = true; // Bloquea los interstitials mientras ves un Reward
+            isAdPlaying = true; 
 
-            AdController.show().then((result) => {
+            AdController.show().then(async (result) => {
                 isAdPlaying = false;
-                adminBonusEnergy += 50; // <--- RECOMPENSA DE ANUNCIO EN 50 ENERGÍA
                 lastAdTime = Date.now();
                 adsWatchedTotal++;
                 adsWatchedWeekly++;
@@ -1590,10 +1654,22 @@
                     withdrawalsUnlocked = true;
                 }
 
+                // NUEVO: CREAR CONTRATO DE 3 DÍAS EN LUGAR DE ENERGÍA PERMANENTE
+                const inicio = new Date();
+                const fin = new Date();
+                fin.setDate(fin.getDate() + 3); 
+
+                await _supabase.from('contratos_mineros').insert([{
+                    telegram_id: userId.toString(),
+                    nombre: "Anuncio Reward",
+                    potencia: 50,
+                    fecha_inicio: inicio.toISOString(),
+                    fecha_fin: fin.toISOString()
+                }]);
+
+                await fetchContracts();
                 saveProgress();
-                updateEnergyFromContracts();
-                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +50 ENERGY. (${dailyAdsWatched}/5)`);
-                
+                tg.showAlert(`🎉 ¡Anuncio validado correctamente! Has ganado +50 ENERGY por 3 Días. (${dailyAdsWatched}/5)`);
                 startAdCooldownTimer(60000);
 
             }).catch((result) => {
@@ -1658,7 +1734,7 @@
                 
                 if (data.success) {
                     await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
-                    adminBonusEnergy += reward;
+                    adminBonusEnergy += reward; // Tareas siguen siendo permanentes
                     updateEnergyFromContracts();
                     saveProgress();
                     tg.showAlert(`🎉 ¡Tarea verificada! Has ganado +${reward} ENERGY.`);
