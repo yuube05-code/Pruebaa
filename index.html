@@ -513,6 +513,12 @@
         </div>
 
         <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-6">
+            <h3 class="font-bold text-white text-xs uppercase tracking-wider mb-3 text-red-400">Gestión Top 10 Anuncios</h3>
+            <button onclick="adminLoadTopAds()" class="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg text-xs font-bold mb-3 transition-colors">Cargar / Actualizar Top 10</button>
+            <div id="admin-top-ads-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl mb-6">
             <h3 class="font-bold text-white text-xs uppercase tracking-wider mb-3 text-purple-400">Crear Nueva Tarea</h3>
             <div class="flex flex-col gap-2.5">
                 <input type="text" id="task-title" placeholder="Título de la tarea..." class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#b026ff]">
@@ -688,7 +694,7 @@
         // ==========================================
         let AdController = null;
         let InterstitialController = null;
-        let isAdPlaying = false; 
+        let isAdPlaying = false; // Bloqueador general
         
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
@@ -720,12 +726,12 @@
                             lastInterstitialTime = Date.now();
                         }).catch((result) => {
                             isInterstitialPlaying = false;
-                            lastInterstitialTime = Date.now(); 
+                            lastInterstitialTime = Date.now(); // Reinicia el timer igual para no espamear
                         });
                     }
                 }
             }
-        }, 5000); 
+        }, 5000); // Revisa cada 5 segundos si ya pasó el minuto
 
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
@@ -947,7 +953,7 @@
         setInterval(periodicSync, 60000);
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL
+        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
         // ==========================================
         async function initUserData(isRetry = false) {
             try {
@@ -1023,6 +1029,7 @@
                         }
                     }
                 } else {
+                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
                     if (!isRetry) {
                         setTimeout(() => initUserData(true), 2500);
                         return;
@@ -1410,6 +1417,7 @@
         }
 
         function showAddressInput() {
+            // Validar anuncios vistos
             if (!withdrawalsUnlocked) {
                 tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
@@ -1450,6 +1458,8 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
+                
+                // Reiniciar contador de anuncios después de un retiro exitoso
                 withdrawalsUnlocked = false;
                 dailyAdsWatched = 0; 
                 saveProgress();
@@ -1742,6 +1752,7 @@
                         
                         await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
                         updateEnergyFromContracts();
+                        saveProgress();
                         tg.showAlert(`🎉 ¡Misión completada! Has ganado +${reward} ENERGY.`);
                         loadSystemTasks();
                     } else {
@@ -1771,6 +1782,7 @@
                     
                     await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
                     updateEnergyFromContracts();
+                    saveProgress();
                     tg.showAlert(`🎉 ¡Tarea verificada! Has ganado +${reward} ENERGY.`);
                     loadSystemTasks();
                 } else {
@@ -2041,7 +2053,18 @@
 
                 document.getElementById('adm-uid').innerText = searchId;
                 document.getElementById('adm-ghs').innerText = parseFloat(profile.current_ghs).toFixed(2);
-                document.getElementById('adm-energy').innerText = profile.energy;
+                
+                // Calcular la energía REAL (Contratos Activos + Bonus) en el panel admin
+                let realEnergy = parseInt(profile.bonus_energy) || 0;
+                const { data: adminContratos } = await _supabase.from('contratos_mineros').select('potencia, fecha_fin').eq('telegram_id', searchId);
+                const ahoraAdmin = new Date();
+                if(adminContratos) {
+                    adminContratos.forEach(c => {
+                        if(new Date(c.fecha_fin) > ahoraAdmin) realEnergy += parseFloat(c.potencia);
+                    });
+                }
+                document.getElementById('adm-energy').innerText = realEnergy;
+                
                 document.getElementById('adm-dep').innerText = profile.total_deposited || 0;
                 document.getElementById('adm-wit').innerText = profile.total_withdrawn || 0;
 
@@ -2134,6 +2157,76 @@
                 uiTON.innerText = `≈ ${(balanceGHS * GHS_TO_TON_RATE).toFixed(8)} TON`;
             }
             adminSearchUser();
+        }
+
+        async function adminLoadTopAds() {
+            const container = document.getElementById('admin-top-ads-list');
+            container.innerHTML = '<p class="text-xs text-gray-400 text-center">Cargando...</p>';
+            const { data, error } = await _supabase
+                .from('progreso_minero')
+                .select('telegram_id, username, first_name, ads_watched_weekly')
+                .order('ads_watched_weekly', { ascending: false })
+                .limit(10);
+            
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 text-center">No hay datos suficientes.</p>';
+                return;
+            }
+
+            let html = '';
+            data.forEach((u, i) => {
+                let name = u.username ? '@' + u.username : (u.first_name || 'Usuario');
+                html += `
+                <div class="bg-slate-800 p-2 rounded-lg flex justify-between items-center border border-slate-700">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-white font-bold">#${i+1} ${name}</span>
+                        <span class="text-[10px] text-gray-400">ID: ${u.telegram_id} | <span class="text-[#00f0ff] font-bold">Ads: ${u.ads_watched_weekly}</span></span>
+                    </div>
+                    <button onclick="adminModifyAdsPrompt('${u.telegram_id}', ${u.ads_watched_weekly})" class="bg-red-600 hover:bg-red-500 px-3 py-1.5 rounded text-[10px] text-white font-bold transition-colors">Modificar</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        async function adminModifyAdsPrompt(uid, currentAds) {
+            const action = prompt(`Usuario ID: ${uid}\nAnuncios actuales: ${currentAds}\n\nIngresa la cantidad a RESTAR (Ej: 10) o escribe "0" para resetearlo a cero (Descalificar):`);
+            if (action === null || action.trim() === "") return;
+            
+            let newAdCount = currentAds;
+            if (action === "0") {
+                newAdCount = 0;
+            } else {
+                const toSub = parseInt(action);
+                if (isNaN(toSub) || toSub < 0) {
+                    tg.showAlert("❌ Cantidad inválida.");
+                    return;
+                }
+                newAdCount -= toSub;
+                if (newAdCount < 0) newAdCount = 0;
+            }
+
+            const reason = prompt("Escribe la razón de la penalización (se le enviará por Telegram al usuario):");
+            if (reason === null || reason.trim() === "") {
+                tg.showAlert("❌ La razón es obligatoria para poder notificar al usuario.");
+                return;
+            }
+
+            tg.showAlert("⏳ Procesando sanción...");
+
+            await _supabase.from('progreso_minero').update({ ads_watched_weekly: newAdCount }).eq('telegram_id', uid);
+            
+            fetch(`${API_URL}/api/admin/notify_penalty`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegram_id: uid,
+                    new_ads: newAdCount,
+                    reason: reason
+                })
+            }).catch(err => console.log(err));
+
+            tg.showAlert(`✅ Penalización aplicada. Nuevos anuncios: ${newAdCount}. Notificando al usuario...`);
+            adminLoadTopAds(); 
         }
 
         async function adminLoadContracts(uid) {
