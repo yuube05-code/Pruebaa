@@ -261,6 +261,7 @@
         </div>
     </div>
 
+    <!-- PESTAÑA RANKING -->
     <div id="tab-ranking" class="tab-content hidden block">
         <h2 class="text-3xl font-bold mb-4 text-white text-center">🏆 Ranking</h2>
         
@@ -275,8 +276,10 @@
         </div>
         <p id="ranking-weekly-desc" class="hidden text-[10px] text-center text-[#00f0ff] mb-4 -mt-3" data-i18n="rank_prizes">🎁 Premios Semanales: Top 1 (3000 E), Top 2 (1500 E), Top 3 (500 E)</p>
 
+        <!-- PODIO TOP 3 -->
         <div class="flex justify-center items-end gap-2 mb-8 px-2 min-h-[150px]" id="ranking-podium"></div>
 
+        <!-- LISTA TOP 4-10 -->
         <div class="space-y-2 pb-6" id="ranking-list"></div>
     </div>
 
@@ -484,6 +487,7 @@
         </div>
     </div>
 
+    <!-- PESTAÑA ADMIN Y GESTIÓN DE SISTEMA -->
     <div id="tab-admin" class="tab-content hidden flex-col block pt-4">
         <h2 class="text-3xl font-bold mb-1 text-[#b026ff]">Panel Admin</h2>
         <p class="text-sm text-gray-400 mb-6">Gestión de usuarios y sistema.</p>
@@ -548,6 +552,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN CORREGIDA: MODIFICAR ENERGÍA BONUS SIN SOBREESCRITURAS -->
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
                 <h3 class="font-bold text-white mb-3 text-sm text-blue-400">⚡ Modificar Energía (Bonus)</h3>
                 <div class="flex flex-col gap-2">
@@ -569,14 +574,22 @@
                     </div>
                 </div>
             </div>
+            
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
+                <!-- NUEVA SECCIÓN: ASIGNAR ENERGÍA TEMPORAL -->
+                <h3 class="font-bold text-white mb-2 text-sm border-b border-slate-700 pb-2">Asignar Energía Temporal</h3>
+                <input type="number" id="admin-temp-power" placeholder="Potencia (Ej: 1000)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
+                <input type="number" id="admin-temp-days" placeholder="Días de duración (Ej: 3)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
+                <input type="text" id="admin-temp-name" placeholder="Motivo/Nombre (Ej: Bono Especial)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
+                <button onclick="adminAddTempContract()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 text-white py-2 rounded-lg font-bold text-xs mb-4 shadow-md transition-colors">Agregar Energía Temporal</button>
+                
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-white text-sm">Contratos del Usuario</h3>
                 </div>
                 <div id="admin-contracts-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
 
-                <h3 class="font-bold text-white mb-2 text-sm border-t border-slate-700 pt-3">Regalar Minero</h3>
-                <select id="admin-miner-select" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2">
+                <h3 class="font-bold text-white mb-2 text-sm border-t border-slate-700 pt-3">Regalar Minero de Tienda</h3>
+                <select id="admin-miner-select" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
                     <option value="13528">Minero Nv. 1 (13.5K) - 7 Días</option>
                     <option value="129645">Minero Nv. 2 (129.6K) - 7 Días</option>
                     <option value="653860">Minero Nv. 3 (653.8K) - 7 Días</option>
@@ -584,7 +597,7 @@
                     <option value="3382035">Minero Nv. 5 (3.38M) - 7 Días</option>
                     <option value="4509380">Minero Nv. 6 (4.5M) - VIP - 14 Días</option>
                 </select>
-                <button onclick="adminAddContract()" class="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-lg font-bold">Agregar Contrato</button>
+                <button onclick="adminAddContract()" class="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-lg font-bold text-xs">Agregar Minero</button>
             </div>
         </div>
     </div>
@@ -675,7 +688,7 @@
         // ==========================================
         let AdController = null;
         let InterstitialController = null;
-        let isAdPlaying = false; // Bloqueador general
+        let isAdPlaying = false; 
         
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
@@ -707,12 +720,12 @@
                             lastInterstitialTime = Date.now();
                         }).catch((result) => {
                             isInterstitialPlaying = false;
-                            lastInterstitialTime = Date.now(); // Reinicia el timer igual para no espamear
+                            lastInterstitialTime = Date.now(); 
                         });
                     }
                 }
             }
-        }, 5000); // Revisa cada 5 segundos si ya pasó el minuto
+        }, 5000); 
 
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
@@ -787,6 +800,7 @@
 
             misContratos.forEach(c => {
                 const fin = new Date(c.fecha_fin);
+                // ESTA LÍNEA DESTRUYE LA ENERGÍA DE MINEROS EXPIRADOS AUTOMÁTICAMENTE
                 if (fin > now) {
                     totalEnergy += parseFloat(c.potencia);
                     if (!proxExpiracion || fin < proxExpiracion) {
@@ -795,8 +809,7 @@
                 }
             });
 
-            // IMPORTANTE: Ya no se suma (referralCount * 200) aquí porque el Python creará un contrato de 30 días para los referidos y el Ranking creará un contrato de 7 días.
-            // Las Tareas y Bonus Admin sí quedan permanentes en adminBonusEnergy.
+            // La energía total ahora respeta lo que borres/modifiques desde el Admin (Se alimenta de DB Real)
             userEnergy = totalEnergy + adminBonusEnergy;
             document.getElementById('stat-energy').innerText = userEnergy;
             
@@ -920,7 +933,21 @@
         }
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
+        // SINCRONIZACIÓN PERIODICA (NUEVO)
+        // ==========================================
+        // Esto previene que si el admin borra un contrato, el usuario se quede minando
+        async function periodicSync() {
+            if (isBanned) return;
+            await fetchContracts();
+            const { data } = await _supabase.from('progreso_minero').select('bonus_energy').eq('telegram_id', userId.toString()).single();
+            if (data) { adminBonusEnergy = parseInt(data.bonus_energy) || 0; }
+            updateEnergyFromContracts(); 
+        }
+        // Llamado de seguridad cada 60 segundos
+        setInterval(periodicSync, 60000);
+
+        // ==========================================
+        // 5. OBTENER DATOS Y ENTORNO INICIAL
         // ==========================================
         async function initUserData(isRetry = false) {
             try {
@@ -1046,10 +1073,8 @@
             uiTON.innerText = `≈ ${(balanceGHS * GHS_TO_TON_RATE).toFixed(8)} TON`;
         }, 100);
 
-        setInterval(renderContracts, 60000);
-
         // ==========================================
-        // 7. SISTEMA DE AUTOGUARDADO 
+        // 7. SISTEMA DE AUTOGUARDADO BLINDADO
         // ==========================================
         async function saveProgress() {
             if(isBanned) return;
@@ -1058,13 +1083,12 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
+                // NOTA: 'bonus_energy' FUE REMOVIDO DE AQUÍ PARA NO SOBREESCRIBIR AL ADMIN
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
                         telegram_id: userId.toString(),
                         current_ghs: balanceGHS,
-                        energy: userEnergy,
-                        bonus_energy: adminBonusEnergy, 
                         referred_by: userReferredBy, 
                         last_ad_time: lastAdTime ? new Date(lastAdTime).toISOString() : null,
                         last_ad_date: lastAdDate,
@@ -1386,7 +1410,6 @@
         }
 
         function showAddressInput() {
-            // Validar anuncios vistos
             if (!withdrawalsUnlocked) {
                 tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
@@ -1427,8 +1450,6 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
-                
-                // Reiniciar contador de anuncios después de un retiro exitoso
                 withdrawalsUnlocked = false;
                 dailyAdsWatched = 0; 
                 saveProgress();
@@ -1519,7 +1540,7 @@
         }
 
         // ==========================================
-        // 11. MINIJUEGO DE DADOS
+        // 11. MINIJUEGO DE DADOS Y TAREAS SEGURAS
         // ==========================================
         async function playDiceGame() {
             const now = new Date();
@@ -1564,13 +1585,16 @@
                     d3.innerText = faces[res3];
 
                     lastDiceRollTime = new Date().toISOString();
-                    await _supabase.from('progreso_minero').update({ last_dice_roll: lastDiceRollTime }).eq('telegram_id', userId.toString());
-
+                    
                     if(res1 === res2 && res2 === res3) {
                         tg.showAlert("🎉 ¡BINGO! Sacaste 3 iguales y ganaste +100 ENERGY.");
-                        adminBonusEnergy += 100;
+                        // Suma segura en Base de Datos para no pisar al admin
+                        const { data: dbData } = await _supabase.from('progreso_minero').select('bonus_energy').eq('telegram_id', userId.toString()).single();
+                        adminBonusEnergy = (dbData?.bonus_energy || 0) + 100;
+                        await _supabase.from('progreso_minero').update({ bonus_energy: adminBonusEnergy, last_dice_roll: lastDiceRollTime }).eq('telegram_id', userId.toString());
                         updateEnergyFromContracts();
-                        saveProgress(); 
+                    } else {
+                        await _supabase.from('progreso_minero').update({ last_dice_roll: lastDiceRollTime }).eq('telegram_id', userId.toString());
                     }
                     setTimeout(() => {
                         btn.innerHTML = "¡Lanzar Dados!";
@@ -1581,7 +1605,7 @@
         }
         
         // ==========================================
-        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM
+        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM PURO (SIN HACK)
         // ==========================================
         function checkAdCooldownOnLoad() {
             if (lastAdTime) {
@@ -1634,13 +1658,14 @@
                 return;
             }
 
-            const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ Cargando...";
             btn.disabled = true;
             isAdPlaying = true; 
 
+            // SE CONFÍA PLENAMENTE EN LA API DE ADSGRAM. NO SE FUERZAN CLICS EXTRAÑOS.
             AdController.show().then(async (result) => {
                 isAdPlaying = false;
+
                 lastAdTime = Date.now();
                 adsWatchedTotal++;
                 adsWatchedWeekly++;
@@ -1657,7 +1682,7 @@
                     withdrawalsUnlocked = true;
                 }
 
-                // NUEVO: CREAR CONTRATO DE 3 DÍAS EN LUGAR DE ENERGÍA PERMANENTE
+                // CREAR CONTRATO DE 3 DÍAS
                 const inicio = new Date();
                 const fin = new Date();
                 fin.setDate(fin.getDate() + 3); 
@@ -1677,7 +1702,7 @@
 
             }).catch((result) => {
                 isAdPlaying = false;
-                tg.showAlert("⚠️ Anuncio cancelado o cerrado antes de tiempo.");
+                tg.showAlert("⚠️ Anuncio cancelado o no completado correctamente.");
                 btn.className = "premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all";
                 btn.disabled = false;
                 updateAdBtnText();
@@ -1710,10 +1735,13 @@
                     if (error) throw error;
 
                     if (taskData && referralCount >= taskData.meta_referidos) {
+                        // Suma segura para tareas
+                        const { data: dbData } = await _supabase.from('progreso_minero').select('bonus_energy').eq('telegram_id', userId.toString()).single();
+                        adminBonusEnergy = (dbData?.bonus_energy || 0) + reward;
+                        await _supabase.from('progreso_minero').update({ bonus_energy: adminBonusEnergy }).eq('telegram_id', userId.toString());
+                        
                         await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
-                        adminBonusEnergy += reward;
                         updateEnergyFromContracts();
-                        saveProgress();
                         tg.showAlert(`🎉 ¡Misión completada! Has ganado +${reward} ENERGY.`);
                         loadSystemTasks();
                     } else {
@@ -1736,10 +1764,13 @@
                 const data = await res.json();
                 
                 if (data.success) {
+                    // Suma segura para tareas
+                    const { data: dbData } = await _supabase.from('progreso_minero').select('bonus_energy').eq('telegram_id', userId.toString()).single();
+                    adminBonusEnergy = (dbData?.bonus_energy || 0) + reward;
+                    await _supabase.from('progreso_minero').update({ bonus_energy: adminBonusEnergy }).eq('telegram_id', userId.toString());
+                    
                     await _supabase.from('tareas_completadas').insert([{ telegram_id: userId.toString(), tarea_id: taskId }]);
-                    adminBonusEnergy += reward; // Tareas siguen siendo permanentes
                     updateEnergyFromContracts();
-                    saveProgress();
                     tg.showAlert(`🎉 ¡Tarea verificada! Has ganado +${reward} ENERGY.`);
                     loadSystemTasks();
                 } else {
@@ -2109,13 +2140,17 @@
             const { data: contratos } = await _supabase.from('contratos_mineros').select('*').eq('telegram_id', uid);
             const container = document.getElementById('admin-contracts-list');
             container.innerHTML = "";
+            const now = new Date();
 
             if(contratos && contratos.length > 0) {
                 contratos.forEach(c => {
+                    const isExpired = new Date(c.fecha_fin) <= now;
+                    const badge = isExpired ? `<span class="text-[8px] bg-red-600 px-1 rounded text-white ml-1">EXPIRADO</span>` : '';
+                    
                     container.innerHTML += `
                     <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg">
                         <div>
-                            <p class="text-xs text-white font-bold">${c.nombre} (${c.potencia} E)</p>
+                            <p class="text-xs text-white font-bold">${c.nombre} (${c.potencia} E)${badge}</p>
                             <p class="text-[10px] text-gray-400">Exp: ${new Date(c.fecha_fin).toLocaleDateString()}</p>
                         </div>
                         <button onclick="adminDeleteContract('${c.id}')" class="text-[10px] bg-red-600 px-2 py-1 rounded text-white font-bold">Quitar</button>
@@ -2130,6 +2165,36 @@
             if(!confirm("¿Seguro que deseas eliminar este contrato del usuario?")) return;
             await _supabase.from('contratos_mineros').delete().eq('id', contractId);
             tg.showAlert("🗑️ Contrato eliminado.");
+            adminLoadContracts(adminCurrentUserId);
+        }
+        
+        async function adminAddTempContract() {
+            if(!adminCurrentUserId) return;
+            const power = parseInt(document.getElementById('admin-temp-power').value);
+            const dias = parseInt(document.getElementById('admin-temp-days').value);
+            const name = document.getElementById('admin-temp-name').value.trim() || "Bono Temporal";
+
+            if (isNaN(power) || power <= 0 || isNaN(dias) || dias <= 0) {
+                tg.showAlert("❌ Ingresa valores válidos numéricos para potencia y días.");
+                return;
+            }
+
+            const inicio = new Date();
+            const fin = new Date();
+            fin.setDate(fin.getDate() + dias); 
+
+            await _supabase.from('contratos_mineros').insert([{
+                telegram_id: adminCurrentUserId,
+                nombre: name + " (Admin)",
+                potencia: power,
+                fecha_inicio: inicio.toISOString(),
+                fecha_fin: fin.toISOString()
+            }]);
+
+            tg.showAlert("✅ Energía temporal asignada con éxito.");
+            document.getElementById('admin-temp-power').value = '';
+            document.getElementById('admin-temp-days').value = '';
+            document.getElementById('admin-temp-name').value = '';
             adminLoadContracts(adminCurrentUserId);
         }
 
