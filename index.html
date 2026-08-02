@@ -251,7 +251,7 @@
                     </div>
                 </div>
                 <button id="btn-watch-ad" onclick="showRewardAd()" class="premium-btn w-full bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-sm font-bold rounded-xl text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all">Ver Video</button>
-                <p class="text-[10px] text-gray-500 text-center mt-2" data-i18n="ad_withdraw_req">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span>.</p>
+                <p class="text-[10px] text-gray-500 text-center mt-2" data-i18n="ad_withdraw_req">Para retirar fondos, debes ver al menos <span class="text-[#00f0ff] font-bold">5 anuncios</span> y realizar un depósito.</p>
             </div>
         </div>
 
@@ -315,6 +315,7 @@
         </button>
     </div>
 
+    <!-- PESTAÑA TIENDA MODIFICADA -->
     <div id="tab-shop" class="tab-content hidden block">
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -325,124 +326,107 @@
         </div>
         
         <div id="shop-items" class="space-y-4 pb-8">
+            <!-- Nv 1 -->
             <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#00f0ff]/10 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
                     <h3 class="text-white font-bold text-lg">Minero Nv. 1</h3>
-                    <span class="text-[#00f0ff] font-extrabold text-lg">0.10 TON</span>
-                </div>
-                <div class="space-y-1 mt-1">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
-                        <span class="text-white font-medium">13.5K ENERGY</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
-                        <span class="text-white font-medium">7 Días</span>
-                    </div>
-                    <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
-                        <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
-                        <span class="text-green-400 font-bold">0.12 TON</span>
-                    </div>
-                </div>
-                <button onclick="mostrarPago(0.10, 13528, 'Minero Nv. 1', 7)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
-            </div>
-
-            <div class="bg-[#0f1423] border border-slate-700 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
-                <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                    <h3 class="text-white font-bold text-lg">Minero Nv. 2</h3>
                     <span class="text-[#00f0ff] font-extrabold text-lg">1 TON</span>
                 </div>
                 <div class="space-y-1 mt-1">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
-                        <span class="text-white font-medium">129.6K ENERGY</span>
+                        <span class="text-white font-medium">289.3K ENERGY</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
-                        <span class="text-white font-medium">7 Días</span>
+                        <span class="text-white font-medium">3 Días</span>
                     </div>
                     <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
                         <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
-                        <span class="text-green-400 font-bold">1.15 TON</span>
+                        <span class="text-green-400 font-bold">1.10 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(1.0, 129645, 'Minero Nv. 2', 7)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(1.0, 289352, 'Minero Nv. 1', 3)" class="premium-btn w-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
+            <!-- Nv 2 -->
             <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#b026ff]/20 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                    <h3 class="text-white font-bold text-lg">Minero Nv. 3</h3>
+                    <h3 class="text-white font-bold text-lg">Minero Nv. 2</h3>
                     <span class="text-[#b026ff] font-extrabold text-lg">5 TON</span>
                 </div>
                 <div class="space-y-1 mt-1">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
-                        <span class="text-white font-medium">653.8K ENERGY</span>
+                        <span class="text-white font-medium">1.44M ENERGY</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
-                        <span class="text-white font-medium">7 Días</span>
+                        <span class="text-white font-medium">3 Días</span>
                     </div>
                     <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
                         <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
-                        <span class="text-green-400 font-bold">5.80 TON</span>
+                        <span class="text-green-400 font-bold">5.50 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(5.0, 653860, 'Minero Nv. 3', 7)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(5.0, 1446759, 'Minero Nv. 2', 3)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
+            <!-- Nv 3 -->
             <div class="bg-[#0f1423] border border-[#b026ff]/50 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#b026ff]/20 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                    <h3 class="text-white font-bold text-lg">Minero Nv. 4</h3>
+                    <h3 class="text-white font-bold text-lg">Minero Nv. 3</h3>
                     <span class="text-[#b026ff] font-extrabold text-lg">10 TON</span>
                 </div>
                 <div class="space-y-1 mt-1">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
-                        <span class="text-white font-medium">1.35M ENERGY</span>
+                        <span class="text-white font-medium">2.89M ENERGY</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
-                        <span class="text-white font-medium">7 Días</span>
+                        <span class="text-white font-medium">3 Días</span>
                     </div>
                     <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
                         <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
-                        <span class="text-green-400 font-bold">12 TON</span>
+                        <span class="text-green-400 font-bold">11 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(10.0, 1352814, 'Minero Nv. 4', 7)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(10.0, 2893518, 'Minero Nv. 3', 3)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_15px_rgba(176,38,255,0.4)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
+            <!-- Nv 4 -->
              <div class="bg-[#0f1423] border border-[#b026ff]/80 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-[#b026ff]/40 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                    <h3 class="text-white font-bold text-lg">Minero Nv. 5</h3>
+                    <h3 class="text-white font-bold text-lg">Minero Nv. 4</h3>
                     <span class="text-[#b026ff] font-extrabold text-lg">25 TON</span>
                 </div>
                 <div class="space-y-1 mt-1">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_power">Potencia:</span>
-                        <span class="text-white font-medium">3.38M ENERGY</span>
+                        <span class="text-white font-medium">4.41M ENERGY</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400" data-i18n="lbl_duration">Duración:</span>
-                        <span class="text-white font-medium">7 Días</span>
+                        <span class="text-white font-medium">5 Días</span>
                     </div>
                     <div class="flex justify-between text-sm bg-slate-800/40 p-1.5 rounded-lg mt-1">
                         <span class="text-gray-300 font-medium" data-i18n="lbl_return">Retorno Total:</span>
-                        <span class="text-green-400 font-bold">30 TON</span>
+                        <span class="text-green-400 font-bold">28 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(25.0, 3382035, 'Minero Nv. 5', 7)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_20px_rgba(176,38,255,0.6)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
+                <button onclick="mostrarPago(25.0, 4419191, 'Minero Nv. 4', 5)" class="premium-btn w-full bg-gradient-to-r from-[#b026ff] to-[#6000ff] text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_20px_rgba(176,38,255,0.6)] transition-all" data-i18n="btn_buy_miner">Comprar minero</button>
             </div>
 
+            <!-- Nv 5 VIP -->
             <div class="bg-[#0f1423] border border-yellow-500/80 p-4 rounded-2xl shadow-lg flex flex-col gap-3 relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-yellow-500/30 rounded-full blur-xl"></div>
                 <div class="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                    <h3 class="text-white font-bold text-lg">Minero Nv. 6 <span class="text-[10px] bg-gradient-to-r from-yellow-500 to-yellow-600 px-2 py-0.5 rounded text-white ml-1 shadow-sm uppercase tracking-wide">VIP</span></h3>
+                    <h3 class="text-white font-bold text-lg">Minero Nv. 5 <span class="text-[10px] bg-gradient-to-r from-yellow-500 to-yellow-600 px-2 py-0.5 rounded text-white ml-1 shadow-sm uppercase tracking-wide">VIP</span></h3>
                     <span class="text-yellow-400 font-extrabold text-lg">50 TON</span>
                 </div>
                 <div class="space-y-1 mt-1">
@@ -459,7 +443,7 @@
                         <span class="text-yellow-400 font-bold">80 TON</span>
                     </div>
                 </div>
-                <button onclick="mostrarPago(50.0, 4509380, 'Minero Nv. 6', 14)" class="premium-btn w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_20px_rgba(245,158,11,0.5)] transition-all" data-i18n="btn_buy_miner">Comprar minero dorado</button>
+                <button onclick="mostrarPago(50.0, 4509380, 'Minero Nv. 5', 14)" class="premium-btn w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl mt-2 font-bold shadow-[0_0_20px_rgba(245,158,11,0.5)] transition-all" data-i18n="btn_buy_miner">Comprar minero dorado</button>
             </div>
         </div>
 
@@ -556,14 +540,13 @@
                     <div><span class="text-gray-400">Depositado:</span> <span id="adm-dep" class="text-green-400 font-bold"></span> TON</div>
                     <div><span class="text-gray-400">Retirado:</span> <span id="adm-wit" class="text-red-400 font-bold"></span> TON</div>
                 </div>
-                <!-- NUEVO: SECCIÓN DE RASTREO ANTI-MULTICUENTA -->
+                <!-- SECCIÓN DE RASTREO ANTI-MULTICUENTA -->
                 <div class="mt-3 pt-3 border-t border-slate-700">
                     <p class="text-[10px] text-gray-400">Device ID: <span id="adm-device-id" class="text-yellow-400 font-mono text-xs"></span></p>
                     <p class="text-[10px] text-gray-400">IP Address: <span id="adm-ip-address" class="text-[#00f0ff] font-mono text-xs"></span></p>
                 </div>
             </div>
 
-            <!-- SECCIÓN CORREGIDA: MODIFICAR ENERGÍA BONUS SIN SOBREESCRITURAS -->
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
                 <h3 class="font-bold text-white mb-3 text-sm text-blue-400">⚡ Modificar Energía (Bonus)</h3>
                 <div class="flex flex-col gap-2">
@@ -587,7 +570,7 @@
             </div>
             
             <div class="bg-slate-900 border border-slate-700 p-4 rounded-2xl">
-                <!-- NUEVA SECCIÓN: ASIGNAR ENERGÍA TEMPORAL -->
+                <!-- SECCIÓN: ASIGNAR ENERGÍA TEMPORAL -->
                 <h3 class="font-bold text-white mb-2 text-sm border-b border-slate-700 pb-2">Asignar Energía Temporal</h3>
                 <input type="number" id="admin-temp-power" placeholder="Potencia (Ej: 1000)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
                 <input type="number" id="admin-temp-days" placeholder="Días de duración (Ej: 3)" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
@@ -601,12 +584,11 @@
 
                 <h3 class="font-bold text-white mb-2 text-sm border-t border-slate-700 pt-3">Regalar Minero de Tienda</h3>
                 <select id="admin-miner-select" class="w-full bg-[#1a1f35] border border-slate-600 text-white rounded-lg px-3 py-2 outline-none mb-2 text-xs">
-                    <option value="13528">Minero Nv. 1 (13.5K) - 7 Días</option>
-                    <option value="129645">Minero Nv. 2 (129.6K) - 7 Días</option>
-                    <option value="653860">Minero Nv. 3 (653.8K) - 7 Días</option>
-                    <option value="1352814">Minero Nv. 4 (1.35M) - 7 Días</option>
-                    <option value="3382035">Minero Nv. 5 (3.38M) - 7 Días</option>
-                    <option value="4509380">Minero Nv. 6 (4.5M) - VIP - 14 Días</option>
+                    <option value="289352">Minero Nv. 1 (289.3K) - 3 Días</option>
+                    <option value="1446759">Minero Nv. 2 (1.44M) - 3 Días</option>
+                    <option value="2893518">Minero Nv. 3 (2.89M) - 3 Días</option>
+                    <option value="4419191">Minero Nv. 4 (4.41M) - 5 Días</option>
+                    <option value="4509380">Minero Nv. 5 (4.5M) - VIP - 14 Días</option>
                 </select>
                 <button onclick="adminAddContract()" class="w-full bg-gradient-to-r from-green-600 to-green-500 text-white py-2 rounded-lg font-bold text-xs">Agregar Minero</button>
             </div>
@@ -662,7 +644,7 @@
             localStorage.setItem('volt_device_id', deviceId);
         }
         
-        const API_URL = "https://basededatooss-production-b7e4.up.railway.app"; 
+        const API_URL = "https://basedatos-production-5366.up.railway.app"; 
 
         const GHS_TO_TON_RATE = 0.0000144; 
 
@@ -699,48 +681,14 @@
         let currentAdsRankingType = 'weekly'; // 'weekly' o 'general'
 
         // ==========================================
-        // 1.5. INICIALIZAR ADSGRAM (REWARD E INTERSTITIAL)
+        // 1.5. INICIALIZAR ADSGRAM (REWARD)
         // ==========================================
         let AdController = null;
-        let InterstitialController = null;
-        let isAdPlaying = false; // Bloqueador general
+        let isAdPlaying = false; 
         
         if (window.Adsgram) {
             AdController = window.Adsgram.init({ blockId: "36568" });
-            InterstitialController = window.Adsgram.init({ blockId: "int-37002" });
         }
-
-        // ==========================================
-        // LÓGICA ANUNCIOS INTERSTITIAL (CADA 1 MINUTO)
-        // ==========================================
-        let lastInterstitialTime = Date.now();
-        let isInterstitialPlaying = false;
-        
-        setInterval(() => {
-            if (isBanned || isInterstitialPlaying || isAdPlaying) return;
-            
-            // Verificamos si estamos en una pestaña segura (No molestar en retiros ni admin ni pago)
-            const isWithdrawOpen = !document.getElementById('withdraw-view').classList.contains('hidden');
-            const isPaymentOpen = !document.getElementById('payment-view').classList.contains('hidden');
-            const activeTabElement = document.querySelector('.tab-content:not(.hidden)');
-            const activeTab = activeTabElement ? activeTabElement.id : '';
-
-            if (activeTab !== 'tab-admin' && !isWithdrawOpen && !isPaymentOpen) {
-                // Cooldown estricto de 1 minuto real (60000 ms)
-                if (Date.now() - lastInterstitialTime >= 60000) { 
-                    if (InterstitialController) {
-                        isInterstitialPlaying = true;
-                        InterstitialController.show().then((result) => {
-                            isInterstitialPlaying = false;
-                            lastInterstitialTime = Date.now();
-                        }).catch((result) => {
-                            isInterstitialPlaying = false;
-                            lastInterstitialTime = Date.now(); // Reinicia el timer igual para no espamear
-                        });
-                    }
-                }
-            }
-        }, 5000); // Revisa cada 5 segundos si ya pasó el minuto
 
         // ==========================================
         // 2. CONFIGURACIÓN DIRECTA DE SUPABASE
@@ -815,7 +763,6 @@
 
             misContratos.forEach(c => {
                 const fin = new Date(c.fecha_fin);
-                // ESTA LÍNEA DESTRUYE LA ENERGÍA DE MINEROS EXPIRADOS AUTOMÁTICAMENTE
                 if (fin > now) {
                     totalEnergy += parseFloat(c.potencia);
                     if (!proxExpiracion || fin < proxExpiracion) {
@@ -824,7 +771,6 @@
                 }
             });
 
-            // La energía total ahora respeta lo que borres/modifiques desde el Admin (Se alimenta de DB Real)
             userEnergy = totalEnergy + adminBonusEnergy;
             document.getElementById('stat-energy').innerText = userEnergy;
             
@@ -950,7 +896,6 @@
         // ==========================================
         // SINCRONIZACIÓN PERIODICA (NUEVO)
         // ==========================================
-        // Esto previene que si el admin borra un contrato, el usuario se quede minando
         async function periodicSync() {
             if (isBanned) return;
             await fetchContracts();
@@ -958,11 +903,10 @@
             if (data) { adminBonusEnergy = parseInt(data.bonus_energy) || 0; }
             updateEnergyFromContracts(); 
         }
-        // Llamado de seguridad cada 60 segundos
         setInterval(periodicSync, 60000);
 
         // ==========================================
-        // 5. OBTENER DATOS Y ENTORNO INICIAL (FIX: CONDICIÓN DE CARRERA)
+        // 5. OBTENER DATOS Y ENTORNO INICIAL
         // ==========================================
         async function initUserData(isRetry = false) {
             try {
@@ -1000,7 +944,6 @@
                     adminBonusEnergy = parseInt(data.bonus_energy) || 0;
                     lastDiceRollTime = data.last_dice_roll || null;
 
-                    // Asignación de variables de anuncios
                     lastAdTime = data.last_ad_time ? new Date(data.last_ad_time).getTime() : null;
                     lastAdDate = data.last_ad_date || null;
                     dailyAdsWatched = data.daily_ads_watched || 0;
@@ -1008,12 +951,10 @@
                     adsWatchedTotal = data.ads_watched_total || 0;
                     adsWatchedWeekly = data.ads_watched_weekly || 0;
 
-                    // Asignación de variables de Registro Diario
                     totalDeposited = data.total_deposited || 0;
                     lastDailyLogin = data.last_daily_login || null;
                     dailyLoginStreak = data.daily_login_streak || 0;
 
-                    // Mostrar botón flotante si hay depósitos
                     if (totalDeposited > 0) {
                         document.getElementById('btn-daily-login').classList.remove('hidden');
                         document.getElementById('daily-streak').innerText = dailyLoginStreak;
@@ -1038,7 +979,6 @@
                         }
                     }
                 } else {
-                    // AQUÍ ESTÁ EL FIX DE LA CONDICIÓN DE CARRERA
                     if (!isRetry) {
                         setTimeout(() => initUserData(true), 2500);
                         return;
@@ -1050,11 +990,11 @@
                             energy: 250, 
                             bonus_energy: 0,
                             referred_by: userReferredBy,
-                            device_id: deviceId, // <--- NUEVO
                             first_name: firstName,
                             last_name: lastName,
                             photo_url: photoUrl,
                             username: tgUsername,
+                            device_id: deviceId, 
                             updated_at: new Date().toISOString()
                         }]);
                         await fetchContracts();
@@ -1100,7 +1040,6 @@
             statusEl.classList.replace('text-green-400', 'text-yellow-400');
 
             try {
-                // NOTA: 'bonus_energy' FUE REMOVIDO DE AQUÍ PARA NO SOBREESCRIBIR AL ADMIN
                 const { error } = await _supabase
                     .from('progreso_minero')
                     .upsert({
@@ -1119,7 +1058,7 @@
                         last_name: lastName,
                         photo_url: photoUrl,
                         username: tgUsername,
-                        device_id: deviceId, // <--- NUEVO
+                        device_id: deviceId, 
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'telegram_id' });
 
@@ -1151,7 +1090,7 @@
                 nav_tasks: "Tareas", tasks_desc: "Completa tareas y gana recursos.", daily_spin: "Minijuego de Dados",
                 daily_spin_desc: "¡Saca 3 iguales y gana +100 ENERGY!", btn_spin: "¡Lanzar Dados!",
                 watch_ad: "Anuncio de Recompensa", watch_ad_desc: "¡Mira un video y gana +50 ENERGY por 3 Días!",
-                ad_withdraw_req: "Para retirar fondos, debes ver al menos <span class='text-[#00f0ff] font-bold'>5 anuncios</span>.",
+                ad_withdraw_req: "Para retirar fondos, debes ver al menos <span class='text-[#00f0ff] font-bold'>5 anuncios</span> y haber realizado un depósito en la tienda.",
                 nav_team: "Equipo", team_desc: "Haz crecer tu red y gana más.", total_ref: "Total Referidos",
                 ref_reward_desc: "🎁 Recibes +200 de ENERGY por 30 Días por cada usuario que invites.",
                 btn_copy: "🔗 Copiar Enlace de Invitación", nav_shop: "Tienda", shop_desc: "Compra ENERGY y crece más rápido.",
@@ -1172,7 +1111,7 @@
                 nav_tasks: "Tasks", tasks_desc: "Complete tasks and earn resources.", daily_spin: "Dice Minigame",
                 daily_spin_desc: "Roll 3 of a kind to win +100 ENERGY!", btn_spin: "Roll Dice!",
                 watch_ad: "Reward Ad", watch_ad_desc: "Watch a video and earn +50 ENERGY for 3 Days!",
-                ad_withdraw_req: "To withdraw funds, you must watch at least <span class='text-[#00f0ff] font-bold'>5 ads</span>.",
+                ad_withdraw_req: "To withdraw funds, you must watch at least <span class='text-[#00f0ff] font-bold'>5 ads</span> and have made a deposit in the shop.",
                 nav_team: "Team", team_desc: "Grow your network and earn more.", total_ref: "Total Referrals",
                 ref_reward_desc: "🎁 Get +200 ENERGY for 30 Days for each invited user.",
                 btn_copy: "🔗 Copy Invite Link", nav_shop: "Shop", shop_desc: "Buy ENERGY and grow faster.",
@@ -1428,7 +1367,11 @@
         }
 
         function showAddressInput() {
-            // Validar anuncios vistos
+            if (totalDeposited <= 0) {
+                tg.showAlert("⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes realizar al menos un depósito en la Tienda para verificar tu cuenta y habilitar los retiros.");
+                changeTab('shop');
+                return;
+            }
             if (!withdrawalsUnlocked) {
                 tg.showAlert(`⚠️ AÚN NO PUEDES RETIRAR.\n\nDebes ver al menos 5 anuncios para poder habilitar tu retiro. Actualmente llevas ${dailyAdsWatched}/5 anuncios validados.`);
                 changeTab('tasks');
@@ -1469,8 +1412,6 @@
                 if (error) throw error;
 
                 balanceGHS = 0; 
-                
-                // Reiniciar contador de anuncios después de un retiro exitoso
                 withdrawalsUnlocked = false;
                 dailyAdsWatched = 0; 
                 saveProgress();
@@ -1626,7 +1567,7 @@
         }
         
         // ==========================================
-        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM PURO (SIN HACK)
+        // 11.5. SISTEMA DE ANUNCIOS ADSGRAM
         // ==========================================
         function checkAdCooldownOnLoad() {
             if (lastAdTime) {
